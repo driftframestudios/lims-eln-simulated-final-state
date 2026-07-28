@@ -8,3 +8,13 @@
 /infrastructure/aws-runtime-configuration.md @driftframestudios/security @driftframestudios/platform-engineering
 /SECURITY.md @driftframestudios/security
 /release/ @driftframestudios/solution-architecture @driftframestudios/quality-regulatory
+/.github/workflows/ @driftframestudios/security @driftframestudios/platform-engineering
+/.github/dependabot.yml @driftframestudios/security @driftframestudios/platform-engineering
+/tools/check_branch_flow.py @driftframestudios/security @driftframestudios/platform-engineering
+/tools/check_artifacts.py @driftframestudios/security @driftframestudios/platform-engineering
+/tests/test_branch_flow.py @driftframestudios/security @driftframestudios/platform-engineering
+/machine-node.json @driftframestudios/solution-architecture @driftframestudios/quality-regulatory
+/first-receipt.json @driftframestudios/solution-architecture @driftframestudios/quality-regulatory
+/COORDINATION-HORIZON.json @driftframestudios/solution-architecture @driftframestudios/quality-regulatory
+/constellation.lock.json @driftframestudios/solution-architecture @driftframestudios/platform-engineering
+/ledgers/assumptions.json @driftframestudios/scientific-data @driftframestudios/quality-regulatory

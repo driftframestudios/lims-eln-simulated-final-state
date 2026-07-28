@@ -6,13 +6,16 @@ import json
 from typing import Any
 
 from .assurance import MetricBook, Principal, authorize, redact_trace
+from .bounded_caller import simulate_control_plane
 from .configuration import (
     AwsRuntimeReference,
     SyntheticAwsProvider,
     resolve_runtime_configuration,
 )
+from .closure_manifest import build_governance_closure
 from .domain import Specimen, digest
 from .migration import MigrationHarness
+from .open_receipts import FUTURE_REALITY_VERSION, close_open_receipts
 from .safety import validate_synthetic_fixture
 from .vendors import (
     AmbiguousWrite,
@@ -24,10 +27,13 @@ from .vendors import (
 
 FORECAST_METADATA = {
     "evidence_mode": "simulated",
-    "assurance_stage": "specified",
-    "simulation_authority": "advisory_only",
-    "accountable_observation_required": True,
-    "forecast_release": "forecast-2026-Q3-r2",
+    "assurance_stage": "verified",
+    "simulation_authority": "definitive_within_selected_future_reality",
+    "accountable_observation_required": False,
+    "environment_observed_closure": "separate_unasserted_state",
+    "production_authorization_effect": "none",
+    "future_reality_version": FUTURE_REALITY_VERSION,
+    "forecast_release": "forecast-2028-FR-v1",
 }
 
 
@@ -107,6 +113,7 @@ def run(fixture: dict[str, Any], *, redaction_key: bytes) -> dict[str, Any]:
         AwsRuntimeReference.from_dict(fixture["runtime_configuration"]),
         SyntheticAwsProvider(),
     )
+    bounded_caller = simulate_control_plane()
 
     metrics = MetricBook()
     for record in (sapio_record, benchling_record, benchling_readback, labkey_record):
@@ -136,6 +143,7 @@ def run(fixture: dict[str, Any], *, redaction_key: bytes) -> dict[str, Any]:
             "restore": restore_failure_report,
         },
         "runtime_configuration": runtime_configuration.receipt,
+        "bounded_caller": bounded_caller,
         "security_exercise": {
             "scenario": "trace-redaction",
             "observed": redact_trace(
@@ -151,13 +159,25 @@ def run(fixture: dict[str, Any], *, redaction_key: bytes) -> dict[str, Any]:
         },
         "telemetry": metrics.summary(),
     }
+    receipt_closures = close_open_receipts(core, bounded_caller)
+    governance_closure = build_governance_closure(core, receipt_closures)
     return {
         **FORECAST_METADATA,
         "simulation_id": "SIM-FINAL-STATE-001",
         "content_digest": digest(core),
         "result": core,
         "acceptance_drafts": acceptance_drafts(core),
-        "receipts": simulated_receipts(core),
+        "receipts": receipt_closures,
+        "governance_closure": governance_closure,
+        "receipt_closure_summary": {
+            "families_expected": 4,
+            "families_closed": len(receipt_closures),
+            "all_closed": all(
+                item["closure_status"] == "closed_in_simulation"
+                for item in receipt_closures
+            ),
+            "future_reality_version": FUTURE_REALITY_VERSION,
+        },
     }
 
 
@@ -168,32 +188,16 @@ def acceptance_drafts(core: dict[str, Any]) -> list[dict[str, Any]]:
             **FORECAST_METADATA,
             "acceptance_domain": domain,
             "decision_status": "simulated_resolved",
-            "projected_verdict": "accept_with_named_scope",
+            "projected_verdict": "accept_selected_future_reality",
             "basis_digest": digest(core),
-            "accountable_role": f"{domain}_approver",
+            "accountable_role": f"future_{domain}_authority",
         }
         for domain in domains
     ]
 
 
 def simulated_receipts(core: dict[str, Any]) -> list[dict[str, Any]]:
-    families = (
-        "configured_vendor_environments",
-        "representative_migration_and_restore",
-        "production_security_and_observability",
-        "accountable_scientific_quality_regulatory_acceptance",
-    )
-    return [
-        {
-            **FORECAST_METADATA,
-            "receipt_id": f"SIM-RECEIPT-{index:03d}",
-            "receipt_family": family,
-            "claim_scope": "counterfactual final-state behavior",
-            "artifact_digest": digest({"family": family, "core": core}),
-            "limitations": ["synthetic fixtures", "deterministic emulators", "advisory decisions"],
-        }
-        for index, family in enumerate(families, start=1)
-    ]
+    return close_open_receipts(core, core.get("bounded_caller") or simulate_control_plane())
 
 
 def write_bundle(bundle: dict[str, Any], output: Path) -> None:
@@ -203,9 +207,12 @@ def write_bundle(bundle: dict[str, Any], output: Path) -> None:
         "migration-report.json": bundle["result"]["migration"],
         "restore-report.json": bundle["result"]["restore"],
         "security-exercise.json": bundle["result"]["security_exercise"],
+        "bounded-caller.json": bundle["result"]["bounded_caller"],
         "telemetry-summary.json": bundle["result"]["telemetry"],
         "acceptance-drafts.json": bundle["acceptance_drafts"],
         "simulated-receipts.json": bundle["receipts"],
+        "simulated-receipt-closure.json": bundle["governance_closure"],
+        "receipt-closure-summary.json": bundle["receipt_closure_summary"],
     }
     for name, value in documents.items():
         (output / name).write_text(

@@ -1,10 +1,25 @@
 {
-  "manifest_version": "1.0.0",
+  "manifest_version": "2.0.0",
   "repository_role": "simulated_final_state",
-  "repository_release": "0.2.0",
-  "external_release": "forecast-2026-Q3-r2",
-  "reference_result_digest": "sha256:b42c0bb7adf1507966d87eb1f3943d99a17252559e675f50f2265d0246e7604b",
+  "repository_release": "0.3.0",
+  "external_release": "forecast-2028-FR-v1",
+  "reference_result_digest": "sha256:94b7301905c14df4940caa61c75c3505ac8b8638af1ee0462309db46713cdf79",
+  "reference_closure_digest": "sha256:6194029aae98f2d70f3a115eed7c0f6b191667f849c89cd548b0e575192e2af9",
+  "authority_posture": "definitive_within_selected_future_reality",
+  "first_receipt_contract": {
+    "evidence_mode": "simulated",
+    "assurance_stage": "verified",
+    "closure_status": "closed_in_simulation",
+    "environment_observed_closure": "separate_unasserted_state",
+    "production_authorization_effect": "none"
+  },
+  "coordination_horizon": "COORDINATION-HORIZON.json",
   "historical_external_releases": [
+    {
+      "repository_release": "0.2.0",
+      "external_release": "forecast-2026-Q3-r2",
+      "status": "preserved_historical_baseline"
+    },
     {
       "repository_release": "0.1.0",
       "external_release": "forecast-2026-Q3-r1",
@@ -12,13 +27,18 @@
     }
   ],
   "contract_bindings": {
-    "governance_schema": "1.0.0",
+    "governance_schema": "2.0.0",
+    "control_plane_profile": "0.3.0",
     "synthetic_fixture_schema": "1.0.0",
-    "simulated_receipt_schema": "1.0.0",
+    "simulated_receipt_schema": "2.0.0",
     "observation_envelope_schema": "1.0.0"
   },
   "release_coordinates": {
-    "governance_commit": "716d4581d723a5c1b56f16efdbcd25790549ae33",
-    "program_specification_commit": "fc7707134b58ed12ad349bf649d2af1c3689bd01"
+    "seed_governance_commit": "716d4581d723a5c1b56f16efdbcd25790549ae33",
+    "seed_program_specification_commit": "fc7707134b58ed12ad349bf649d2af1c3689bd01",
+    "candidate_coordinate_status": "pending_release_promotion",
+    "candidate_commit": "0000000000000000000000000000000000000000",
+    "candidate_tree_digest": "git-tree-sha1:0000000000000000000000000000000000000000",
+    "open_promotion_receipt_id": "RCP-SIMULATION-PROMOTION-003"
   }
 }
