@@ -17,6 +17,13 @@ CANONICAL_FIELDS = (
     "artifact_digest",
     "audit",
 )
+CORPUS_FIELDS = {
+    "fixture_class",
+    "fixture_version",
+    "profile",
+    "artifacts",
+    "records",
+}
 
 
 @dataclass(frozen=True)
@@ -37,6 +44,14 @@ class MigrationHarness:
         *,
         failure_twin: str | None = None,
     ) -> tuple[list[dict[str, Any]], MigrationReport]:
+        identities = [
+            (record.get("tenant_id"), record.get("specimen_id"))
+            for record in records
+        ]
+        if len(identities) != len(set(identities)):
+            raise ValueError(
+                "migration source requires one record per tenant and specimen identity"
+            )
         source_projection = [self._source_projection(record) for record in records]
         target = [self._target_projection(record) for record in records]
         if failure_twin == "changed-scientific-result" and target:
@@ -147,6 +162,102 @@ class MigrationHarness:
 
 def _field_manifest(records: list[dict[str, Any]]) -> list[str]:
     return sorted({field for record in records for field in record})
+
+
+def validate_representative_corpus(corpus: dict[str, Any]) -> list[dict[str, Any]]:
+    """Return a closed, representative synthetic migration record set."""
+
+    if set(corpus) != CORPUS_FIELDS:
+        raise ValueError(
+            "representative migration corpus requires released fixture, profile, "
+            "artifact, and record fields"
+        )
+    if (
+        corpus.get("fixture_class") != "representative_synthetic"
+        or corpus.get("fixture_version") != "1.0.0"
+    ):
+        raise ValueError(
+            "representative migration corpus requires the released synthetic fixture contract"
+        )
+    profile = corpus.get("profile")
+    if not isinstance(profile, dict) or set(profile) != {
+        "records",
+        "lineage_depth",
+        "artifact_sizes_bytes",
+        "exception_classes",
+    }:
+        raise ValueError("representative migration profile requires released dimensions")
+    records = corpus.get("records")
+    artifacts = corpus.get("artifacts")
+    if not isinstance(records, list) or not isinstance(artifacts, list):
+        raise ValueError("representative migration corpus requires record and artifact arrays")
+    if profile["records"] != len(records) or len(records) < 4:
+        raise ValueError("representative migration corpus requires its declared record count")
+    identities = []
+    artifact_digests = set()
+    artifact_sizes = []
+    for artifact in artifacts:
+        if not isinstance(artifact, dict) or set(artifact) != {
+            "artifact_id",
+            "size_bytes",
+            "digest",
+        }:
+            raise ValueError("representative artifact requires identity, size, and digest")
+        if (
+            not isinstance(artifact["size_bytes"], int)
+            or isinstance(artifact["size_bytes"], bool)
+            or artifact["size_bytes"] <= 0
+        ):
+            raise ValueError("representative artifact size requires a positive integer")
+        artifact_sizes.append(artifact["size_bytes"])
+        artifact_digests.add(artifact["digest"])
+    lineage_depth = []
+    for record in records:
+        if not isinstance(record, dict) or set(record) != set(CANONICAL_FIELDS):
+            raise ValueError(
+                "representative migration record requires the canonical field set"
+            )
+        identity = (record["tenant_id"], record["specimen_id"])
+        if identity in identities:
+            raise ValueError(
+                "representative migration corpus requires unique specimen identities"
+            )
+        identities.append(identity)
+        if (
+            not str(record["tenant_id"]).startswith("TENANT-SYN-")
+            or not str(record["specimen_id"]).startswith("SPM-SYN-")
+        ):
+            raise ValueError(
+                "representative migration corpus requires generated identities"
+            )
+        if record["artifact_digest"] not in artifact_digests:
+            raise ValueError(
+                "representative record artifact requires a declared corpus artifact"
+            )
+        if not isinstance(record["audit"], list) or not record["audit"]:
+            raise ValueError(
+                "representative migration record requires reconstructable audit lineage"
+            )
+        lineage_depth.append(len(record["audit"]))
+    if sorted(artifact_sizes) != sorted(profile["artifact_sizes_bytes"]):
+        raise ValueError(
+            "representative artifact sizes differ from the declared profile"
+        )
+    if sorted(lineage_depth) != sorted(profile["lineage_depth"]):
+        raise ValueError(
+            "representative lineage depths differ from the declared profile"
+        )
+    required_exceptions = {
+        "duplicate-replay",
+        "changed-content",
+        "stale-revision",
+        "missing-artifact",
+    }
+    if set(profile["exception_classes"]) != required_exceptions:
+        raise ValueError(
+            "representative migration profile requires every released exception class"
+        )
+    return deepcopy(records)
 
 
 def _difference_paths(left: Any, right: Any, path: str = "$") -> list[str]:

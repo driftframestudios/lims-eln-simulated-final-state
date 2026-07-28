@@ -12,6 +12,8 @@ from .simulation import run, write_bundle
 def parser() -> argparse.ArgumentParser:
     command = argparse.ArgumentParser(description="Run the independent LIMS/ELN final-state forecast")
     command.add_argument("--fixture", type=Path, required=True)
+    command.add_argument("--intended-use-profile", type=Path, required=True)
+    command.add_argument("--migration-corpus", type=Path, required=True)
     command.add_argument("--output", type=Path, required=True)
     return command
 
@@ -19,8 +21,12 @@ def parser() -> argparse.ArgumentParser:
 def main() -> None:
     args = parser().parse_args()
     fixture = load_json(args.fixture)
+    intended_use_profile = load_json(args.intended_use_profile)
+    migration_corpus = load_json(args.migration_corpus)
     bundle = run(
         fixture,
+        intended_use_profile=intended_use_profile,
+        migration_corpus=migration_corpus,
         redaction_key=synthetic_redaction_key(fixture.get("redaction_key_id", "")),
     )
     write_bundle(bundle, args.output)

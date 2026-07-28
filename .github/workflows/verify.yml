@@ -27,7 +27,12 @@ jobs:
       - name: Generate deterministic forecast bundle
         env:
           PYTHONPATH: src
-        run: python -m lims_eln_sim.cli --fixture fixtures/golden-specimen.json --output build/simulation
+        run: >-
+          python -m lims_eln_sim.cli
+          --fixture fixtures/golden-specimen.json
+          --intended-use-profile specification/intended-use-and-applicability-profile.json
+          --migration-corpus fixtures/representative-migration-corpus.json
+          --output build/simulation
       - name: Check generated artifact boundary
         run: python tools/check_artifacts.py build/simulation
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -36,3 +41,23 @@ jobs:
           path: build/simulation/
           if-no-files-found: error
           retention-days: 7
+
+  simulation-validation:
+    if: ${{ always() }}
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require the complete simulation proof matrix
+        env:
+          TEST_RESULT: ${{ needs.test.result }}
+        run: test "$TEST_RESULT" = "success"
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+      - name: Validate reproducibility, manifest integrity, and repository safety
+        run: python tools/validate_repository.py

@@ -1,9 +1,9 @@
 {
-  "constellation_version": "0.3.0",
+  "constellation_version": "0.3.1",
   "recorded_at": "2026-07-28",
   "content_identity": "Candidate repository coordinates use explicit zero placeholders until protected release promotion; domain artifacts retain their declared SHA-256 digests.",
   "specification": {
-    "release": "spec-v0.3.0",
+    "release": "spec-v0.3.1",
     "commit": "0000000000000000000000000000000000000000",
     "digest": "git-tree-sha1:0000000000000000000000000000000000000000",
     "coordinate_status": "pending_release_commit"
@@ -13,27 +13,27 @@
     "commit": "0000000000000000000000000000000000000000",
     "digest": "git-tree-sha1:0000000000000000000000000000000000000000",
     "coordinate_status": "pending_release_commit",
-    "canonical_closure_digest": "sha256:6194029aae98f2d70f3a115eed7c0f6b191667f849c89cd548b0e575192e2af9"
+    "canonical_closure_digest": "sha256:c402e7a72d9066424d5b83c8fda51ca2fad43c025d017a5f5535126239c96ffb"
   },
   "implementation": {
-    "release": "candidate-v0.3.0",
+    "release": "implementation-v0.3.1",
     "commit": "0000000000000000000000000000000000000000",
     "digest": "git-tree-sha1:0000000000000000000000000000000000000000",
     "coordinate_status": "pending_release_commit",
     "source_binding_status": "pending_release_promotion"
   },
   "comparison": {
-    "release": "comparison-v0.3.0",
+    "release": "comparison-v0.3.1",
     "commit": "0000000000000000000000000000000000000000",
     "digest": "git-tree-sha1:0000000000000000000000000000000000000000",
     "coordinate_status": "pending_release_commit",
-    "canonical_closure_digest": "sha256:6194029aae98f2d70f3a115eed7c0f6b191667f849c89cd548b0e575192e2af9",
-    "receipt_schema": "2.0.0"
+    "canonical_closure_digest": "sha256:c402e7a72d9066424d5b83c8fda51ca2fad43c025d017a5f5535126239c96ffb",
+    "receipt_schema": "2.0.1"
   },
   "governance": {
-    "release": "governance-v2.0.0",
+    "release": "governance-v2.0.1",
     "profile": "Control Plane Profile 0.3.0",
-    "schema_version": "2.0.0",
+    "schema_version": "2.0.1",
     "commit": "0000000000000000000000000000000000000000",
     "digest": "git-tree-sha1:0000000000000000000000000000000000000000",
     "coordinate_status": "pending_release_commit"

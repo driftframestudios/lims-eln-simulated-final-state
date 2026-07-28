@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.1
+
+- Evaluate each simulated receipt family from executable evidence criteria.
+- Exercise the declared representative migration corpus and its failure twins.
+- Canonicalize UTC event timestamps across `Z` and `+00:00` inputs.
+- Require the intended-use profile and representative corpus at simulation ingress.
+- Retain a reproducible 2.0.1 closure bundle that binds its source result, governance
+  closure, detailed receipts, and aggregate artifact.
+- Add one stable aggregate validation gate for regeneration, release-manifest
+  integrity, JSON integrity, and repository credential-shape safety.
+- Migrate orientation and constellation bindings to governance 2.0.1 and make the
+  stable aggregate explicitly require a successful proof matrix.
+
 ## 0.3.0
 
 - Selected `future-reality-2028-06-30-v1` as a self-contained simulation baseline.

@@ -21,8 +21,22 @@ def verify_family(family: str) -> dict:
     fixture = json.loads(
         (ROOT / "fixtures" / "golden-specimen.json").read_text(encoding="utf-8")
     )
+    migration_corpus = json.loads(
+        (ROOT / "fixtures" / "representative-migration-corpus.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    intended_use_profile = json.loads(
+        (
+            ROOT
+            / "specification"
+            / "intended-use-and-applicability-profile.json"
+        ).read_text(encoding="utf-8")
+    )
     result = run(
         fixture,
+        intended_use_profile=intended_use_profile,
+        migration_corpus=migration_corpus,
         redaction_key=synthetic_redaction_key(fixture["redaction_key_id"]),
     )
     receipt = next(

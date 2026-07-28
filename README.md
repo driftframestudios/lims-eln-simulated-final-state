@@ -57,14 +57,20 @@ not reopen the simulated closures.
 python -m unittest discover -s tests -v
 PYTHONPATH=src python -m lims_eln_sim.cli \
   --fixture fixtures/golden-specimen.json \
+  --intended-use-profile specification/intended-use-and-applicability-profile.json \
+  --migration-corpus fixtures/representative-migration-corpus.json \
   --output build/simulation
 ```
 
 The command validates the synthetic-data contract and writes a deterministic
 `result.json`, closed receipt bundle, migration report, restore manifest, security
 exercise, bounded-caller evidence, telemetry summary, acceptance decisions, and a
-governance-2.0-conformant `simulated-receipt-closure.json`. Generated build output
-remains a transient workflow artifact.
+governance-2.0-conformant `simulated-receipt-closure.json`. It also writes a
+2.0.1 closure bundle whose source-result digest allows an independent comparator to
+reproduce the aggregate artifact. The byte-identical promoted candidate is retained
+at `release/future-reality-2028-06-30-v1.json`; the aggregate validation gate
+regenerates and compares it after the complete Python test matrix. Generated build
+output remains a transient workflow artifact.
 
 ## Coordination Horizon
 
