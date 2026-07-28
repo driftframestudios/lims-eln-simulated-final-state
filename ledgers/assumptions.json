@@ -1,30 +1,54 @@
 {
-  "ledger_version": "1.0.0",
+  "ledger_version": "2.0.0",
+  "ledger_role": "selected_future_assumption_registry",
+  "future_reality_id": "FUTURE-REALITY-LIMS-2028-001",
+  "future_reality_version": "future-reality-2028-06-30-v1",
+  "authority": "definitive_within_selected_future_reality",
+  "production_authorization_effect": "none",
   "assumptions": [
     {
-      "assumption_id": "ASM-001",
-      "statement": "Configured vendors expose stable identities for authoritative readback.",
-      "owner_role": "platform-integration",
-      "review_by": "2026-09-15",
+      "assumption_id": "ASSUMPTION-VENDOR-BANDS-2028",
+      "statement": "The selected 2028 vendor behavior bands expose stable external identities, authoritative readback, and released adapter contracts.",
+      "owner_role": "modeled-vendor-qualification-authority",
+      "source_assumption_ids": [
+        "ASM-001"
+      ],
       "evidence_mode": "simulated",
-      "falsifier": "configured-environment query returns ambiguous or incomplete identity"
+      "recalculation_trigger": "A vendor version band changes its identity, readback, authentication, or replay contract.",
+      "falsifier": "A selected-band conformance scenario returns ambiguous identity or divergent authoritative readback."
     },
     {
-      "assumption_id": "ASM-002",
-      "statement": "A clean restore can reconstruct canonical records, artifacts, audit events, and configuration.",
-      "owner_role": "operations",
-      "review_by": "2026-09-15",
+      "assumption_id": "ASSUMPTION-REPRESENTATIVE-CORPUS-2028",
+      "statement": "The selected synthetic corpus represents the scientific objects, lineage, artifacts, failure twins, and recovery behavior material to the simulated migration decision.",
+      "owner_role": "modeled-migration-and-continuity-authority",
+      "source_assumption_ids": [
+        "ASM-002"
+      ],
       "evidence_mode": "simulated",
-      "falsifier": "independent readback differs from the signed snapshot manifest"
+      "recalculation_trigger": "A material laboratory object, lineage path, artifact class, or recovery behavior enters the released intended-use profile.",
+      "falsifier": "A released scenario identifies scientific meaning or recoverable state outside the representative corpus."
     },
     {
-      "assumption_id": "ASM-003",
-      "statement": "Named scientific, Quality, and Regulatory owners receive sufficient evidence for separate decisions.",
-      "owner_role": "program-accountability",
-      "review_by": "2026-10-01",
+      "assumption_id": "ASSUMPTION-MODELED-AUTHORITY-2028",
+      "statement": "Distinct modeled Scientific, Quality, and Regulatory authorities receive one immutable evidence basis with sufficient scope for separate selected-future decisions.",
+      "owner_role": "modeled-program-accountability-authority",
+      "source_assumption_ids": [
+        "ASM-003"
+      ],
       "evidence_mode": "simulated",
-      "falsifier": "an approver identifies a missing intended-use or applicability artifact"
+      "recalculation_trigger": "The intended-use profile, evidence basis, acceptance scope, or accountable decision contract changes.",
+      "falsifier": "A modeled authority identifies an unresolved applicability, evidence, independence, or residual-risk criterion."
     }
-  ]
+  ],
+  "historical_seed_lineage": {
+    "ledger_version": "1.0.0",
+    "classification": "seed_input_only",
+    "superseded_by": "future-reality-2028-06-30-v1",
+    "assumption_ids": [
+      "ASM-001",
+      "ASM-002",
+      "ASM-003"
+    ],
+    "lineage_statement": "The 2026 assumption identifiers remain historical inputs; the selected-future identifiers above govern closure recalculation and divergence review."
+  }
 }
-

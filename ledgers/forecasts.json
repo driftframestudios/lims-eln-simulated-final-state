@@ -1,6 +1,10 @@
 {
   "forecast_release": "forecast-2026-Q3-r2",
   "frozen_as_of": "2026-08-17",
+  "ledger_role": "historical_seed_calibration",
+  "current_release_effect": "seed_input_only",
+  "superseded_by": "forecast-2028-FR-v1",
+  "lineage_statement": "This immutable ledger records the historical forecast used as an input to the selected future; the canonical 2028 closure and its release manifest define the current simulated result.",
   "forecasts": [
     {
       "forecast_id": "FC-001",

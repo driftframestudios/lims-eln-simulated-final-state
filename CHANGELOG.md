@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.3.0
+
+- Selected `future-reality-2028-06-30-v1` as a self-contained simulation baseline.
+- Closed all four substantive receipt families inside the selected future.
+- Added a typed bounded-caller control plane and adversarial boundary scenarios.
+- Added a generic Coordination Horizon and first-receipt contract.
+- Advanced the simulated receipt schema to 2.0.0.
+- Added monthly, grouped minor and patch maintenance for immutable GitHub Action
+  references.
+- Added branch, bot-identity, and target-bound maintenance gates with spoof,
+  malformed-coordinate, configured-ecosystem, and GitFlow regressions.
+- Added an explicit settling promotion receipt and Coordination Horizon item for
+  candidate provenance.
+- Reconciled the constellation lock to the 0.3 candidate and made every
+  selected-future assumption identifier resolve through a versioned ledger.
+- Moved branch-policy evaluation to a read-only base-SHA checkout with explicit
+  ownership of the workflow, checker, regression, and control surfaces.
+
 ## 0.2.0 — 2026-07-28
 
 - Enforced the generated-fixture boundary before simulation.

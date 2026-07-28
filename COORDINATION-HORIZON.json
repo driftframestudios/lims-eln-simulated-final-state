@@ -1,0 +1,122 @@
+{
+  "horizon_id": "COORD-HORIZON-SIMULATION-2026-Q3",
+  "title": "LIMS/ELN Simulation Coordination Horizon",
+  "objective": "Keep selected-future closure, bounded-caller evidence, cross-repository comparison, and retained extension options legible without binding collaboration to one planning cadence.",
+  "as_of": "2026-07-28T18:45:00Z",
+  "current_item_ids": [
+    "HORIZON-SIMULATION-PROMOTION-003"
+  ],
+  "work_items": [
+    {
+      "item_id": "HORIZON-SIMULATED-CLOSURE",
+      "horizon_label": "Selected-future substantive receipt closure",
+      "sequence": 1,
+      "state": "complete",
+      "desired_state": "All four substantive receipt families close through reproducible governance-bound simulation artifacts.",
+      "entry_evidence": [
+        "released synthetic fixture contract",
+        "bounded-caller operation registry",
+        "governance schema release 2.0.0"
+      ],
+      "completion_evidence": [
+        "four family checks return passing closure receipts",
+        "governance closure schema validates",
+        "environment-observed closure remains a separate unasserted state"
+      ],
+      "owner_role": "simulation stewardship",
+      "dependency_ids": []
+    },
+    {
+      "item_id": "HORIZON-COMPARATIVE-ADMISSION",
+      "horizon_label": "Independent comparator admission",
+      "sequence": 2,
+      "state": "complete",
+      "desired_state": "An independent repository admits the canonical closure immutably and preserves every source digest.",
+      "entry_evidence": [
+        "governance-conformant closure artifact",
+        "four canonical family digests"
+      ],
+      "completion_evidence": [
+        "comparator validates all four domain-specific proof shapes",
+        "immutable replay converges",
+        "changed content requires a successor future-reality identity"
+      ],
+      "owner_role": "comparative evidence stewardship",
+      "dependency_ids": [
+        "HORIZON-SIMULATED-CLOSURE"
+      ]
+    },
+    {
+      "item_id": "HORIZON-SIMULATION-PROMOTION-003",
+      "horizon_label": "Immutable selected-future simulation promotion",
+      "sequence": 3,
+      "state": "settling",
+      "desired_state": "The promoted forecast-2028-FR-v1 release records an immutable commit, release digest, canonical closure digest, and cross-repository comparison coordinate.",
+      "entry_evidence": [
+        "all simulation checks and governance contract validations pass",
+        "the independent comparator admits the exact canonical closure",
+        "candidate provenance placeholders remain explicit"
+      ],
+      "completion_evidence": [
+        "the Machine Node records the promoted commit and release digest",
+        "RCP-SIMULATION-PROMOTION-003 closes against the same immutable coordinate",
+        "the selected-future closure digest remains bound across simulation specification and comparator manifests"
+      ],
+      "owner_role": "constellation release stewardship",
+      "dependency_ids": [
+        "HORIZON-COMPARATIVE-ADMISSION"
+      ]
+    },
+    {
+      "item_id": "HORIZON-SIMULATION-EXTENSIONS",
+      "horizon_label": "Evidence-led future extensions",
+      "sequence": 4,
+      "state": "waiting",
+      "desired_state": "Additional vendor, instrument, and operational twins enter only through released contracts and explicit assurance cost.",
+      "entry_evidence": [
+        "settled comparison evidence",
+        "documented material benefit"
+      ],
+      "completion_evidence": [
+        "successor contract names its evidence mode and effect ceiling",
+        "new fixtures preserve synthetic-data boundaries",
+        "requalification triggers and comparator impact are explicit"
+      ],
+      "owner_role": "simulation stewardship",
+      "dependency_ids": [
+        "HORIZON-SIMULATION-PROMOTION-003"
+      ]
+    }
+  ],
+  "reentry_capsule": {
+    "current_state": "Simulation release 0.3.0 generates bounded-caller evidence and closes all four substantive receipt families in one selected future reality; immutable release promotion is settling.",
+    "recent_decisions": [
+      "DECISION-SELECTED-FUTURE-CLOSURE",
+      "DECISION-SEPARATE-OBSERVED-STATE",
+      "DECISION-CANDIDATE-PROMOTION"
+    ],
+    "next_safe_action": "Run the full test suite and governance validations, confirm independent comparator admission, promote forecast-2028-FR-v1, and close RCP-SIMULATION-PROMOTION-003 with immutable provenance.",
+    "verification": "Confirm family checks, canonical digests, governance validation, artifact safety scanning, independent comparator admission, and exact promoted commit and release digest."
+  },
+  "retained_effects": [
+    "The selected future remains definitive only inside its declared simulation reality.",
+    "Environment-observed closure remains separately unasserted and available for later comparison.",
+    "Modeled authority roles grant no production authorization.",
+    "Service-owned bounded operations continue to govern caller scope approvals effects and receipts."
+  ],
+  "consequential_questions": [
+    "Which divergence should revise the simulation rather than the specification or implementation?",
+    "Which future vendor or instrument twin provides enough explanatory value to justify added qualification work?",
+    "Which observed encounter would most improve calibration while preserving the selected future baseline?"
+  ],
+  "metadata": {
+    "schema_version": "2.0.0",
+    "created_at": "2026-07-28T18:45:00Z",
+    "updated_at": "2026-07-28T18:45:00Z",
+    "owner": {
+      "actor_id": "OWNER-SIMULATION-HORIZON",
+      "display_name": "Simulation stewardship role",
+      "role": "Simulation coordination"
+    }
+  }
+}

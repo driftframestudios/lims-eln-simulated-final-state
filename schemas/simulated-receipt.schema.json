@@ -1,39 +1,79 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.invalid/lims-eln/simulated-receipt/1.0.0",
-  "title": "Simulated receipt",
+  "$id": "https://example.invalid/lims-eln/simulated-receipt/2.0.0",
+  "title": "Selected-future simulated receipt closure",
   "type": "object",
   "required": [
-    "evidence_mode",
-    "assurance_stage",
-    "simulation_authority",
-    "accountable_observation_required",
-    "forecast_release",
+    "schema_version",
     "receipt_id",
     "receipt_family",
+    "evidence_mode",
+    "assurance_stage",
+    "closure_status",
+    "future_reality_version",
+    "reality_basis",
     "claim_scope",
-    "artifact_digest",
-    "limitations"
+    "outcome",
+    "closure_digest"
   ],
   "properties": {
-    "evidence_mode": {"const": "simulated"},
-    "assurance_stage": {"const": "specified"},
-    "simulation_authority": {"const": "advisory_only"},
-    "accountable_observation_required": {"const": true},
-    "forecast_release": {"type": "string"},
-    "receipt_id": {"type": "string"},
+    "schema_version": {"const": "2.0.0"},
+    "receipt_id": {
+      "type": "string",
+      "pattern": "^SIM-CLOSED-[A-Z]+-[0-9]{3}$"
+    },
     "receipt_family": {
       "enum": [
         "configured_vendor_environments",
-        "representative_migration_and_restore",
-        "production_security_and_observability",
+        "representative_migration_restore_rehearsals",
+        "production_security_observability",
         "accountable_scientific_quality_regulatory_acceptance"
       ]
     },
-    "claim_scope": {"type": "string"},
-    "artifact_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
-    "limitations": {"type": "array", "items": {"type": "string"}}
+    "evidence_mode": {"const": "simulated"},
+    "assurance_stage": {"const": "verified"},
+    "closure_status": {"const": "closed_in_simulation"},
+    "future_reality_version": {
+      "type": "string",
+      "pattern": "^future-reality-[0-9]{4}-[0-9]{2}-[0-9]{2}-v[0-9]+$"
+    },
+    "reality_basis": {
+      "type": "object",
+      "required": [
+        "kind",
+        "selection_rule",
+        "authority",
+        "environment_observed_closure",
+        "production_authorization_effect"
+      ],
+      "properties": {
+        "kind": {"const": "selected_future_simulation"},
+        "selection_rule": {"type": "string", "minLength": 12},
+        "authority": {"const": "definitive_within_selected_future_reality"},
+        "environment_observed_closure": {"const": "separate_unasserted_state"},
+        "production_authorization_effect": {"const": "none"}
+      },
+      "additionalProperties": false
+    },
+    "claim_scope": {"type": "string", "minLength": 12},
+    "environment": {"type": "object"},
+    "vendor_bindings": {"type": "array", "items": {"type": "object"}},
+    "corpus": {"type": "object"},
+    "checks": {
+      "oneOf": [
+        {"type": "array", "items": {"type": "string"}},
+        {"type": "object"}
+      ]
+    },
+    "failure_twins": {"type": "array", "items": {"type": "string"}},
+    "decisions": {"type": "array", "items": {"type": "object"}},
+    "independence": {"type": "object"},
+    "residual_risk_disposition": {"type": "string"},
+    "outcome": {"const": "passed"},
+    "closure_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    }
   },
   "additionalProperties": false
 }
-

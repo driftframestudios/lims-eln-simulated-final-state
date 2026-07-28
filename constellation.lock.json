@@ -1,19 +1,81 @@
 {
-  "constellation_version": "0.1.1",
+  "constellation_version": "0.3.0",
   "recorded_at": "2026-07-28",
+  "content_identity": "Candidate repository coordinates use explicit zero placeholders until protected release promotion; domain artifacts retain their declared SHA-256 digests.",
   "specification": {
-    "release": "spec-v0.1.0",
-    "commit": "3a1098e45a335bc06793465f8e94c8cdf878ec9f",
-    "digest": "git-tree-sha1:f9cf1ef4a8871c8d1533f77d0399c61c4ad25589"
+    "release": "spec-v0.3.0",
+    "commit": "0000000000000000000000000000000000000000",
+    "digest": "git-tree-sha1:0000000000000000000000000000000000000000",
+    "coordinate_status": "pending_release_commit"
   },
   "simulation": {
-    "release": "forecast-2026-Q3-r1",
-    "commit": "325bedafb6e56cea9215fcf159ad716ad3fed9c8",
-    "digest": "git-tree-sha1:96b5c1f29f03503d97f07eacabca65bfd283acb3",
-    "result_digest": "sha256:8c6381a7dacb45ecd53c35b5f118ad8123d7bd3f893b6f65f5f9a1b37aedb5ac"
+    "release": "forecast-2028-FR-v1",
+    "commit": "0000000000000000000000000000000000000000",
+    "digest": "git-tree-sha1:0000000000000000000000000000000000000000",
+    "coordinate_status": "pending_release_commit",
+    "canonical_closure_digest": "sha256:6194029aae98f2d70f3a115eed7c0f6b191667f849c89cd548b0e575192e2af9"
   },
-  "comparison_contract": {
-    "observation_envelope": "1.0.0",
-    "receipt_schema": "1.0.0"
+  "implementation": {
+    "release": "candidate-v0.3.0",
+    "commit": "0000000000000000000000000000000000000000",
+    "digest": "git-tree-sha1:0000000000000000000000000000000000000000",
+    "coordinate_status": "pending_release_commit",
+    "source_binding_status": "pending_release_promotion"
+  },
+  "comparison": {
+    "release": "comparison-v0.3.0",
+    "commit": "0000000000000000000000000000000000000000",
+    "digest": "git-tree-sha1:0000000000000000000000000000000000000000",
+    "coordinate_status": "pending_release_commit",
+    "canonical_closure_digest": "sha256:6194029aae98f2d70f3a115eed7c0f6b191667f849c89cd548b0e575192e2af9",
+    "receipt_schema": "2.0.0"
+  },
+  "governance": {
+    "release": "governance-v2.0.0",
+    "profile": "Control Plane Profile 0.3.0",
+    "schema_version": "2.0.0",
+    "commit": "0000000000000000000000000000000000000000",
+    "digest": "git-tree-sha1:0000000000000000000000000000000000000000",
+    "coordinate_status": "pending_release_commit"
+  },
+  "seed_lineage": [
+    {
+      "repository_role": "program_specification",
+      "release": "spec-v0.2.0",
+      "commit": "fc7707134b58ed12ad349bf649d2af1c3689bd01",
+      "digest": "sha256:9e8c2e4980cfef4824b2f8f57914ab5b81eadac5d7a077b2186cbae541bfd2b1",
+      "digest_scope": "seed Machine Node"
+    },
+    {
+      "repository_role": "simulated_final_state",
+      "release": "forecast-2026-Q3-r2",
+      "commit": "6194a1c3911a97aa5e29b1861819a55554019488",
+      "digest": "sha256:35b3d9bcadea3ab95b9cf6f3bb26fd95049147f7fcc771815ff71060fae0937a",
+      "digest_scope": "historical forecast seed"
+    },
+    {
+      "repository_role": "enterprise_implementation",
+      "release": "implementation-v0.2.0",
+      "commit": "c79f8727963a427164a11eacb14837d795cd757d",
+      "digest": "sha256:3e9079af08ae3c153a8eebb438fb342ffd6313c34c0a53247e9f9c6b054d0494",
+      "digest_scope": "historical implementation seed"
+    },
+    {
+      "repository_role": "site_reading_governance",
+      "release": "governance-v1.0.0",
+      "commit": "716d4581d723a5c1b56f16efdbcd25790549ae33",
+      "coordinate_status": "historical_commit_only"
+    },
+    {
+      "repository_role": "comparative_evidence",
+      "release": "comparison-v0.2.0",
+      "commit": "48bb28ea7ac7ce9911c4d1847a0a0048986f38f6",
+      "coordinate_status": "historical_commit_only"
+    }
+  ],
+  "seed": {
+    "repository": "driftframestudios/prototype-exemplars",
+    "source_commit": "8be1e2c2ce239e51dcd5d1e19d1ff52e9d080b72",
+    "merge_commit": "613f524821a25389748a9cd98d1bb0d303de87cf"
   }
 }
