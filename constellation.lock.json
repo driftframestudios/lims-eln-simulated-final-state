@@ -1,16 +1,19 @@
 {
-  "constellation_version": "0.1.0",
+  "constellation_version": "0.1.1",
+  "recorded_at": "2026-07-28",
   "specification": {
-    "release": "specification-seed-v0.1.0",
-    "digest": "pending-release-digest"
+    "release": "spec-v0.1.0",
+    "commit": "3a1098e45a335bc06793465f8e94c8cdf878ec9f",
+    "digest": "git-tree-sha1:f9cf1ef4a8871c8d1533f77d0399c61c4ad25589"
   },
   "simulation": {
     "release": "forecast-2026-Q3-r1",
-    "digest": "computed-at-release"
+    "commit": "325bedafb6e56cea9215fcf159ad716ad3fed9c8",
+    "digest": "git-tree-sha1:96b5c1f29f03503d97f07eacabca65bfd283acb3",
+    "result_digest": "sha256:8c6381a7dacb45ecd53c35b5f118ad8123d7bd3f893b6f65f5f9a1b37aedb5ac"
   },
   "comparison_contract": {
     "observation_envelope": "1.0.0",
     "receipt_schema": "1.0.0"
   }
 }
-
