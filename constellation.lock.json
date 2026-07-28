@@ -1,0 +1,16 @@
+{
+  "constellation_version": "0.1.0",
+  "specification": {
+    "release": "specification-seed-v0.1.0",
+    "digest": "pending-release-digest"
+  },
+  "simulation": {
+    "release": "forecast-2026-Q3-r1",
+    "digest": "computed-at-release"
+  },
+  "comparison_contract": {
+    "observation_envelope": "1.0.0",
+    "receipt_schema": "1.0.0"
+  }
+}
+

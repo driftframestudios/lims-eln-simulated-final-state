@@ -1,0 +1,28 @@
+{
+  "forecast_release": "forecast-2026-Q3-r1",
+  "frozen_as_of": "2026-08-17",
+  "forecasts": [
+    {
+      "forecast_id": "FC-001",
+      "claim": "All three configured vendor adapters pass replay, ambiguity, permission, and authoritative-readback scenarios.",
+      "probability": 0.64,
+      "comparison_due": "configured-environment-qualification",
+      "evidence_mode": "simulated"
+    },
+    {
+      "forecast_id": "FC-002",
+      "claim": "Representative migration, rollback, clean restore, and neutral data exit remain within approved objectives.",
+      "probability": 0.72,
+      "comparison_due": "migration-rehearsal-2",
+      "evidence_mode": "simulated"
+    },
+    {
+      "forecast_id": "FC-003",
+      "claim": "Scientific, Quality, and Regulatory reviewers accept the bounded intended use after open deviations receive disposition.",
+      "probability": 0.68,
+      "comparison_due": "accountable-acceptance-gate",
+      "evidence_mode": "simulated"
+    }
+  ]
+}
+

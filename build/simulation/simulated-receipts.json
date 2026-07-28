@@ -1,0 +1,66 @@
+[
+  {
+    "accountable_observation_required": true,
+    "artifact_digest": "sha256:1f94448988172b34bc20a34736c393c818909118219adad584c0ce2b500f8307",
+    "assurance_stage": "specified",
+    "claim_scope": "counterfactual final-state behavior",
+    "evidence_mode": "simulated",
+    "forecast_release": "forecast-2026-Q3-r1",
+    "limitations": [
+      "synthetic fixtures",
+      "deterministic emulators",
+      "advisory decisions"
+    ],
+    "receipt_family": "configured_vendor_environments",
+    "receipt_id": "SIM-RECEIPT-001",
+    "simulation_authority": "advisory_only"
+  },
+  {
+    "accountable_observation_required": true,
+    "artifact_digest": "sha256:c4f82c98702c5785d14d18f8cb87d5f30257f4a13db2d397cfcea96ec3cca88a",
+    "assurance_stage": "specified",
+    "claim_scope": "counterfactual final-state behavior",
+    "evidence_mode": "simulated",
+    "forecast_release": "forecast-2026-Q3-r1",
+    "limitations": [
+      "synthetic fixtures",
+      "deterministic emulators",
+      "advisory decisions"
+    ],
+    "receipt_family": "representative_migration_and_restore",
+    "receipt_id": "SIM-RECEIPT-002",
+    "simulation_authority": "advisory_only"
+  },
+  {
+    "accountable_observation_required": true,
+    "artifact_digest": "sha256:05290014dfc488ed64333143fb07ea2a9cfd105a0d86485413b92855b6c7fe52",
+    "assurance_stage": "specified",
+    "claim_scope": "counterfactual final-state behavior",
+    "evidence_mode": "simulated",
+    "forecast_release": "forecast-2026-Q3-r1",
+    "limitations": [
+      "synthetic fixtures",
+      "deterministic emulators",
+      "advisory decisions"
+    ],
+    "receipt_family": "production_security_and_observability",
+    "receipt_id": "SIM-RECEIPT-003",
+    "simulation_authority": "advisory_only"
+  },
+  {
+    "accountable_observation_required": true,
+    "artifact_digest": "sha256:215b5d1e832f230c5caf08fe142bc18cf08f398d1ba6560aee9d09ee39278c1c",
+    "assurance_stage": "specified",
+    "claim_scope": "counterfactual final-state behavior",
+    "evidence_mode": "simulated",
+    "forecast_release": "forecast-2026-Q3-r1",
+    "limitations": [
+      "synthetic fixtures",
+      "deterministic emulators",
+      "advisory decisions"
+    ],
+    "receipt_family": "accountable_scientific_quality_regulatory_acceptance",
+    "receipt_id": "SIM-RECEIPT-004",
+    "simulation_authority": "advisory_only"
+  }
+]
