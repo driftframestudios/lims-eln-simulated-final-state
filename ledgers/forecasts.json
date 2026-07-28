@@ -1,5 +1,5 @@
 {
-  "forecast_release": "forecast-2026-Q3-r1",
+  "forecast_release": "forecast-2026-Q3-r2",
   "frozen_as_of": "2026-08-17",
   "forecasts": [
     {
@@ -25,4 +25,3 @@
     }
   ]
 }
-

@@ -75,9 +75,14 @@ def utc_now() -> str:
 
 
 def canonical_json(value: Any) -> str:
-    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    return json.dumps(
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+        allow_nan=False,
+    )
 
 
 def digest(value: Any) -> str:
     return f"sha256:{sha256(canonical_json(value).encode()).hexdigest()}"
-

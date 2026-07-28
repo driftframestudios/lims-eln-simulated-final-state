@@ -1,0 +1,24 @@
+{
+  "manifest_version": "1.0.0",
+  "repository_role": "simulated_final_state",
+  "repository_release": "0.2.0",
+  "external_release": "forecast-2026-Q3-r2",
+  "reference_result_digest": "sha256:b42c0bb7adf1507966d87eb1f3943d99a17252559e675f50f2265d0246e7604b",
+  "historical_external_releases": [
+    {
+      "repository_release": "0.1.0",
+      "external_release": "forecast-2026-Q3-r1",
+      "status": "preserved_historical_baseline"
+    }
+  ],
+  "contract_bindings": {
+    "governance_schema": "1.0.0",
+    "synthetic_fixture_schema": "1.0.0",
+    "simulated_receipt_schema": "1.0.0",
+    "observation_envelope_schema": "1.0.0"
+  },
+  "release_coordinates": {
+    "governance_commit": "716d4581d723a5c1b56f16efdbcd25790549ae33",
+    "program_specification_commit": "fc7707134b58ed12ad349bf649d2af1c3689bd01"
+  }
+}
