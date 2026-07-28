@@ -6,8 +6,14 @@ import json
 from typing import Any
 
 from .assurance import MetricBook, Principal, authorize, redact_trace
+from .configuration import (
+    AwsRuntimeReference,
+    SyntheticAwsProvider,
+    resolve_runtime_configuration,
+)
 from .domain import Specimen, digest
 from .migration import MigrationHarness
+from .safety import validate_synthetic_fixture
 from .vendors import (
     AmbiguousWrite,
     BenchlingEmulator,
@@ -21,11 +27,12 @@ FORECAST_METADATA = {
     "assurance_stage": "specified",
     "simulation_authority": "advisory_only",
     "accountable_observation_required": True,
-    "forecast_release": "forecast-2026-Q3-r1",
+    "forecast_release": "forecast-2026-Q3-r2",
 }
 
 
-def run(fixture: dict[str, Any]) -> dict[str, Any]:
+def run(fixture: dict[str, Any], *, redaction_key: bytes) -> dict[str, Any]:
+    validate_synthetic_fixture(fixture)
     clock = fixture["clock"]
     specimen = Specimen(
         specimen_id=fixture["specimen_id"],
@@ -76,8 +83,30 @@ def run(fixture: dict[str, Any]) -> dict[str, Any]:
 
     migration = MigrationHarness()
     migrated, migration_report = migration.migrate([specimen.view()])
-    restore_report = migration.restore(migrated)
+    _, migration_failure_report = migration.migrate(
+        [specimen.view()],
+        failure_twin="changed-scientific-result",
+    )
+    restore_report = migration.restore(
+        migrated,
+        expected_digest=migration_report.target_digest,
+        clean_environment=True,
+        recovery_objective_seconds=fixture["recovery_objective_seconds"],
+        observed_recovery_seconds=fixture["observed_recovery_seconds"],
+    )
+    restore_failure_report = migration.restore(
+        migrated,
+        expected_digest=migration_report.target_digest,
+        clean_environment=True,
+        recovery_objective_seconds=fixture["recovery_objective_seconds"],
+        observed_recovery_seconds=fixture["observed_recovery_seconds"],
+        failure_twin="missing-restored-record",
+    )
     exit_report = migration.data_exit(migrated)
+    runtime_configuration = resolve_runtime_configuration(
+        AwsRuntimeReference.from_dict(fixture["runtime_configuration"]),
+        SyntheticAwsProvider(),
+    )
 
     metrics = MetricBook()
     for record in (sapio_record, benchling_record, benchling_readback, labkey_record):
@@ -92,22 +121,33 @@ def run(fixture: dict[str, Any]) -> dict[str, Any]:
         "specimen": specimen.view(),
         "authorization": authorization,
         "vendors": {
-            "sapio": sapio_record,
+            "sapio": _vendor_manifest(sapio_record),
             "benchling": {
                 "event": benchling_event,
-                "authoritative_readback": benchling_readback,
+                "authoritative_readback": _vendor_manifest(benchling_readback),
             },
-            "labkey": {"validation": validation, "record": labkey_record},
+            "labkey": {"validation": validation, "record": _vendor_manifest(labkey_record)},
         },
         "migration": asdict(migration_report),
         "restore": restore_report,
         "data_exit": exit_report,
+        "failure_twins": {
+            "migration": asdict(migration_failure_report),
+            "restore": restore_failure_report,
+        },
+        "runtime_configuration": runtime_configuration.receipt,
         "security_exercise": {
             "scenario": "trace-redaction",
             "observed": redact_trace(
-                {"request_id": "req-sapio-0001", "subject_id": "SYN-PERSON-001", "outcome": "reconciled"}
+                {
+                    "request_id": "req-sapio-0001",
+                    "subject_id": "SYN-PERSON-001",
+                    "nested": {"Email": "generated-person@example.invalid"},
+                    "outcome": "reconciled",
+                },
+                key=redaction_key,
             ),
-            "replacement_behavior": "protected fields retain classification and digest",
+            "replacement_behavior": "protected fields retain classification and keyed pseudonym",
         },
         "telemetry": metrics.summary(),
     }
@@ -168,5 +208,17 @@ def write_bundle(bundle: dict[str, Any], output: Path) -> None:
         "simulated-receipts.json": bundle["receipts"],
     }
     for name, value in documents.items():
-        (output / name).write_text(json.dumps(value, indent=2, sort_keys=True) + "\n")
+        (output / name).write_text(
+            json.dumps(value, indent=2, sort_keys=True, allow_nan=False) + "\n",
+            encoding="utf-8",
+        )
 
+
+def _vendor_manifest(record: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "vendor": record["vendor"],
+        "vendor_version": record["vendor_version"],
+        "external_id": record["external_id"],
+        "content_digest": record["content_digest"],
+        "projection": "identity, vendor version, and content digest",
+    }

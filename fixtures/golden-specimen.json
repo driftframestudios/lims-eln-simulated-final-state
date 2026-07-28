@@ -6,6 +6,9 @@
   "specimen_id": "SPM-SYN-0001",
   "source_alias": "ACCESSION-SYN-2048",
   "run_id": "RUN-SYN-0042",
+  "redaction_key_id": "synthetic-key-trace-v1",
+  "recovery_objective_seconds": 300,
+  "observed_recovery_seconds": 42,
   "interpretation": "quality thresholds met for simulated release",
   "result": {
     "analyte": "synthetic-copy-number-marker",
@@ -16,6 +19,19 @@
   "artifact": {
     "kind": "synthetic-instrument-output",
     "content": "SYNTHETIC-FIXTURE-CONTENT-0001"
+  },
+  "runtime_configuration": {
+    "workload_role_arn": "arn:aws:iam::111122223333:role/lims-eln-simulated-runtime",
+    "kms_key_arn": "arn:aws:kms:us-east-1:111122223333:key/00000000-0000-4000-8000-000000000001",
+    "parameter_names": [
+      "/lims-eln/simulated/vendor/base-url",
+      "/lims-eln/simulated/vendor/timeout-seconds"
+    ],
+    "secret_ids": [
+      "lims-eln/simulated/vendor/credential",
+      "lims-eln/simulated/trace/hmac-key"
+    ],
+    "secret_stage": "AWSCURRENT",
+    "cache_ttl_seconds": 300
   }
 }
-
