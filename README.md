@@ -32,7 +32,9 @@ admission.
 - Sapio, Benchling, and LabKey behavior through deterministic emulators;
 - stable-request reconciliation after ambiguous vendor writes;
 - representative migration, rollback, clean restore, and data exit;
-- tenant authorization, trace redaction, telemetry, and incident exercises;
+- tenant authorization, recursive keyed trace pseudonymization, telemetry, and incident exercises;
+- an executable AWS Parameter Store and Secrets Manager provider boundary with
+  value-free receipts;
 - draft scientific, Quality, Regulatory, security, and operations acceptance packets;
 - assumptions, forecasts, decisions, falsifiers, and simulated receipt manifests.
 
@@ -45,8 +47,10 @@ PYTHONPATH=src python -m lims_eln_sim.cli \
   --output build/simulation
 ```
 
-The command writes a deterministic `result.json`, receipt bundle, migration report,
-restore report, security exercise, telemetry summary, and acceptance drafts.
+The command validates the synthetic-data contract and writes a deterministic
+`result.json`, receipt bundle, migration report, restore manifest, security exercise,
+telemetry summary, and acceptance drafts. Generated build output remains a transient
+workflow artifact.
 
 ## Branching
 
@@ -68,5 +72,7 @@ Synthetic fixtures are the only permitted data class in this repository. A fixtu
 that resembles an external record is replaced with a generated identity, generated
 timestamps, and generated artifacts before it enters version control. Secrets are
 represented by stable placeholders. Runtime traces retain correlation and outcome
-fields while sensitive values are replaced with classification labels and digests.
-
+fields while sensitive values are replaced with classification labels and keyed
+pseudonyms. Runtime-configuration receipts retain references, versions, workload role,
+KMS key, cache policy, and rotation behavior while resolved values remain in process
+memory.

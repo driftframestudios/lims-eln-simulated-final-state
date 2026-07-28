@@ -1,8 +1,0 @@
-{
-  "rollback_ready": true,
-  "semantic_parity": true,
-  "source_count": 1,
-  "source_digest": "sha256:22e619e1db4369e7ca04c10221b7977ae23b97b6b0de12750771c26a1fedf739",
-  "target_count": 1,
-  "target_digest": "sha256:22e619e1db4369e7ca04c10221b7977ae23b97b6b0de12750771c26a1fedf739"
-}

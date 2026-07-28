@@ -3,4 +3,8 @@
 /fixtures/ @driftframestudios/scientific-data
 /acceptance/ @driftframestudios/quality-regulatory
 /security/ @driftframestudios/security
-
+/src/lims_eln_sim/safety.py @driftframestudios/security @driftframestudios/scientific-data
+/src/lims_eln_sim/configuration.py @driftframestudios/security @driftframestudios/platform-engineering
+/infrastructure/aws-runtime-configuration.md @driftframestudios/security @driftframestudios/platform-engineering
+/SECURITY.md @driftframestudios/security
+/release/ @driftframestudios/solution-architecture @driftframestudios/quality-regulatory
