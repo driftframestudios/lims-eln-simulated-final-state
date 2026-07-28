@@ -1,0 +1,34 @@
+{
+  "profile_version": "1.0.0",
+  "evidence_mode": "simulated",
+  "intended_use": "Counterfactual laboratory workflow and integration platform for synthetic genomic specimen operations",
+  "population_cartographies": [
+    "scientists",
+    "pathologists",
+    "laboratory-operations",
+    "platform-engineering",
+    "quality",
+    "regulatory",
+    "security",
+    "executive-evaluators"
+  ],
+  "record_classes": [
+    "specimen-identity",
+    "custody-event",
+    "instrument-artifact",
+    "scientific-result",
+    "review-and-release",
+    "correction",
+    "audit-event",
+    "vendor-projection",
+    "migration-and-recovery-receipt"
+  ],
+  "applicability_forks": {
+    "research_only": "modeled",
+    "glp": "provisional-assessment-required",
+    "gmp_quality_control": "provisional-assessment-required",
+    "clinical_diagnostic": "provisional-assessment-required"
+  },
+  "accountable_determination": "Observed organizational context and configured-environment evidence determine the applicable controls."
+}
+

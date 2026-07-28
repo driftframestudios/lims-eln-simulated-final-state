@@ -1,0 +1,6 @@
+* @driftframestudios/solution-architecture
+/src/ @driftframestudios/platform-engineering
+/fixtures/ @driftframestudios/scientific-data
+/acceptance/ @driftframestudios/quality-regulatory
+/security/ @driftframestudios/security
+

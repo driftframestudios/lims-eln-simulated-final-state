@@ -1,0 +1,21 @@
+{
+  "fixture_class": "synthetic",
+  "fixture_version": "1.0.0",
+  "clock": "2026-08-17T14:30:00Z",
+  "tenant_id": "TENANT-SYN-GENOMICS",
+  "specimen_id": "SPM-SYN-0001",
+  "source_alias": "ACCESSION-SYN-2048",
+  "run_id": "RUN-SYN-0042",
+  "interpretation": "quality thresholds met for simulated release",
+  "result": {
+    "analyte": "synthetic-copy-number-marker",
+    "value": 2.0,
+    "unit": "copies",
+    "quality_flag": "pass"
+  },
+  "artifact": {
+    "kind": "synthetic-instrument-output",
+    "content": "SYNTHETIC-FIXTURE-CONTENT-0001"
+  }
+}
+

@@ -1,0 +1,47 @@
+{
+  "catalog_version": "1.0.0",
+  "evidence_mode": "simulated",
+  "scenarios": [
+    {
+      "scenario_id": "SPEC-LIFECYCLE-001",
+      "rule": "A specimen advances through versioned states with actor, time, and detail digest.",
+      "ordinary": "received through released",
+      "boundary": "correction after release",
+      "failure_twin": "transition outside the released state graph",
+      "recovery": "reload the current revision and follow an allowed transition",
+      "scientific_effect": "reviewers see the current meaning and its history",
+      "executive_effect": "release decisions remain explainable and reconstructable"
+    },
+    {
+      "scenario_id": "SPEC-VENDOR-AMBIGUITY-001",
+      "rule": "A stable request identity resolves uncertain vendor outcomes before resubmission.",
+      "ordinary": "acknowledged write and readback",
+      "boundary": "response lost after vendor commit",
+      "failure_twin": "same request identity with changed content",
+      "recovery": "authoritative readback or governed reconciliation queue",
+      "scientific_effect": "one canonical revision produces one vendor effect",
+      "executive_effect": "transient failures preserve data quality and operator focus"
+    },
+    {
+      "scenario_id": "SPEC-MIGRATION-RESTORE-001",
+      "rule": "Migration and restore preserve identity, revision, relationships, semantics, audit, and artifact bytes.",
+      "ordinary": "snapshot, transform, reconcile, cutover, readback",
+      "boundary": "delta catch-up during authority transfer",
+      "failure_twin": "matching row count with changed scientific content",
+      "recovery": "close cutover, preserve environment, reconcile, and repeat",
+      "scientific_effect": "historical and current records retain their meaning",
+      "executive_effect": "cutover and continuity claims carry witnessed evidence"
+    },
+    {
+      "scenario_id": "SPEC-SECURITY-OBSERVABILITY-001",
+      "rule": "Tenant boundaries, trace redaction, and bounded metrics operate together.",
+      "ordinary": "authorized projection with correlated telemetry",
+      "boundary": "break-glass access with expiry",
+      "failure_twin": "cross-tenant request or protected value entering a trace",
+      "recovery": "governed transfer or classified digest replacement",
+      "scientific_effect": "authorized teams retain useful operational context",
+      "executive_effect": "privacy and service health become measurable operating properties"
+    }
+  ]
+}
+

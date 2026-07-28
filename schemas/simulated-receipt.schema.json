@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/lims-eln/simulated-receipt/1.0.0",
+  "title": "Simulated receipt",
+  "type": "object",
+  "required": [
+    "evidence_mode",
+    "assurance_stage",
+    "simulation_authority",
+    "accountable_observation_required",
+    "forecast_release",
+    "receipt_id",
+    "receipt_family",
+    "claim_scope",
+    "artifact_digest",
+    "limitations"
+  ],
+  "properties": {
+    "evidence_mode": {"const": "simulated"},
+    "assurance_stage": {"const": "specified"},
+    "simulation_authority": {"const": "advisory_only"},
+    "accountable_observation_required": {"const": true},
+    "forecast_release": {"type": "string"},
+    "receipt_id": {"type": "string"},
+    "receipt_family": {
+      "enum": [
+        "configured_vendor_environments",
+        "representative_migration_and_restore",
+        "production_security_and_observability",
+        "accountable_scientific_quality_regulatory_acceptance"
+      ]
+    },
+    "claim_scope": {"type": "string"},
+    "artifact_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}
+
