@@ -1,0 +1,16 @@
+{
+  "fixture_class": "synthetic",
+  "profile": {
+    "records": 4,
+    "lineage_depth": [1, 2, 4],
+    "artifact_sizes_bytes": [64, 1024, 1048576],
+    "exception_classes": ["duplicate-replay", "changed-content", "stale-revision", "missing-artifact"]
+  },
+  "records": [
+    {"specimen_id": "SPM-SYN-0001", "tenant_id": "TENANT-SYN-GENOMICS", "status": "released", "revision": 5},
+    {"specimen_id": "SPM-SYN-0002", "tenant_id": "TENANT-SYN-GENOMICS", "status": "reviewed", "revision": 4},
+    {"specimen_id": "SPM-SYN-0003", "tenant_id": "TENANT-SYN-GENOMICS", "status": "instrument_complete", "revision": 3},
+    {"specimen_id": "SPM-SYN-0004", "tenant_id": "TENANT-SYN-GENOMICS", "status": "in_custody", "revision": 2}
+  ]
+}
+

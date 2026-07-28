@@ -1,0 +1,21 @@
+{
+  "contract_version": "1.0.0",
+  "evidence_mode": "simulated",
+  "indicators": [
+    {
+      "name": "vendor_projection_readback",
+      "good_event": "authoritative vendor read equals the released canonical projection",
+      "valid_event": "a vendor projection reaches a terminal reconciliation state",
+      "target_ratio": 0.999,
+      "window": "rolling-30d"
+    },
+    {
+      "name": "restore_within_recovery_objective",
+      "good_event": "clean restore and independent readback complete within the approved objective",
+      "valid_event": "a scheduled or incident recovery exercise begins",
+      "target_ratio": 1.0,
+      "window": "rolling-180d"
+    }
+  ]
+}
+

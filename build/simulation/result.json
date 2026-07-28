@@ -1,0 +1,580 @@
+{
+  "acceptance_drafts": [
+    {
+      "acceptance_domain": "scientific",
+      "accountable_observation_required": true,
+      "accountable_role": "scientific_approver",
+      "assurance_stage": "specified",
+      "basis_digest": "sha256:8c6381a7dacb45ecd53c35b5f118ad8123d7bd3f893b6f65f5f9a1b37aedb5ac",
+      "decision_status": "simulated_resolved",
+      "evidence_mode": "simulated",
+      "forecast_release": "forecast-2026-Q3-r1",
+      "projected_verdict": "accept_with_named_scope",
+      "simulation_authority": "advisory_only"
+    },
+    {
+      "acceptance_domain": "quality",
+      "accountable_observation_required": true,
+      "accountable_role": "quality_approver",
+      "assurance_stage": "specified",
+      "basis_digest": "sha256:8c6381a7dacb45ecd53c35b5f118ad8123d7bd3f893b6f65f5f9a1b37aedb5ac",
+      "decision_status": "simulated_resolved",
+      "evidence_mode": "simulated",
+      "forecast_release": "forecast-2026-Q3-r1",
+      "projected_verdict": "accept_with_named_scope",
+      "simulation_authority": "advisory_only"
+    },
+    {
+      "acceptance_domain": "regulatory",
+      "accountable_observation_required": true,
+      "accountable_role": "regulatory_approver",
+      "assurance_stage": "specified",
+      "basis_digest": "sha256:8c6381a7dacb45ecd53c35b5f118ad8123d7bd3f893b6f65f5f9a1b37aedb5ac",
+      "decision_status": "simulated_resolved",
+      "evidence_mode": "simulated",
+      "forecast_release": "forecast-2026-Q3-r1",
+      "projected_verdict": "accept_with_named_scope",
+      "simulation_authority": "advisory_only"
+    },
+    {
+      "acceptance_domain": "security",
+      "accountable_observation_required": true,
+      "accountable_role": "security_approver",
+      "assurance_stage": "specified",
+      "basis_digest": "sha256:8c6381a7dacb45ecd53c35b5f118ad8123d7bd3f893b6f65f5f9a1b37aedb5ac",
+      "decision_status": "simulated_resolved",
+      "evidence_mode": "simulated",
+      "forecast_release": "forecast-2026-Q3-r1",
+      "projected_verdict": "accept_with_named_scope",
+      "simulation_authority": "advisory_only"
+    },
+    {
+      "acceptance_domain": "operations",
+      "accountable_observation_required": true,
+      "accountable_role": "operations_approver",
+      "assurance_stage": "specified",
+      "basis_digest": "sha256:8c6381a7dacb45ecd53c35b5f118ad8123d7bd3f893b6f65f5f9a1b37aedb5ac",
+      "decision_status": "simulated_resolved",
+      "evidence_mode": "simulated",
+      "forecast_release": "forecast-2026-Q3-r1",
+      "projected_verdict": "accept_with_named_scope",
+      "simulation_authority": "advisory_only"
+    }
+  ],
+  "accountable_observation_required": true,
+  "assurance_stage": "specified",
+  "content_digest": "sha256:8c6381a7dacb45ecd53c35b5f118ad8123d7bd3f893b6f65f5f9a1b37aedb5ac",
+  "evidence_mode": "simulated",
+  "forecast_release": "forecast-2026-Q3-r1",
+  "receipts": [
+    {
+      "accountable_observation_required": true,
+      "artifact_digest": "sha256:1f94448988172b34bc20a34736c393c818909118219adad584c0ce2b500f8307",
+      "assurance_stage": "specified",
+      "claim_scope": "counterfactual final-state behavior",
+      "evidence_mode": "simulated",
+      "forecast_release": "forecast-2026-Q3-r1",
+      "limitations": [
+        "synthetic fixtures",
+        "deterministic emulators",
+        "advisory decisions"
+      ],
+      "receipt_family": "configured_vendor_environments",
+      "receipt_id": "SIM-RECEIPT-001",
+      "simulation_authority": "advisory_only"
+    },
+    {
+      "accountable_observation_required": true,
+      "artifact_digest": "sha256:c4f82c98702c5785d14d18f8cb87d5f30257f4a13db2d397cfcea96ec3cca88a",
+      "assurance_stage": "specified",
+      "claim_scope": "counterfactual final-state behavior",
+      "evidence_mode": "simulated",
+      "forecast_release": "forecast-2026-Q3-r1",
+      "limitations": [
+        "synthetic fixtures",
+        "deterministic emulators",
+        "advisory decisions"
+      ],
+      "receipt_family": "representative_migration_and_restore",
+      "receipt_id": "SIM-RECEIPT-002",
+      "simulation_authority": "advisory_only"
+    },
+    {
+      "accountable_observation_required": true,
+      "artifact_digest": "sha256:05290014dfc488ed64333143fb07ea2a9cfd105a0d86485413b92855b6c7fe52",
+      "assurance_stage": "specified",
+      "claim_scope": "counterfactual final-state behavior",
+      "evidence_mode": "simulated",
+      "forecast_release": "forecast-2026-Q3-r1",
+      "limitations": [
+        "synthetic fixtures",
+        "deterministic emulators",
+        "advisory decisions"
+      ],
+      "receipt_family": "production_security_and_observability",
+      "receipt_id": "SIM-RECEIPT-003",
+      "simulation_authority": "advisory_only"
+    },
+    {
+      "accountable_observation_required": true,
+      "artifact_digest": "sha256:215b5d1e832f230c5caf08fe142bc18cf08f398d1ba6560aee9d09ee39278c1c",
+      "assurance_stage": "specified",
+      "claim_scope": "counterfactual final-state behavior",
+      "evidence_mode": "simulated",
+      "forecast_release": "forecast-2026-Q3-r1",
+      "limitations": [
+        "synthetic fixtures",
+        "deterministic emulators",
+        "advisory decisions"
+      ],
+      "receipt_family": "accountable_scientific_quality_regulatory_acceptance",
+      "receipt_id": "SIM-RECEIPT-004",
+      "simulation_authority": "advisory_only"
+    }
+  ],
+  "result": {
+    "authorization": {
+      "decision": "allow",
+      "principal_id": "svc-projection",
+      "role": "vendor_writer",
+      "tenant_id": "TENANT-SYN-GENOMICS"
+    },
+    "data_exit": {
+      "digest": "sha256:22e619e1db4369e7ca04c10221b7977ae23b97b6b0de12750771c26a1fedf739",
+      "neutral_format": "canonical-json-v1",
+      "reconstructable": true,
+      "records": [
+        {
+          "artifact_digest": "sha256:4d5a613e58f703047c2dc09bdc0745f3e87c0ef28a2b4b233b97e78dc7e4f305",
+          "audit": [
+            {
+              "action": "accessioned",
+              "actor": "accessioner",
+              "detail_digest": "sha256:67f8f4581c03032657b43e7652c1049098b6a6a1be4dbb114b99ce76c0a402a4",
+              "event_id": "evt-SPM-SYN-0001-001",
+              "occurred_at": "2026-08-17T14:30:00.000Z",
+              "revision": 1
+            },
+            {
+              "action": "in_custody",
+              "actor": "courier",
+              "detail_digest": "sha256:e15d72054c1e5267c54ad6b51a08e179c55f99c4412875be3305756b0319ea47",
+              "event_id": "evt-SPM-SYN-0001-002",
+              "occurred_at": "2026-08-17T14:30:00.001Z",
+              "revision": 2
+            },
+            {
+              "action": "instrument_complete",
+              "actor": "instrument-gateway",
+              "detail_digest": "sha256:4988213e67d7bac1b4865a09799fc4a2325932b0b252531e42b891b6f8d0ce1b",
+              "event_id": "evt-SPM-SYN-0001-003",
+              "occurred_at": "2026-08-17T14:30:00.002Z",
+              "revision": 3
+            },
+            {
+              "action": "reviewed",
+              "actor": "scientist",
+              "detail_digest": "sha256:580a1df39ed1b8a815405d8311101fa115fba21d1ddf444d978d6a19de966ca5",
+              "event_id": "evt-SPM-SYN-0001-004",
+              "occurred_at": "2026-08-17T14:30:00.003Z",
+              "revision": 4
+            },
+            {
+              "action": "released",
+              "actor": "pathologist",
+              "detail_digest": "sha256:04f411f0b1558697d4c9f1490757f1434214067be67321891001c3bb8c4bae70",
+              "event_id": "evt-SPM-SYN-0001-005",
+              "occurred_at": "2026-08-17T14:30:00.004Z",
+              "revision": 5
+            }
+          ],
+          "result": {
+            "analyte": "synthetic-copy-number-marker",
+            "quality_flag": "pass",
+            "unit": "copies",
+            "value": 2.0
+          },
+          "revision": 5,
+          "specimen_id": "SPM-SYN-0001",
+          "status": "released",
+          "tenant_id": "TENANT-SYN-GENOMICS"
+        }
+      ]
+    },
+    "migration": {
+      "rollback_ready": true,
+      "semantic_parity": true,
+      "source_count": 1,
+      "source_digest": "sha256:22e619e1db4369e7ca04c10221b7977ae23b97b6b0de12750771c26a1fedf739",
+      "target_count": 1,
+      "target_digest": "sha256:22e619e1db4369e7ca04c10221b7977ae23b97b6b0de12750771c26a1fedf739"
+    },
+    "restore": {
+      "artifact_and_record_digest": "sha256:22e619e1db4369e7ca04c10221b7977ae23b97b6b0de12750771c26a1fedf739",
+      "clean_environment": true,
+      "independent_readback": [
+        {
+          "artifact_digest": "sha256:4d5a613e58f703047c2dc09bdc0745f3e87c0ef28a2b4b233b97e78dc7e4f305",
+          "audit": [
+            {
+              "action": "accessioned",
+              "actor": "accessioner",
+              "detail_digest": "sha256:67f8f4581c03032657b43e7652c1049098b6a6a1be4dbb114b99ce76c0a402a4",
+              "event_id": "evt-SPM-SYN-0001-001",
+              "occurred_at": "2026-08-17T14:30:00.000Z",
+              "revision": 1
+            },
+            {
+              "action": "in_custody",
+              "actor": "courier",
+              "detail_digest": "sha256:e15d72054c1e5267c54ad6b51a08e179c55f99c4412875be3305756b0319ea47",
+              "event_id": "evt-SPM-SYN-0001-002",
+              "occurred_at": "2026-08-17T14:30:00.001Z",
+              "revision": 2
+            },
+            {
+              "action": "instrument_complete",
+              "actor": "instrument-gateway",
+              "detail_digest": "sha256:4988213e67d7bac1b4865a09799fc4a2325932b0b252531e42b891b6f8d0ce1b",
+              "event_id": "evt-SPM-SYN-0001-003",
+              "occurred_at": "2026-08-17T14:30:00.002Z",
+              "revision": 3
+            },
+            {
+              "action": "reviewed",
+              "actor": "scientist",
+              "detail_digest": "sha256:580a1df39ed1b8a815405d8311101fa115fba21d1ddf444d978d6a19de966ca5",
+              "event_id": "evt-SPM-SYN-0001-004",
+              "occurred_at": "2026-08-17T14:30:00.003Z",
+              "revision": 4
+            },
+            {
+              "action": "released",
+              "actor": "pathologist",
+              "detail_digest": "sha256:04f411f0b1558697d4c9f1490757f1434214067be67321891001c3bb8c4bae70",
+              "event_id": "evt-SPM-SYN-0001-005",
+              "occurred_at": "2026-08-17T14:30:00.004Z",
+              "revision": 5
+            }
+          ],
+          "result": {
+            "analyte": "synthetic-copy-number-marker",
+            "quality_flag": "pass",
+            "unit": "copies",
+            "value": 2.0
+          },
+          "revision": 5,
+          "specimen_id": "SPM-SYN-0001",
+          "status": "released",
+          "tenant_id": "TENANT-SYN-GENOMICS"
+        }
+      ],
+      "observed_recovery_seconds": 42,
+      "record_count": 1,
+      "recovery_objective_seconds": 300,
+      "recovery_point_seconds": 0
+    },
+    "security_exercise": {
+      "observed": {
+        "outcome": "reconciled",
+        "request_id": "req-sapio-0001",
+        "subject_id": {
+          "classification": "protected",
+          "digest": "sha256:78560f49e99f02cb297938598c1793b72499da1a3e852fd39471695488ed7e29"
+        }
+      },
+      "replacement_behavior": "protected fields retain classification and digest",
+      "scenario": "trace-redaction"
+    },
+    "specimen": {
+      "artifact_digest": "sha256:4d5a613e58f703047c2dc09bdc0745f3e87c0ef28a2b4b233b97e78dc7e4f305",
+      "audit": [
+        {
+          "action": "accessioned",
+          "actor": "accessioner",
+          "detail_digest": "sha256:67f8f4581c03032657b43e7652c1049098b6a6a1be4dbb114b99ce76c0a402a4",
+          "event_id": "evt-SPM-SYN-0001-001",
+          "occurred_at": "2026-08-17T14:30:00.000Z",
+          "revision": 1
+        },
+        {
+          "action": "in_custody",
+          "actor": "courier",
+          "detail_digest": "sha256:e15d72054c1e5267c54ad6b51a08e179c55f99c4412875be3305756b0319ea47",
+          "event_id": "evt-SPM-SYN-0001-002",
+          "occurred_at": "2026-08-17T14:30:00.001Z",
+          "revision": 2
+        },
+        {
+          "action": "instrument_complete",
+          "actor": "instrument-gateway",
+          "detail_digest": "sha256:4988213e67d7bac1b4865a09799fc4a2325932b0b252531e42b891b6f8d0ce1b",
+          "event_id": "evt-SPM-SYN-0001-003",
+          "occurred_at": "2026-08-17T14:30:00.002Z",
+          "revision": 3
+        },
+        {
+          "action": "reviewed",
+          "actor": "scientist",
+          "detail_digest": "sha256:580a1df39ed1b8a815405d8311101fa115fba21d1ddf444d978d6a19de966ca5",
+          "event_id": "evt-SPM-SYN-0001-004",
+          "occurred_at": "2026-08-17T14:30:00.003Z",
+          "revision": 4
+        },
+        {
+          "action": "released",
+          "actor": "pathologist",
+          "detail_digest": "sha256:04f411f0b1558697d4c9f1490757f1434214067be67321891001c3bb8c4bae70",
+          "event_id": "evt-SPM-SYN-0001-005",
+          "occurred_at": "2026-08-17T14:30:00.004Z",
+          "revision": 5
+        }
+      ],
+      "custody_location": null,
+      "result": {
+        "analyte": "synthetic-copy-number-marker",
+        "quality_flag": "pass",
+        "unit": "copies",
+        "value": 2.0
+      },
+      "revision": 5,
+      "source_alias": "ACCESSION-SYN-2048",
+      "specimen_id": "SPM-SYN-0001",
+      "status": "released",
+      "tenant_id": "TENANT-SYN-GENOMICS"
+    },
+    "telemetry": {
+      "migration_semantic_parity": {
+        "good": 1,
+        "ratio": 1.0,
+        "valid": 1
+      },
+      "restore_within_recovery_objective": {
+        "good": 1,
+        "ratio": 1.0,
+        "valid": 1
+      },
+      "vendor_projection_readback": {
+        "good": 4,
+        "ratio": 1.0,
+        "valid": 4
+      }
+    },
+    "vendors": {
+      "benchling": {
+        "authoritative_readback": {
+          "content_digest": "sha256:6edeceff387de0d180508cb2817add8c09782d436aaab21a976451abba7ffa32",
+          "external_id": "SPM-SYN-0001",
+          "payload": {
+            "artifact_digest": "sha256:4d5a613e58f703047c2dc09bdc0745f3e87c0ef28a2b4b233b97e78dc7e4f305",
+            "audit": [
+              {
+                "action": "accessioned",
+                "actor": "accessioner",
+                "detail_digest": "sha256:67f8f4581c03032657b43e7652c1049098b6a6a1be4dbb114b99ce76c0a402a4",
+                "event_id": "evt-SPM-SYN-0001-001",
+                "occurred_at": "2026-08-17T14:30:00.000Z",
+                "revision": 1
+              },
+              {
+                "action": "in_custody",
+                "actor": "courier",
+                "detail_digest": "sha256:e15d72054c1e5267c54ad6b51a08e179c55f99c4412875be3305756b0319ea47",
+                "event_id": "evt-SPM-SYN-0001-002",
+                "occurred_at": "2026-08-17T14:30:00.001Z",
+                "revision": 2
+              },
+              {
+                "action": "instrument_complete",
+                "actor": "instrument-gateway",
+                "detail_digest": "sha256:4988213e67d7bac1b4865a09799fc4a2325932b0b252531e42b891b6f8d0ce1b",
+                "event_id": "evt-SPM-SYN-0001-003",
+                "occurred_at": "2026-08-17T14:30:00.002Z",
+                "revision": 3
+              },
+              {
+                "action": "reviewed",
+                "actor": "scientist",
+                "detail_digest": "sha256:580a1df39ed1b8a815405d8311101fa115fba21d1ddf444d978d6a19de966ca5",
+                "event_id": "evt-SPM-SYN-0001-004",
+                "occurred_at": "2026-08-17T14:30:00.003Z",
+                "revision": 4
+              },
+              {
+                "action": "released",
+                "actor": "pathologist",
+                "detail_digest": "sha256:04f411f0b1558697d4c9f1490757f1434214067be67321891001c3bb8c4bae70",
+                "event_id": "evt-SPM-SYN-0001-005",
+                "occurred_at": "2026-08-17T14:30:00.004Z",
+                "revision": 5
+              }
+            ],
+            "custody_location": null,
+            "result": {
+              "analyte": "synthetic-copy-number-marker",
+              "quality_flag": "pass",
+              "unit": "copies",
+              "value": 2.0
+            },
+            "revision": 5,
+            "source_alias": "ACCESSION-SYN-2048",
+            "specimen_id": "SPM-SYN-0001",
+            "status": "released",
+            "tenant_id": "TENANT-SYN-GENOMICS"
+          },
+          "vendor": "Benchling",
+          "vendor_version": "simulated-v3-2026.3"
+        },
+        "event": {
+          "event_id": "benchling-0001",
+          "external_id": "SPM-SYN-0001",
+          "interpretation": "signal_only_authoritative_read_required",
+          "signal": "record.changed"
+        }
+      },
+      "labkey": {
+        "record": {
+          "content_digest": "sha256:6edeceff387de0d180508cb2817add8c09782d436aaab21a976451abba7ffa32",
+          "external_id": "SPM-SYN-0001",
+          "payload": {
+            "artifact_digest": "sha256:4d5a613e58f703047c2dc09bdc0745f3e87c0ef28a2b4b233b97e78dc7e4f305",
+            "audit": [
+              {
+                "action": "accessioned",
+                "actor": "accessioner",
+                "detail_digest": "sha256:67f8f4581c03032657b43e7652c1049098b6a6a1be4dbb114b99ce76c0a402a4",
+                "event_id": "evt-SPM-SYN-0001-001",
+                "occurred_at": "2026-08-17T14:30:00.000Z",
+                "revision": 1
+              },
+              {
+                "action": "in_custody",
+                "actor": "courier",
+                "detail_digest": "sha256:e15d72054c1e5267c54ad6b51a08e179c55f99c4412875be3305756b0319ea47",
+                "event_id": "evt-SPM-SYN-0001-002",
+                "occurred_at": "2026-08-17T14:30:00.001Z",
+                "revision": 2
+              },
+              {
+                "action": "instrument_complete",
+                "actor": "instrument-gateway",
+                "detail_digest": "sha256:4988213e67d7bac1b4865a09799fc4a2325932b0b252531e42b891b6f8d0ce1b",
+                "event_id": "evt-SPM-SYN-0001-003",
+                "occurred_at": "2026-08-17T14:30:00.002Z",
+                "revision": 3
+              },
+              {
+                "action": "reviewed",
+                "actor": "scientist",
+                "detail_digest": "sha256:580a1df39ed1b8a815405d8311101fa115fba21d1ddf444d978d6a19de966ca5",
+                "event_id": "evt-SPM-SYN-0001-004",
+                "occurred_at": "2026-08-17T14:30:00.003Z",
+                "revision": 4
+              },
+              {
+                "action": "released",
+                "actor": "pathologist",
+                "detail_digest": "sha256:04f411f0b1558697d4c9f1490757f1434214067be67321891001c3bb8c4bae70",
+                "event_id": "evt-SPM-SYN-0001-005",
+                "occurred_at": "2026-08-17T14:30:00.004Z",
+                "revision": 5
+              }
+            ],
+            "custody_location": null,
+            "result": {
+              "analyte": "synthetic-copy-number-marker",
+              "quality_flag": "pass",
+              "unit": "copies",
+              "value": 2.0
+            },
+            "revision": 5,
+            "source_alias": "ACCESSION-SYN-2048",
+            "specimen_id": "SPM-SYN-0001",
+            "status": "released",
+            "tenant_id": "TENANT-SYN-GENOMICS"
+          },
+          "vendor": "LabKey",
+          "vendor_version": "simulated-4.3.0"
+        },
+        "validation": {
+          "issues": [],
+          "row_count": 1,
+          "valid": true
+        }
+      },
+      "sapio": {
+        "content_digest": "sha256:a45164d1613b52f1fede6c14dcd9974eb3a2d373ea009d3f82246ada47d159d8",
+        "external_id": "SPM-SYN-0001",
+        "payload": {
+          "aliquots": [
+            {
+              "aliquot_id": "ALQ-SYN-001-A",
+              "volume_ul": 250
+            }
+          ],
+          "specimen": {
+            "artifact_digest": "sha256:4d5a613e58f703047c2dc09bdc0745f3e87c0ef28a2b4b233b97e78dc7e4f305",
+            "audit": [
+              {
+                "action": "accessioned",
+                "actor": "accessioner",
+                "detail_digest": "sha256:67f8f4581c03032657b43e7652c1049098b6a6a1be4dbb114b99ce76c0a402a4",
+                "event_id": "evt-SPM-SYN-0001-001",
+                "occurred_at": "2026-08-17T14:30:00.000Z",
+                "revision": 1
+              },
+              {
+                "action": "in_custody",
+                "actor": "courier",
+                "detail_digest": "sha256:e15d72054c1e5267c54ad6b51a08e179c55f99c4412875be3305756b0319ea47",
+                "event_id": "evt-SPM-SYN-0001-002",
+                "occurred_at": "2026-08-17T14:30:00.001Z",
+                "revision": 2
+              },
+              {
+                "action": "instrument_complete",
+                "actor": "instrument-gateway",
+                "detail_digest": "sha256:4988213e67d7bac1b4865a09799fc4a2325932b0b252531e42b891b6f8d0ce1b",
+                "event_id": "evt-SPM-SYN-0001-003",
+                "occurred_at": "2026-08-17T14:30:00.002Z",
+                "revision": 3
+              },
+              {
+                "action": "reviewed",
+                "actor": "scientist",
+                "detail_digest": "sha256:580a1df39ed1b8a815405d8311101fa115fba21d1ddf444d978d6a19de966ca5",
+                "event_id": "evt-SPM-SYN-0001-004",
+                "occurred_at": "2026-08-17T14:30:00.003Z",
+                "revision": 4
+              },
+              {
+                "action": "released",
+                "actor": "pathologist",
+                "detail_digest": "sha256:04f411f0b1558697d4c9f1490757f1434214067be67321891001c3bb8c4bae70",
+                "event_id": "evt-SPM-SYN-0001-005",
+                "occurred_at": "2026-08-17T14:30:00.004Z",
+                "revision": 5
+              }
+            ],
+            "custody_location": null,
+            "result": {
+              "analyte": "synthetic-copy-number-marker",
+              "quality_flag": "pass",
+              "unit": "copies",
+              "value": 2.0
+            },
+            "revision": 5,
+            "source_alias": "ACCESSION-SYN-2048",
+            "specimen_id": "SPM-SYN-0001",
+            "status": "released",
+            "tenant_id": "TENANT-SYN-GENOMICS"
+          }
+        },
+        "vendor": "Sapio",
+        "vendor_version": "simulated-tenant-2026.3"
+      }
+    }
+  },
+  "simulation_authority": "advisory_only",
+  "simulation_id": "SIM-FINAL-STATE-001"
+}

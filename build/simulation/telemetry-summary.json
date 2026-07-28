@@ -1,0 +1,17 @@
+{
+  "migration_semantic_parity": {
+    "good": 1,
+    "ratio": 1.0,
+    "valid": 1
+  },
+  "restore_within_recovery_objective": {
+    "good": 1,
+    "ratio": 1.0,
+    "valid": 1
+  },
+  "vendor_projection_readback": {
+    "good": 4,
+    "ratio": 1.0,
+    "valid": 4
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "ledger_version": "1.0.0",
+  "assumptions": [
+    {
+      "assumption_id": "ASM-001",
+      "statement": "Configured vendors expose stable identities for authoritative readback.",
+      "owner_role": "platform-integration",
+      "review_by": "2026-09-15",
+      "evidence_mode": "simulated",
+      "falsifier": "configured-environment query returns ambiguous or incomplete identity"
+    },
+    {
+      "assumption_id": "ASM-002",
+      "statement": "A clean restore can reconstruct canonical records, artifacts, audit events, and configuration.",
+      "owner_role": "operations",
+      "review_by": "2026-09-15",
+      "evidence_mode": "simulated",
+      "falsifier": "independent readback differs from the signed snapshot manifest"
+    },
+    {
+      "assumption_id": "ASM-003",
+      "statement": "Named scientific, Quality, and Regulatory owners receive sufficient evidence for separate decisions.",
+      "owner_role": "program-accountability",
+      "review_by": "2026-10-01",
+      "evidence_mode": "simulated",
+      "falsifier": "an approver identifies a missing intended-use or applicability artifact"
+    }
+  ]
+}
+

@@ -1,0 +1,37 @@
+{
+  "ledger_version": "1.0.0",
+  "decisions": [
+    {
+      "decision_id": "DEC-0042",
+      "as_of": "2026-08-17",
+      "question": "How does the adapter resolve an ambiguous vendor write?",
+      "selected_option": "Read by stable request identity before resubmission",
+      "alternatives_considered": ["unconditional resubmission", "manual-only recovery"],
+      "assumptions": ["vendor exposes stable readback or searchable external identity"],
+      "predicted_effects": {"duplicate_effect_probability": "<0.001"},
+      "probability": 0.78,
+      "falsifiers": [
+        "vendor search surface omits stable identity",
+        "readback latency exceeds the approved recovery objective"
+      ],
+      "simulation_authority": "advisory_only",
+      "actual_observation": null,
+      "status": "unexamined"
+    },
+    {
+      "decision_id": "DEC-0043",
+      "as_of": "2026-08-17",
+      "question": "What state owns scientific truth across vendors?",
+      "selected_option": "Versioned canonical laboratory domain with vendor projections",
+      "alternatives_considered": ["vendor-object domain", "point-to-point synchronization"],
+      "assumptions": ["scientific invariants remain portable across configured vendors"],
+      "predicted_effects": {"migration_rework_reduction": "25-40%"},
+      "probability": 0.71,
+      "falsifiers": ["required vendor workflow lacks a lossless canonical representation"],
+      "simulation_authority": "advisory_only",
+      "actual_observation": null,
+      "status": "unexamined"
+    }
+  ]
+}
+
