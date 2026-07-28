@@ -1,20 +1,41 @@
-* @driftframestudios/solution-architecture
-/src/ @driftframestudios/platform-engineering
-/fixtures/ @driftframestudios/scientific-data
-/acceptance/ @driftframestudios/quality-regulatory
-/security/ @driftframestudios/security
-/src/lims_eln_sim/safety.py @driftframestudios/security @driftframestudios/scientific-data
-/src/lims_eln_sim/configuration.py @driftframestudios/security @driftframestudios/platform-engineering
-/infrastructure/aws-runtime-configuration.md @driftframestudios/security @driftframestudios/platform-engineering
-/SECURITY.md @driftframestudios/security
-/release/ @driftframestudios/solution-architecture @driftframestudios/quality-regulatory
-/.github/workflows/ @driftframestudios/security @driftframestudios/platform-engineering
-/.github/dependabot.yml @driftframestudios/security @driftframestudios/platform-engineering
-/tools/check_branch_flow.py @driftframestudios/security @driftframestudios/platform-engineering
-/tools/check_artifacts.py @driftframestudios/security @driftframestudios/platform-engineering
-/tests/test_branch_flow.py @driftframestudios/security @driftframestudios/platform-engineering
-/machine-node.json @driftframestudios/solution-architecture @driftframestudios/quality-regulatory
-/first-receipt.json @driftframestudios/solution-architecture @driftframestudios/quality-regulatory
-/COORDINATION-HORIZON.json @driftframestudios/solution-architecture @driftframestudios/quality-regulatory
-/constellation.lock.json @driftframestudios/solution-architecture @driftframestudios/platform-engineering
-/ledgers/assumptions.json @driftframestudios/scientific-data @driftframestudios/quality-regulatory
+# Enforceable GitHub owner: @driftframestudios.
+# Role vocabulary below preserves the intended accountability map. These
+# labels can become organization teams after an intentional ownership move.
+
+# Default role: solution-architecture
+* @driftframestudios
+
+# Role: platform-engineering
+/src/ @driftframestudios
+
+# Role: scientific-data
+/fixtures/ @driftframestudios
+
+# Roles: quality-regulatory and scientific-data
+/acceptance/ @driftframestudios
+/ledgers/assumptions.json @driftframestudios
+
+# Role: security
+/security/ @driftframestudios
+/SECURITY.md @driftframestudios
+
+# Roles: security and scientific-data
+/src/lims_eln_sim/safety.py @driftframestudios
+
+# Roles: security and platform-engineering
+/src/lims_eln_sim/configuration.py @driftframestudios
+/infrastructure/aws-runtime-configuration.md @driftframestudios
+/.github/workflows/ @driftframestudios
+/.github/dependabot.yml @driftframestudios
+/tools/check_branch_flow.py @driftframestudios
+/tools/check_artifacts.py @driftframestudios
+/tests/test_branch_flow.py @driftframestudios
+
+# Roles: solution-architecture and quality-regulatory
+/release/ @driftframestudios
+/machine-node.json @driftframestudios
+/first-receipt.json @driftframestudios
+/COORDINATION-HORIZON.json @driftframestudios
+
+# Roles: solution-architecture and platform-engineering
+/constellation.lock.json @driftframestudios
