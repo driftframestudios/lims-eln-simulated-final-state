@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.3.1
+
+- Assign the simulated program-owned PostgreSQL schema history to Flyway Community
+  13.0.0 while retaining vendor upgrades and scientific data reconciliation as
+  separate responsibility surfaces.
+- Add a canonical final-state database oracle with native PostgreSQL temporal,
+  boolean, integer, identifier, and exact-decimal primitives.
+- Bind an expand/backfill/validate/cutover/contract manifest to typed migration and
+  release receipts with reconciliation, recovery, and five acceptance projections.
+- Distinguish recomputed canonical record digests from declared selected-future
+  leaf digests whose shape and cross-reference consistency are validated.
+- Require exact JSON primitive types, canonical SHA-256 coordinates, contiguous
+  audit lineage, and timezone-aware domain instants.
+- Evaluate each simulated receipt family from executable evidence criteria.
+- Exercise the declared representative migration corpus and its failure twins.
+- Canonicalize UTC event timestamps across `Z` and `+00:00` inputs.
+- Require the intended-use profile and representative corpus at simulation ingress.
+- Retain a reproducible 2.0.1 closure bundle that binds its source result, governance
+  closure, detailed receipts, and aggregate artifact.
+- Add one stable aggregate validation gate for regeneration, release-manifest
+  integrity, JSON integrity, and repository credential-shape safety.
+- Migrate orientation and constellation bindings to governance 2.0.1 and make the
+  stable aggregate explicitly require a successful proof matrix.
+
 ## 0.3.0
 
 - Selected `future-reality-2028-06-30-v1` as a self-contained simulation baseline.

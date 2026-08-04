@@ -41,6 +41,9 @@ not reopen the simulated closures.
 - Sapio, Benchling, and LabKey behavior through deterministic emulators;
 - stable-request reconciliation after ambiguous vendor writes;
 - representative migration, rollback, clean restore, and data exit;
+- a canonical database oracle binding native PostgreSQL primitives, an
+  expand-through-contract migration manifest, rehearsal evidence, recovery
+  objectives, and five acceptance projections into one comparison coordinate;
 - tenant authorization, recursive keyed trace pseudonymization, telemetry, and incident exercises;
 - an executable AWS Parameter Store and Secrets Manager provider boundary with
   value-free receipts;
@@ -57,14 +60,33 @@ not reopen the simulated closures.
 python -m unittest discover -s tests -v
 PYTHONPATH=src python -m lims_eln_sim.cli \
   --fixture fixtures/golden-specimen.json \
+  --intended-use-profile specification/intended-use-and-applicability-profile.json \
+  --migration-corpus fixtures/representative-migration-corpus.json \
   --output build/simulation
 ```
 
 The command validates the synthetic-data contract and writes a deterministic
 `result.json`, closed receipt bundle, migration report, restore manifest, security
 exercise, bounded-caller evidence, telemetry summary, acceptance decisions, and a
-governance-2.0-conformant `simulated-receipt-closure.json`. Generated build output
-remains a transient workflow artifact.
+governance-2.0-conformant `simulated-receipt-closure.json`. It also writes a
+2.0.1 closure bundle whose source-result digest allows an independent comparator to
+reproduce the aggregate artifact. The byte-identical promoted candidate is retained
+at `release/future-reality-2028-06-30-v1.json`; the aggregate validation gate
+regenerates and compares it after the complete Python test matrix. Generated build
+output remains a transient workflow artifact.
+
+The retained database oracle lives at
+[`database/final-state-database-oracle-v1.json`](database/final-state-database-oracle-v1.json).
+Its validator recomputes the data-contract, migration-manifest, migration-receipt,
+release-receipt, and complete-bundle digests. This provides the comparative system
+with one deterministic final-state coordinate while preserving the boundary between
+simulated acceptance and accountable environment observation.
+
+The selected future assigns repository-owned PostgreSQL schema evolution to Flyway
+Community 13.0.0. Vendor-owned LIMS and ELN schemas continue through their supported
+upgrade paths and APIs. Cross-platform scientific data movement remains a separately
+checkpointed and reconciled program concern, so the simulation evaluates semantic
+parity without modeling a second schema-migration runner.
 
 ## Coordination Horizon
 
