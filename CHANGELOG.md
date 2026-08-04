@@ -6,6 +6,8 @@
   boolean, integer, identifier, and exact-decimal primitives.
 - Bind an expand/backfill/validate/cutover/contract manifest to typed migration and
   release receipts with reconciliation, recovery, and five acceptance projections.
+- Distinguish recomputed canonical record digests from declared selected-future
+  leaf digests whose shape and cross-reference consistency are validated.
 - Require exact JSON primitive types, canonical SHA-256 coordinates, contiguous
   audit lineage, and timezone-aware domain instants.
 - Evaluate each simulated receipt family from executable evidence criteria.
