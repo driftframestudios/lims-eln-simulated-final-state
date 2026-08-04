@@ -11,7 +11,7 @@
     {
       "contract_id": "SIMULATED-SUBSTANTIVE-CLOSURE-2028-V1",
       "version": "2.0.0",
-      "digest": "sha256:c402e7a72d9066424d5b83c8fda51ca2fad43c025d017a5f5535126239c96ffb"
+      "digest": "sha256:dee2ea77b24c0b4b115316cfad17463fdc4ace122ae1bdbeb0459c50744532dd"
     },
     {
       "contract_id": "SIMULATION-BOUNDED-CALLER-001",
@@ -21,7 +21,7 @@
     {
       "contract_id": "SIMULATED-FAMILY-RECEIPTS-2028-V1",
       "version": "2.0.0",
-      "digest": "sha256:bc0c2605a5bdbf4a888919212eaa340b5e5ffebfa8838cc827aa503454b340c0"
+      "digest": "sha256:1503998fc85536f9a869735712cc4d1eec3ce0a0cb80d7267c966d26982d7967"
     }
   ],
   "evidence_posture": [

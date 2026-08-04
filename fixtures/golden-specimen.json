@@ -1,6 +1,6 @@
 {
   "fixture_class": "synthetic",
-  "fixture_version": "1.0.0",
+  "fixture_version": "2.0.0",
   "clock": "2026-08-17T14:30:00Z",
   "tenant_id": "TENANT-SYN-GENOMICS",
   "specimen_id": "SPM-SYN-0001",
@@ -11,9 +11,33 @@
   "observed_recovery_seconds": 42,
   "interpretation": "quality thresholds met for simulated release",
   "result": {
-    "analyte": "synthetic-copy-number-marker",
-    "value": 2.0,
-    "unit": "copies",
+    "assay_code": "SYN-CNV-001",
+    "analyte_code": "synthetic-copy-number-marker",
+    "method_code": "SYN-QPCR",
+    "method_revision": 3,
+    "assay_specification_id": "10000000-0000-4000-8000-000000000001",
+    "specification_version": 2,
+    "raw_value_lexeme": "2.0",
+    "raw_value": "2.000000000000",
+    "source_unit": "copies/uL",
+    "canonical_value": "2.000000000000",
+    "canonical_unit": "{copies}/uL",
+    "unit_vocabulary": "UCUM",
+    "unit_vocabulary_version": "UCUM-2.2",
+    "unit_mapping_revision": "UNIT-MAP-CNV-004",
+    "conversion_rule_version": "CONVERSION-CNV-004",
+    "rounding_mode": "half_even",
+    "qualifier": null,
+    "reference_interval": {
+      "lower": "1.500000000000",
+      "upper": "2.500000000000"
+    },
+    "detection_limits": {
+      "lower": "0.250000000000",
+      "upper_quantitation": "50000.000000000000"
+    },
+    "observed_at": "2026-08-17T14:29:58.000Z",
+    "recorded_at": "2026-08-17T14:30:00.000Z",
     "quality_flag": "pass"
   },
   "artifact": {

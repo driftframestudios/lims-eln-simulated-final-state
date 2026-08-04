@@ -1,36 +1,36 @@
 {
   "manifest_version": "2.0.0",
   "repository_role": "simulated_final_state",
-  "repository_release": "0.3.1",
+  "repository_release": "0.3.2",
   "external_release": "forecast-2028-FR-v1",
-  "reference_result_digest": "sha256:9d42b972c77764c81ff32fefe8f02367a27406e9ba082a704587cc9b5a9da860",
-  "reference_closure_digest": "sha256:c402e7a72d9066424d5b83c8fda51ca2fad43c025d017a5f5535126239c96ffb",
-  "aggregate_closure_artifact_digest": "sha256:2d8e67ec2da8236fc23de7943e7727d2b74e0e6ee2b15afd9c765443b9c52b61",
+  "reference_result_digest": "sha256:6cfe1d90692cf72c653a0f5637323ee80f206887e9e075a9a8a5bbdf2f4757b3",
+  "reference_closure_digest": "sha256:dee2ea77b24c0b4b115316cfad17463fdc4ace122ae1bdbeb0459c50744532dd",
+  "aggregate_closure_artifact_digest": "sha256:5625fb71b14bbd722f303bb8965e7e98cae602423accee3cc27bc60e6683819d",
   "canonical_closure_bundle": {
     "path": "release/future-reality-2028-06-30-v1.json",
     "bundle_version": "2.0.1",
-    "canonical_json_digest": "sha256:04c94dff906ddb83607aa14ea4fc618cf97e040d02b427680c7512a0818be7b4",
-    "file_sha256": "sha256:b868604412039c3705d4b60e649c43da2f51592ca0215d22ebe4477b75016ef4"
+    "canonical_json_digest": "sha256:efdffcd183bcb1e81e096374bbba5849fdfc8e220aa62c63f45975a0c2ad6beb",
+    "file_sha256": "sha256:7a159e368791a16cc57dd8974e9341872e9f2a00baf3d727a9a538956fdcaa33"
   },
   "database_oracle": {
-    "path": "database/final-state-database-oracle-v1.json",
-    "bundle_version": "1.0.0",
-    "canonical_json_digest": "sha256:d6d45141adf5b493f5739d57f2299d002e7c2a328d59a026c76dca17a7bb68f2",
+    "path": "database/final-state-database-oracle-v2.json",
+    "bundle_version": "2.0.0",
+    "canonical_json_digest": "sha256:1ca68db8055b466e8ef575e1cd0c0a9d426decc180690c73ae9a88ddb7ba0644",
     "release_coordinates": {
-      "oracle_id": "ORACLE-DATABASE-FINAL-STATE-001",
-      "oracle_version": "1.0.0",
-      "database_release": "database-final-state-v1",
-      "data_contract_id": "CONTRACT-LABORATORY-CORE-001",
-      "data_contract_version": "1.0.0",
-      "data_contract_digest": "sha256:8c50463132809dbcf4bcfee1a1fda94d3c74de532387c13fc68f09603f5f1684",
-      "migration_manifest_id": "MANIFEST-DATABASE-MIGRATION-001",
-      "migration_manifest_version": "1.0.0",
-      "migration_manifest_digest": "sha256:e77fc009d4c7c5da2adc670ba54b699b21f2a2edce5e8c5841c2ff33ea914098",
-      "migration_receipt_id": "RECEIPT-DATABASE-MIGRATION-SIM-001",
-      "migration_receipt_digest": "sha256:bb48765cc0cabf23fa9d78e365f751cc005c441471370c862c2cc4442a840c24",
-      "release_receipt_id": "RECEIPT-DATABASE-RELEASE-SIM-001",
-      "release_receipt_digest": "sha256:2a5ae9db07b7f36bf82878e36d38e795ec81773cf551e22408c947b038d13346",
-      "schema_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+      "oracle_id": "ORACLE-DATABASE-FINAL-STATE-002",
+      "oracle_version": "2.0.0",
+      "database_release": "database-final-state-v2",
+      "data_contract_id": "CONTRACT-LABORATORY-CORE-002",
+      "data_contract_version": "2.0.0",
+      "data_contract_digest": "sha256:9b88582b00ba65f96f8feddc42ab2da6a569d22e85ca8220b50494689c13f691",
+      "migration_manifest_id": "MANIFEST-DATABASE-MIGRATION-002",
+      "migration_manifest_version": "2.0.0",
+      "migration_manifest_digest": "sha256:804195a301d3509965555c057d4dc3b5fca6c5b043ab31455e7102330b0322f2",
+      "migration_receipt_id": "RECEIPT-DATABASE-MIGRATION-SIM-002",
+      "migration_receipt_digest": "sha256:c22c64d9aa03f1a31dcc88c764b46df7850597d09b35c445c7ce63532c854564",
+      "release_receipt_id": "RECEIPT-DATABASE-RELEASE-SIM-002",
+      "release_receipt_digest": "sha256:d8b4db48094584f926c391e04365c27db4ecbad96b95bbd43418a0304eb23d12",
+      "schema_digest": "sha256:1f9f23687a349876079f21063b9904b275933519eb442936056e780fa07101bd"
     }
   },
   "authority_posture": "definitive_within_selected_future_reality",
@@ -57,10 +57,10 @@
   "contract_bindings": {
     "governance_schema": "2.0.1",
     "control_plane_profile": "0.3.0",
-    "synthetic_fixture_schema": "1.0.0",
+    "synthetic_fixture_schema": "2.0.0",
     "simulated_receipt_schema": "2.0.0",
     "simulated_closure_bundle_schema": "2.0.1",
-    "database_oracle_bundle": "1.0.0",
+    "database_oracle_bundle": "2.0.0",
     "observation_envelope_schema": "1.0.0"
   },
   "release_coordinates": {

@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.3.2
+
+- Add the v2 selected-future database oracle with tenant-preserving composite
+  keys, forced default-deny row-level security, and distinct internal and external
+  identity semantics.
+- Bind occurrence and recording instants, raw and canonical quantities,
+  assay/method revisions, versioned UCUM mappings, qualifiers, reference intervals,
+  detection limits, conversion and rounding provenance, and 32-byte digest metadata.
+- Strengthen the oracle validator with executable field, key, foreign-key, RLS,
+  quantity-contract, and migration-invariant checks.
+- Expand the representative migration corpus across two tenants, assay revisions,
+  qualifier states, canonical units, and ordered occurrence/recording evidence.
+- Retain the v1 oracle as a historical comparison surface and preserve simulated
+  authority, independent observed acceptance, and the existing open receipts.
+
 ## 0.3.1
 
 - Assign the simulated program-owned PostgreSQL schema history to Flyway Community

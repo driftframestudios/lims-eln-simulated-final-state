@@ -76,11 +76,20 @@ regenerates and compares it after the complete Python test matrix. Generated bui
 output remains a transient workflow artifact.
 
 The retained database oracle lives at
-[`database/final-state-database-oracle-v1.json`](database/final-state-database-oracle-v1.json).
+[`database/final-state-database-oracle-v2.json`](database/final-state-database-oracle-v2.json).
 Its validator recomputes the data-contract, migration-manifest, migration-receipt,
 release-receipt, and complete-bundle digests. This provides the comparative system
 with one deterministic final-state coordinate while preserving the boundary between
 simulated acceptance and accountable environment observation.
+
+The v2 oracle treats tenant identity as the leading component of every primary and
+foreign key and requires forced default-deny row-level security. It separates UUID
+internal identity from constrained external identity, occurrence from recording
+time, and raw quantity from canonical quantity. Scientific results bind their assay
+and method revision, numeric profile, source unit, versioned UCUM mapping, qualifier,
+reference interval, detection limits, conversion and rounding provenance, and
+32-byte semantic digest. The v1 oracle remains available as historical comparison
+material.
 
 The selected future assigns repository-owned PostgreSQL schema evolution to Flyway
 Community 13.0.0. Vendor-owned LIMS and ELN schemas continue through their supported

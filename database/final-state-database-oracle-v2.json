@@ -1,0 +1,947 @@
+{
+  "oracle_version": "2.0.0",
+  "oracle_id": "ORACLE-DATABASE-FINAL-STATE-002",
+  "evidence_mode": "simulated",
+  "authority": "simulation_only",
+  "actual_acceptance_required": true,
+  "data_contract": {
+    "data_contract_id": "CONTRACT-LABORATORY-CORE-002",
+    "version": "2.0.0",
+    "status": "approved_in_selected_future",
+    "purpose": "Preserve tenant-scoped laboratory identity, scientific quantity meaning, lineage, and lifecycle time with native PostgreSQL primitives and explicit provenance.",
+    "program_policy_bindings": [
+      "DATA-TIME-001",
+      "DATA-ID-001",
+      "DATA-DIGEST-001",
+      "DATA-MEASURE-001",
+      "DATA-UNIT-001",
+      "DATA-TENANT-001"
+    ],
+    "database": {
+      "engine_family": "postgresql",
+      "engine_version": "17.10",
+      "selected_major_version": 17,
+      "supported_major_versions": [17, 18],
+      "collation": "C.UTF-8",
+      "database_timezone": "UTC",
+      "canonical_json_profile": "RFC-8785-compatible-v1",
+      "unit_vocabulary": "UCUM",
+      "settings_digest": "sha256:cf4034c52f51d4cf0126745bcee8466814f4d5884df08908d2ee5a5bb82bdfd1",
+      "migration_history_table": "public.flyway_schema_history"
+    },
+    "entities": [
+      {
+        "entity_id": "ENTITY-TENANT",
+        "table_name": "laboratory.tenant",
+        "purpose": "Bind one internal tenant identity to one constrained external namespace.",
+        "tenant_scoped": true,
+        "fields": [
+          {
+            "field_id": "TENANT-ID",
+            "column_name": "tenant_id",
+            "semantic_type": "internal_identifier",
+            "physical_type": "uuid",
+            "nullable": false,
+            "identity_role": "internal"
+          },
+          {
+            "field_id": "EXTERNAL-TENANT-ID",
+            "column_name": "external_tenant_id",
+            "semantic_type": "external_identifier",
+            "physical_type": "text",
+            "nullable": false,
+            "identity_role": "external",
+            "max_length": 128,
+            "pattern": "^[A-Z0-9][A-Z0-9._:-]{0,127}$",
+            "normalization": "NFC",
+            "collation": "C"
+          },
+          {
+            "field_id": "CREATED-AT",
+            "column_name": "created_at",
+            "semantic_type": "instant",
+            "physical_type": "timestamptz",
+            "nullable": false,
+            "temporal_semantics": "absolute_instant",
+            "temporal_role": "occurrence"
+          },
+          {
+            "field_id": "RECORDED-AT",
+            "column_name": "recorded_at",
+            "semantic_type": "instant",
+            "physical_type": "timestamptz",
+            "nullable": false,
+            "temporal_semantics": "absolute_instant",
+            "temporal_role": "recording"
+          }
+        ],
+        "primary_key_field_ids": ["TENANT-ID"],
+        "foreign_keys": [],
+        "unique_keys": [
+          {
+            "constraint_id": "TENANT-EXTERNAL-ID-UQ",
+            "field_ids": ["EXTERNAL-TENANT-ID"]
+          }
+        ],
+        "row_level_security": {
+          "enabled": true,
+          "forced": true,
+          "tenant_field_id": "TENANT-ID",
+          "session_setting": "app.tenant_id",
+          "policy_mode": "default_deny",
+          "commands": ["select", "insert", "update", "delete"]
+        },
+        "quantity_contracts": []
+      },
+      {
+        "entity_id": "ENTITY-ASSAY-SPECIFICATION",
+        "table_name": "laboratory.assay_specification",
+        "purpose": "Version assay, analyte, method, decimal, rounding, and canonical-unit semantics together.",
+        "tenant_scoped": true,
+        "fields": [
+          {
+            "field_id": "TENANT-ID",
+            "column_name": "tenant_id",
+            "semantic_type": "internal_identifier",
+            "physical_type": "uuid",
+            "nullable": false,
+            "identity_role": "internal"
+          },
+          {
+            "field_id": "ASSAY-SPECIFICATION-ID",
+            "column_name": "assay_specification_id",
+            "semantic_type": "internal_identifier",
+            "physical_type": "uuid",
+            "nullable": false,
+            "identity_role": "internal"
+          },
+          {
+            "field_id": "SPECIFICATION-VERSION",
+            "column_name": "specification_version",
+            "semantic_type": "integer",
+            "physical_type": "integer",
+            "nullable": false
+          },
+          {
+            "field_id": "ASSAY-CODE",
+            "column_name": "assay_code",
+            "semantic_type": "external_identifier",
+            "physical_type": "text",
+            "nullable": false,
+            "identity_role": "external",
+            "max_length": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "normalization": "NFC",
+            "collation": "C"
+          },
+          {
+            "field_id": "ANALYTE-CODE",
+            "column_name": "analyte_code",
+            "semantic_type": "controlled_code",
+            "physical_type": "text",
+            "nullable": false
+          },
+          {
+            "field_id": "METHOD-CODE",
+            "column_name": "method_code",
+            "semantic_type": "external_identifier",
+            "physical_type": "text",
+            "nullable": false,
+            "identity_role": "external",
+            "max_length": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+            "normalization": "NFC",
+            "collation": "C"
+          },
+          {
+            "field_id": "METHOD-REVISION",
+            "column_name": "method_revision",
+            "semantic_type": "integer",
+            "physical_type": "integer",
+            "nullable": false
+          },
+          {
+            "field_id": "DECIMAL-PRECISION",
+            "column_name": "decimal_precision",
+            "semantic_type": "integer",
+            "physical_type": "smallint",
+            "nullable": false
+          },
+          {
+            "field_id": "DECIMAL-SCALE",
+            "column_name": "decimal_scale",
+            "semantic_type": "integer",
+            "physical_type": "smallint",
+            "nullable": false
+          },
+          {
+            "field_id": "ROUNDING-MODE",
+            "column_name": "rounding_mode",
+            "semantic_type": "controlled_code",
+            "physical_type": "text",
+            "nullable": false
+          },
+          {
+            "field_id": "UNIT-MAPPING-REVISION",
+            "column_name": "unit_mapping_revision",
+            "semantic_type": "external_identifier",
+            "physical_type": "text",
+            "nullable": false,
+            "identity_role": "external",
+            "max_length": 64,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$",
+            "normalization": "NFC",
+            "collation": "C"
+          },
+          {
+            "field_id": "CANONICAL-UNIT",
+            "column_name": "canonical_unit",
+            "semantic_type": "unit_code",
+            "physical_type": "text",
+            "nullable": false,
+            "unit_role": "canonical",
+            "vocabulary_system": "UCUM",
+            "vocabulary_version": "UCUM-2.2",
+            "mapping_revision_field_id": "UNIT-MAPPING-REVISION"
+          },
+          {
+            "field_id": "EFFECTIVE-AT",
+            "column_name": "effective_at",
+            "semantic_type": "instant",
+            "physical_type": "timestamptz",
+            "nullable": false,
+            "temporal_semantics": "absolute_instant",
+            "temporal_role": "occurrence"
+          },
+          {
+            "field_id": "RECORDED-AT",
+            "column_name": "recorded_at",
+            "semantic_type": "instant",
+            "physical_type": "timestamptz",
+            "nullable": false,
+            "temporal_semantics": "absolute_instant",
+            "temporal_role": "recording"
+          },
+          {
+            "field_id": "SPECIFICATION-DIGEST",
+            "column_name": "specification_sha256",
+            "semantic_type": "digest",
+            "physical_type": "bytea",
+            "nullable": false,
+            "algorithm": "sha256",
+            "length_bytes": 32,
+            "canonicalization_profile": "RFC-8785-compatible-v1",
+            "content_scope": "assay specification semantic content"
+          }
+        ],
+        "primary_key_field_ids": [
+          "TENANT-ID",
+          "ASSAY-SPECIFICATION-ID",
+          "SPECIFICATION-VERSION"
+        ],
+        "foreign_keys": [
+          {
+            "constraint_id": "ASSAY-SPECIFICATION-TENANT-FK",
+            "field_ids": ["TENANT-ID"],
+            "references_entity_id": "ENTITY-TENANT",
+            "references_field_ids": ["TENANT-ID"],
+            "on_update": "restrict",
+            "on_delete": "restrict"
+          }
+        ],
+        "unique_keys": [
+          {
+            "constraint_id": "ASSAY-SPECIFICATION-CODE-UQ",
+            "field_ids": ["TENANT-ID", "ASSAY-CODE", "SPECIFICATION-VERSION"]
+          }
+        ],
+        "row_level_security": {
+          "enabled": true,
+          "forced": true,
+          "tenant_field_id": "TENANT-ID",
+          "session_setting": "app.tenant_id",
+          "policy_mode": "default_deny",
+          "commands": ["select", "insert", "update", "delete"]
+        },
+        "quantity_contracts": []
+      },
+      {
+        "entity_id": "ENTITY-SPECIMEN",
+        "table_name": "laboratory.specimen",
+        "purpose": "Govern one tenant-scoped specimen through its durable lifecycle and external namespace.",
+        "tenant_scoped": true,
+        "fields": [
+          {
+            "field_id": "TENANT-ID",
+            "column_name": "tenant_id",
+            "semantic_type": "internal_identifier",
+            "physical_type": "uuid",
+            "nullable": false,
+            "identity_role": "internal"
+          },
+          {
+            "field_id": "SPECIMEN-ID",
+            "column_name": "specimen_id",
+            "semantic_type": "internal_identifier",
+            "physical_type": "uuid",
+            "nullable": false,
+            "identity_role": "internal"
+          },
+          {
+            "field_id": "EXTERNAL-SPECIMEN-ID",
+            "column_name": "external_specimen_id",
+            "semantic_type": "external_identifier",
+            "physical_type": "text",
+            "nullable": false,
+            "identity_role": "external",
+            "max_length": 256,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}$",
+            "normalization": "NFC",
+            "collation": "C"
+          },
+          {
+            "field_id": "COLLECTION-DATE",
+            "column_name": "collection_date",
+            "semantic_type": "civil_date",
+            "physical_type": "date",
+            "nullable": true,
+            "temporal_semantics": "civil_date"
+          },
+          {
+            "field_id": "RECEIVED-AT",
+            "column_name": "received_at",
+            "semantic_type": "instant",
+            "physical_type": "timestamptz",
+            "nullable": false,
+            "temporal_semantics": "absolute_instant",
+            "temporal_role": "occurrence"
+          },
+          {
+            "field_id": "RECORDED-AT",
+            "column_name": "recorded_at",
+            "semantic_type": "instant",
+            "physical_type": "timestamptz",
+            "nullable": false,
+            "temporal_semantics": "absolute_instant",
+            "temporal_role": "recording"
+          },
+          {
+            "field_id": "UPDATED-AT",
+            "column_name": "updated_at",
+            "semantic_type": "instant",
+            "physical_type": "timestamptz",
+            "nullable": false,
+            "temporal_semantics": "absolute_instant",
+            "temporal_role": "recording"
+          },
+          {
+            "field_id": "IS-RELEASED",
+            "column_name": "is_released",
+            "semantic_type": "boolean",
+            "physical_type": "boolean",
+            "nullable": false
+          },
+          {
+            "field_id": "REVISION",
+            "column_name": "revision",
+            "semantic_type": "integer",
+            "physical_type": "bigint",
+            "nullable": false
+          },
+          {
+            "field_id": "CONTENT-DIGEST",
+            "column_name": "canonical_sha256",
+            "semantic_type": "digest",
+            "physical_type": "bytea",
+            "nullable": false,
+            "algorithm": "sha256",
+            "length_bytes": 32,
+            "canonicalization_profile": "RFC-8785-compatible-v1",
+            "content_scope": "canonical specimen semantic content"
+          }
+        ],
+        "primary_key_field_ids": ["TENANT-ID", "SPECIMEN-ID"],
+        "foreign_keys": [
+          {
+            "constraint_id": "SPECIMEN-TENANT-FK",
+            "field_ids": ["TENANT-ID"],
+            "references_entity_id": "ENTITY-TENANT",
+            "references_field_ids": ["TENANT-ID"],
+            "on_update": "restrict",
+            "on_delete": "restrict"
+          }
+        ],
+        "unique_keys": [
+          {
+            "constraint_id": "SPECIMEN-EXTERNAL-ID-UQ",
+            "field_ids": ["TENANT-ID", "EXTERNAL-SPECIMEN-ID"]
+          }
+        ],
+        "row_level_security": {
+          "enabled": true,
+          "forced": true,
+          "tenant_field_id": "TENANT-ID",
+          "session_setting": "app.tenant_id",
+          "policy_mode": "default_deny",
+          "commands": ["select", "insert", "update", "delete"]
+        },
+        "quantity_contracts": []
+      },
+      {
+        "entity_id": "ENTITY-RESULT-OBSERVATION",
+        "table_name": "laboratory.result_observation",
+        "purpose": "Preserve one measured observation with source and canonical quantity meaning and conversion evidence.",
+        "tenant_scoped": true,
+        "fields": [
+          {
+            "field_id": "TENANT-ID",
+            "column_name": "tenant_id",
+            "semantic_type": "internal_identifier",
+            "physical_type": "uuid",
+            "nullable": false,
+            "identity_role": "internal"
+          },
+          {
+            "field_id": "OBSERVATION-ID",
+            "column_name": "observation_id",
+            "semantic_type": "internal_identifier",
+            "physical_type": "uuid",
+            "nullable": false,
+            "identity_role": "internal"
+          },
+          {
+            "field_id": "EXTERNAL-OBSERVATION-ID",
+            "column_name": "external_observation_id",
+            "semantic_type": "external_identifier",
+            "physical_type": "text",
+            "nullable": false,
+            "identity_role": "external",
+            "max_length": 256,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}$",
+            "normalization": "NFC",
+            "collation": "C"
+          },
+          {
+            "field_id": "SPECIMEN-ID",
+            "column_name": "specimen_id",
+            "semantic_type": "internal_identifier",
+            "physical_type": "uuid",
+            "nullable": false,
+            "identity_role": "internal"
+          },
+          {
+            "field_id": "ASSAY-SPECIFICATION-ID",
+            "column_name": "assay_specification_id",
+            "semantic_type": "internal_identifier",
+            "physical_type": "uuid",
+            "nullable": false,
+            "identity_role": "internal"
+          },
+          {
+            "field_id": "SPECIFICATION-VERSION",
+            "column_name": "specification_version",
+            "semantic_type": "integer",
+            "physical_type": "integer",
+            "nullable": false
+          },
+          {
+            "field_id": "RAW-VALUE-LEXEME",
+            "column_name": "raw_value_lexeme",
+            "semantic_type": "raw_numeric_lexeme",
+            "physical_type": "text",
+            "nullable": false
+          },
+          {
+            "field_id": "RAW-VALUE",
+            "column_name": "raw_value",
+            "semantic_type": "exact_decimal",
+            "physical_type": "numeric(38,12)",
+            "nullable": false,
+            "precision": 38,
+            "scale": 12,
+            "numeric_profile": "NUMERIC-PROFILE-ASSAY-SPECIFICATION"
+          },
+          {
+            "field_id": "SOURCE-UNIT",
+            "column_name": "source_unit",
+            "semantic_type": "unit_code",
+            "physical_type": "text",
+            "nullable": false,
+            "unit_role": "source"
+          },
+          {
+            "field_id": "CANONICAL-VALUE",
+            "column_name": "canonical_value",
+            "semantic_type": "exact_decimal",
+            "physical_type": "numeric(38,12)",
+            "nullable": false,
+            "precision": 38,
+            "scale": 12,
+            "numeric_profile": "NUMERIC-PROFILE-ASSAY-SPECIFICATION"
+          },
+          {
+            "field_id": "UNIT-MAPPING-REVISION",
+            "column_name": "unit_mapping_revision",
+            "semantic_type": "external_identifier",
+            "physical_type": "text",
+            "nullable": false,
+            "identity_role": "external",
+            "max_length": 64,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$",
+            "normalization": "NFC",
+            "collation": "C"
+          },
+          {
+            "field_id": "CANONICAL-UNIT",
+            "column_name": "canonical_unit",
+            "semantic_type": "unit_code",
+            "physical_type": "text",
+            "nullable": false,
+            "unit_role": "canonical",
+            "vocabulary_system": "UCUM",
+            "vocabulary_version": "UCUM-2.2",
+            "mapping_revision_field_id": "UNIT-MAPPING-REVISION"
+          },
+          {
+            "field_id": "QUALIFIER",
+            "column_name": "qualifier",
+            "semantic_type": "controlled_code",
+            "physical_type": "text",
+            "nullable": true
+          },
+          {
+            "field_id": "REFERENCE-INTERVAL-LOW",
+            "column_name": "reference_interval_low",
+            "semantic_type": "exact_decimal",
+            "physical_type": "numeric(38,12)",
+            "nullable": true,
+            "precision": 38,
+            "scale": 12,
+            "numeric_profile": "NUMERIC-PROFILE-ASSAY-SPECIFICATION"
+          },
+          {
+            "field_id": "REFERENCE-INTERVAL-HIGH",
+            "column_name": "reference_interval_high",
+            "semantic_type": "exact_decimal",
+            "physical_type": "numeric(38,12)",
+            "nullable": true,
+            "precision": 38,
+            "scale": 12,
+            "numeric_profile": "NUMERIC-PROFILE-ASSAY-SPECIFICATION"
+          },
+          {
+            "field_id": "LOWER-DETECTION-LIMIT",
+            "column_name": "lower_detection_limit",
+            "semantic_type": "exact_decimal",
+            "physical_type": "numeric(38,12)",
+            "nullable": true,
+            "precision": 38,
+            "scale": 12,
+            "numeric_profile": "NUMERIC-PROFILE-ASSAY-SPECIFICATION"
+          },
+          {
+            "field_id": "UPPER-QUANTITATION-LIMIT",
+            "column_name": "upper_quantitation_limit",
+            "semantic_type": "exact_decimal",
+            "physical_type": "numeric(38,12)",
+            "nullable": true,
+            "precision": 38,
+            "scale": 12,
+            "numeric_profile": "NUMERIC-PROFILE-ASSAY-SPECIFICATION"
+          },
+          {
+            "field_id": "CONVERSION-RULE-VERSION",
+            "column_name": "conversion_rule_version",
+            "semantic_type": "external_identifier",
+            "physical_type": "text",
+            "nullable": false,
+            "identity_role": "external",
+            "max_length": 64,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$",
+            "normalization": "NFC",
+            "collation": "C"
+          },
+          {
+            "field_id": "ROUNDING-MODE",
+            "column_name": "rounding_mode",
+            "semantic_type": "controlled_code",
+            "physical_type": "text",
+            "nullable": false
+          },
+          {
+            "field_id": "CONTENT-DIGEST",
+            "column_name": "content_sha256",
+            "semantic_type": "digest",
+            "physical_type": "bytea",
+            "nullable": false,
+            "algorithm": "sha256",
+            "length_bytes": 32,
+            "canonicalization_profile": "RFC-8785-compatible-v1",
+            "content_scope": "result quantity unit method and provenance semantic content"
+          },
+          {
+            "field_id": "OBSERVED-AT",
+            "column_name": "observed_at",
+            "semantic_type": "instant",
+            "physical_type": "timestamptz",
+            "nullable": false,
+            "temporal_semantics": "absolute_instant",
+            "temporal_role": "occurrence"
+          },
+          {
+            "field_id": "RECORDED-AT",
+            "column_name": "recorded_at",
+            "semantic_type": "instant",
+            "physical_type": "timestamptz",
+            "nullable": false,
+            "temporal_semantics": "absolute_instant",
+            "temporal_role": "recording"
+          }
+        ],
+        "primary_key_field_ids": ["TENANT-ID", "OBSERVATION-ID"],
+        "foreign_keys": [
+          {
+            "constraint_id": "RESULT-TENANT-FK",
+            "field_ids": ["TENANT-ID"],
+            "references_entity_id": "ENTITY-TENANT",
+            "references_field_ids": ["TENANT-ID"],
+            "on_update": "restrict",
+            "on_delete": "restrict"
+          },
+          {
+            "constraint_id": "RESULT-SPECIMEN-FK",
+            "field_ids": ["TENANT-ID", "SPECIMEN-ID"],
+            "references_entity_id": "ENTITY-SPECIMEN",
+            "references_field_ids": ["TENANT-ID", "SPECIMEN-ID"],
+            "on_update": "restrict",
+            "on_delete": "restrict"
+          },
+          {
+            "constraint_id": "RESULT-ASSAY-SPECIFICATION-FK",
+            "field_ids": [
+              "TENANT-ID",
+              "ASSAY-SPECIFICATION-ID",
+              "SPECIFICATION-VERSION"
+            ],
+            "references_entity_id": "ENTITY-ASSAY-SPECIFICATION",
+            "references_field_ids": [
+              "TENANT-ID",
+              "ASSAY-SPECIFICATION-ID",
+              "SPECIFICATION-VERSION"
+            ],
+            "on_update": "restrict",
+            "on_delete": "restrict"
+          }
+        ],
+        "unique_keys": [
+          {
+            "constraint_id": "RESULT-EXTERNAL-ID-UQ",
+            "field_ids": ["TENANT-ID", "EXTERNAL-OBSERVATION-ID"]
+          }
+        ],
+        "row_level_security": {
+          "enabled": true,
+          "forced": true,
+          "tenant_field_id": "TENANT-ID",
+          "session_setting": "app.tenant_id",
+          "policy_mode": "default_deny",
+          "commands": ["select", "insert", "update", "delete"]
+        },
+        "quantity_contracts": [
+          {
+            "quantity_contract_id": "QUANTITY-RESULT-OBSERVATION-001",
+            "raw_value_lexeme_field_id": "RAW-VALUE-LEXEME",
+            "raw_value_field_id": "RAW-VALUE",
+            "source_unit_field_id": "SOURCE-UNIT",
+            "canonical_value_field_id": "CANONICAL-VALUE",
+            "canonical_unit_field_id": "CANONICAL-UNIT",
+            "assay_specification_id_field_id": "ASSAY-SPECIFICATION-ID",
+            "assay_specification_version_field_id": "SPECIFICATION-VERSION",
+            "qualifier_field_id": "QUALIFIER",
+            "reference_interval_low_field_id": "REFERENCE-INTERVAL-LOW",
+            "reference_interval_high_field_id": "REFERENCE-INTERVAL-HIGH",
+            "lower_detection_limit_field_id": "LOWER-DETECTION-LIMIT",
+            "upper_quantitation_limit_field_id": "UPPER-QUANTITATION-LIMIT",
+            "conversion_rule_version_field_id": "CONVERSION-RULE-VERSION",
+            "rounding_mode_field_id": "ROUNDING-MODE",
+            "unit_mapping_revision_field_id": "UNIT-MAPPING-REVISION",
+            "content_digest_field_id": "CONTENT-DIGEST"
+          }
+        ]
+      }
+    ],
+    "invariants": [
+      "Every tenant-owned primary and foreign key begins with the internal tenant UUID and every tenant-owned relation uses forced default-deny row-level security.",
+      "Internal UUIDs and constrained source-scoped external identifiers retain distinct semantic types.",
+      "Business occurrence and server recording instants remain distinct timezone-aware PostgreSQL values.",
+      "Every scientific quantity links raw lexeme, raw value and unit, canonical value and UCUM unit, assay specification, method revision, qualifier, reference interval, detection limits, conversion rule, rounding rule, and mapping revision.",
+      "Every canonical digest is a 32-byte SHA-256 value bound to canonicalization version and declared content scope.",
+      "Every scientific decimal uses the precision and scale selected by its versioned assay specification.",
+      "Every release decision retains append-oriented evidence and separate environment-observed acceptance."
+    ]
+  },
+  "migration_manifest": {
+    "migration_manifest_id": "MANIFEST-DATABASE-MIGRATION-002",
+    "version": "2.0.0",
+    "data_contract": {
+      "id": "CONTRACT-LABORATORY-CORE-002",
+      "version": "2.0.0",
+      "digest": "sha256:9b88582b00ba65f96f8feddc42ab2da6a569d22e85ca8220b50494689c13f691"
+    },
+    "tool": {
+      "name": "Flyway Community",
+      "version": "13.0.0",
+      "implementation_digest": "sha256:031722729a3c47c61bc7a22db507975dfaa9c31138815977f82adb408b60563e"
+    },
+    "script_digest": "sha256:824d987bb508b4f683c01199103adbac7bccfabe60c56fb30fc6d3f69fcf5389",
+    "source_schema_digest": "sha256:648883fb46d3117a082aff3f4eed86e5a99a679fc6b2d7b8e5396beb179e1540",
+    "target_schema_digest": "sha256:1f9f23687a349876079f21063b9904b275933519eb442936056e780fa07101bd",
+    "phases": [
+      {
+        "phase_id": "PHASE-EXPAND-002",
+        "phase_type": "expand",
+        "sequence": 1,
+        "lock_budget_milliseconds": 500,
+        "statement_budget_milliseconds": 5000,
+        "checkpoint_strategy": "Create tenant-preserving keys, native primitive columns, profile relations, and validation-ready constraints."
+      },
+      {
+        "phase_id": "PHASE-BACKFILL-002",
+        "phase_type": "backfill",
+        "sequence": 2,
+        "lock_budget_milliseconds": 250,
+        "statement_budget_milliseconds": 30000,
+        "checkpoint_strategy": "Advance restartable keyset batches while retaining source lexemes, mapping provenance, and source-to-target checksums."
+      },
+      {
+        "phase_id": "PHASE-VALIDATE-002",
+        "phase_type": "validate",
+        "sequence": 3,
+        "lock_budget_milliseconds": 500,
+        "statement_budget_milliseconds": 30000,
+        "checkpoint_strategy": "Validate tenant, temporal, identity, digest, quantity, unit, count, and semantic-parity invariants."
+      },
+      {
+        "phase_id": "PHASE-CUTOVER-002",
+        "phase_type": "cutover",
+        "sequence": 4,
+        "lock_budget_milliseconds": 1000,
+        "statement_budget_milliseconds": 10000,
+        "checkpoint_strategy": "Move reads and writes through a measured compatibility window with one explicit authority-transfer event."
+      },
+      {
+        "phase_id": "PHASE-CONTRACT-002",
+        "phase_type": "contract",
+        "sequence": 5,
+        "lock_budget_milliseconds": 500,
+        "statement_budget_milliseconds": 10000,
+        "checkpoint_strategy": "Retire predecessor representations after retained evidence satisfies release and restore gates."
+      }
+    ],
+    "compatibility_window": {
+      "supported_application_releases": ["0.3.1", "0.3.2"],
+      "minimum_observation_seconds": 3600
+    },
+    "recovery": {
+      "strategy": "roll_forward_preferred",
+      "rollback_boundary_phase_id": "PHASE-CUTOVER-002",
+      "backup_receipt_id": "RECEIPT-BACKUP-SIM-002",
+      "restore_receipt_id": "RECEIPT-RESTORE-SIM-002"
+    }
+  },
+  "migration_receipt": {
+    "migration_receipt_id": "RECEIPT-DATABASE-MIGRATION-SIM-002",
+    "evidence_mode": "simulated",
+    "assurance_stage": "qualified",
+    "authority": "simulation_only",
+    "actual_acceptance_required": true,
+    "outcome": "passed",
+    "data_contract": {
+      "id": "CONTRACT-LABORATORY-CORE-002",
+      "version": "2.0.0",
+      "digest": "sha256:9b88582b00ba65f96f8feddc42ab2da6a569d22e85ca8220b50494689c13f691"
+    },
+    "migration_manifest": {
+      "id": "MANIFEST-DATABASE-MIGRATION-002",
+      "version": "2.0.0",
+      "digest": "sha256:804195a301d3509965555c057d4dc3b5fca6c5b043ab31455e7102330b0322f2"
+    },
+    "script_digest": "sha256:824d987bb508b4f683c01199103adbac7bccfabe60c56fb30fc6d3f69fcf5389",
+    "source_schema_digest": "sha256:648883fb46d3117a082aff3f4eed86e5a99a679fc6b2d7b8e5396beb179e1540",
+    "target_schema_digest": "sha256:1f9f23687a349876079f21063b9904b275933519eb442936056e780fa07101bd",
+    "environment": {
+      "environment_id": "ENVIRONMENT-QUALIFIED-SIM-002",
+      "engine_family": "postgresql",
+      "engine_version": "17.10",
+      "database_timezone": "UTC",
+      "settings_digest": "sha256:cf4034c52f51d4cf0126745bcee8466814f4d5884df08908d2ee5a5bb82bdfd1"
+    },
+    "phase_results": [
+      {
+        "phase_id": "PHASE-EXPAND-002",
+        "sequence": 1,
+        "outcome": "passed",
+        "checkpoint_digest": "sha256:9b99aeef24a18917be3b776fb579b4b20ac5cabe12cb851b7e07e9d38d285bf2"
+      },
+      {
+        "phase_id": "PHASE-BACKFILL-002",
+        "sequence": 2,
+        "outcome": "passed",
+        "checkpoint_digest": "sha256:461f17f9e62a3e630e2ed9617623033ea94be87b0918b81efa021986c44bcdb9"
+      },
+      {
+        "phase_id": "PHASE-VALIDATE-002",
+        "sequence": 3,
+        "outcome": "passed",
+        "checkpoint_digest": "sha256:60e615633d793147f00aa9afbe4978f59c439d0a774cbea8eb049695f4da17e9"
+      },
+      {
+        "phase_id": "PHASE-CUTOVER-002",
+        "sequence": 4,
+        "outcome": "passed",
+        "checkpoint_digest": "sha256:e6b109fcbcd417da36ae28b95068d6f44f280abb584573cf65340a0a8d0d68a9"
+      },
+      {
+        "phase_id": "PHASE-CONTRACT-002",
+        "sequence": 5,
+        "outcome": "passed",
+        "checkpoint_digest": "sha256:0b6e0024d8e33b6cfdbe36c4634a4783cb34d3a728b25a14b5f34549646d7ee4"
+      }
+    ],
+    "invariant_results": [
+      {
+        "policy_id": "DATA-TIME-001",
+        "evaluated_record_count": 48216,
+        "outcome": "passed",
+        "evidence_digest": "sha256:75e9ee7535e924601426f2adb7106afea294fac5904cfe09f76d3aeb17bf4eef"
+      },
+      {
+        "policy_id": "DATA-ID-001",
+        "evaluated_record_count": 48216,
+        "outcome": "passed",
+        "evidence_digest": "sha256:7985cd19c439751508761383d8211901137fe4feb31bd9e794b4fde7d4b5b680"
+      },
+      {
+        "policy_id": "DATA-DIGEST-001",
+        "evaluated_record_count": 48216,
+        "outcome": "passed",
+        "evidence_digest": "sha256:74986404c294bf80a96f98390137ef1ab43b6c3fdb6a35d714baed9c5906f653"
+      },
+      {
+        "policy_id": "DATA-MEASURE-001",
+        "evaluated_record_count": 48216,
+        "outcome": "passed",
+        "evidence_digest": "sha256:141e3240521a68ad6c597683eb9fd7f31e0192f7750740c5fac5c30fafeb82df"
+      },
+      {
+        "policy_id": "DATA-UNIT-001",
+        "evaluated_record_count": 48216,
+        "outcome": "passed",
+        "evidence_digest": "sha256:eb4746bcb3f62453ff9eef406e5805860850c0c770df975953beb458e73fdc7b"
+      },
+      {
+        "policy_id": "DATA-TENANT-001",
+        "evaluated_record_count": 48216,
+        "outcome": "passed",
+        "evidence_digest": "sha256:69c64005a1b7c2830c71e66abb88697093139c683f17d249b5d42ff17bab3299"
+      }
+    ],
+    "reconciliation": {
+      "expected_record_count": 48216,
+      "observed_record_count": 48216,
+      "expected_checksum": "sha256:2f2f99cd103de02e159db82823371626586bf7055ac98a089d3f653ea1595d63",
+      "observed_checksum": "sha256:2f2f99cd103de02e159db82823371626586bf7055ac98a089d3f653ea1595d63",
+      "temporal_invariant_count": 48216,
+      "temporal_invariant_passed": true,
+      "maximum_lock_held_milliseconds": 414
+    },
+    "recovery": {
+      "backup_receipt_id": "RECEIPT-BACKUP-SIM-002",
+      "restore_receipt_id": "RECEIPT-RESTORE-SIM-002",
+      "rto_seconds": 600,
+      "rpo_seconds": 60,
+      "disposition": "roll_forward_verified"
+    },
+    "performed_at": "2028-06-30T14:25:00.000Z"
+  },
+  "release_receipt": {
+    "release_receipt_id": "RECEIPT-DATABASE-RELEASE-SIM-002",
+    "database_release": "database-final-state-v2",
+    "release_state": "closed_in_simulation",
+    "evidence_mode": "simulated",
+    "assurance_stage": "qualified",
+    "authority": "simulation_only",
+    "actual_acceptance_required": true,
+    "production_authorization_effect": "none",
+    "data_contract": {
+      "id": "CONTRACT-LABORATORY-CORE-002",
+      "version": "2.0.0",
+      "digest": "sha256:9b88582b00ba65f96f8feddc42ab2da6a569d22e85ca8220b50494689c13f691"
+    },
+    "migration_manifest": {
+      "id": "MANIFEST-DATABASE-MIGRATION-002",
+      "version": "2.0.0",
+      "digest": "sha256:804195a301d3509965555c057d4dc3b5fca6c5b043ab31455e7102330b0322f2"
+    },
+    "migration_receipt": {
+      "migration_receipt_id": "RECEIPT-DATABASE-MIGRATION-SIM-002",
+      "digest": "sha256:c22c64d9aa03f1a31dcc88c764b46df7850597d09b35c445c7ce63532c854564"
+    },
+    "schema_digest": "sha256:1f9f23687a349876079f21063b9904b275933519eb442936056e780fa07101bd",
+    "acceptance_bindings": [
+      {
+        "acceptance_id": "ACCEPTANCE-SCIENTIFIC-SIM-002",
+        "acceptance_type": "scientific",
+        "status": "projected",
+        "evidence_mode": "simulated",
+        "decision_digest": "sha256:1ef570fee80f2ae43ef1823edc1185bb73cd33b7cecc372e1e261c62cef3e19d"
+      },
+      {
+        "acceptance_id": "ACCEPTANCE-QUALITY-SIM-002",
+        "acceptance_type": "quality",
+        "status": "projected",
+        "evidence_mode": "simulated",
+        "decision_digest": "sha256:d4f8f998e6b2bf37e14be4e225fd21b2677b531b02bcce2166da42899b0c6ae1"
+      },
+      {
+        "acceptance_id": "ACCEPTANCE-REGULATORY-SIM-002",
+        "acceptance_type": "regulatory",
+        "status": "projected",
+        "evidence_mode": "simulated",
+        "decision_digest": "sha256:af2116ff6450b1dc74df8d7518507db22c2a98c5143da1af6a9a7de05b196cd3"
+      },
+      {
+        "acceptance_id": "ACCEPTANCE-SECURITY-PRIVACY-SIM-002",
+        "acceptance_type": "security_privacy",
+        "status": "projected",
+        "evidence_mode": "simulated",
+        "decision_digest": "sha256:485a5da6b6874969cd9856bfa1b72675c3909ae112011f679e103c191d7fec11"
+      },
+      {
+        "acceptance_id": "ACCEPTANCE-OPERATIONS-SIM-002",
+        "acceptance_type": "operations",
+        "status": "projected",
+        "evidence_mode": "simulated",
+        "decision_digest": "sha256:1cdcb6da3c93e0d48cf9ada2013bb7058d4159603e4735a10d38d74220c7f22d"
+      }
+    ],
+    "evidence_bundle_digest": "sha256:ec6b493731a09acd21cbc0db7c9f30a41dda59c00078e46f1bdf0162c470ab57",
+    "performed_at": "2028-06-30T14:30:00.000Z"
+  },
+  "coordinates": {
+    "oracle_id": "ORACLE-DATABASE-FINAL-STATE-002",
+    "oracle_version": "2.0.0",
+    "database_release": "database-final-state-v2",
+    "data_contract_id": "CONTRACT-LABORATORY-CORE-002",
+    "data_contract_version": "2.0.0",
+    "data_contract_digest": "sha256:9b88582b00ba65f96f8feddc42ab2da6a569d22e85ca8220b50494689c13f691",
+    "migration_manifest_id": "MANIFEST-DATABASE-MIGRATION-002",
+    "migration_manifest_version": "2.0.0",
+    "migration_manifest_digest": "sha256:804195a301d3509965555c057d4dc3b5fca6c5b043ab31455e7102330b0322f2",
+    "migration_receipt_id": "RECEIPT-DATABASE-MIGRATION-SIM-002",
+    "migration_receipt_digest": "sha256:c22c64d9aa03f1a31dcc88c764b46df7850597d09b35c445c7ce63532c854564",
+    "release_receipt_id": "RECEIPT-DATABASE-RELEASE-SIM-002",
+    "release_receipt_digest": "sha256:d8b4db48094584f926c391e04365c27db4ecbad96b95bbd43418a0304eb23d12",
+    "schema_digest": "sha256:1f9f23687a349876079f21063b9904b275933519eb442936056e780fa07101bd"
+  }
+}

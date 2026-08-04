@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.invalid/lims-eln/synthetic-fixture/1.0.0",
+  "$id": "https://example.invalid/lims-eln/synthetic-fixture/2.0.0",
   "title": "Synthetic final-state fixture",
   "type": "object",
   "required": [
@@ -21,7 +21,7 @@
   ],
   "properties": {
     "fixture_class": {"const": "synthetic"},
-    "fixture_version": {"const": "1.0.0"},
+    "fixture_version": {"const": "2.0.0"},
     "clock": {"type": "string", "format": "date-time"},
     "tenant_id": {"type": "string", "pattern": "^TENANT-SYN-"},
     "specimen_id": {"type": "string", "pattern": "^SPM-SYN-"},
@@ -31,7 +31,74 @@
     "recovery_objective_seconds": {"type": "number", "minimum": 0},
     "observed_recovery_seconds": {"type": "number", "minimum": 0},
     "interpretation": {"type": "string", "minLength": 1, "maxLength": 1024},
-    "result": {"type": "object"},
+    "result": {
+      "type": "object",
+      "required": [
+        "assay_code",
+        "analyte_code",
+        "method_code",
+        "method_revision",
+        "assay_specification_id",
+        "specification_version",
+        "raw_value_lexeme",
+        "raw_value",
+        "source_unit",
+        "canonical_value",
+        "canonical_unit",
+        "unit_vocabulary",
+        "unit_vocabulary_version",
+        "unit_mapping_revision",
+        "conversion_rule_version",
+        "rounding_mode",
+        "qualifier",
+        "reference_interval",
+        "detection_limits",
+        "observed_at",
+        "recorded_at",
+        "quality_flag"
+      ],
+      "properties": {
+        "assay_code": {"type": "string", "minLength": 1, "maxLength": 128},
+        "analyte_code": {"type": "string", "minLength": 1, "maxLength": 128},
+        "method_code": {"type": "string", "minLength": 1, "maxLength": 128},
+        "method_revision": {"type": "integer", "minimum": 1},
+        "assay_specification_id": {"type": "string", "format": "uuid"},
+        "specification_version": {"type": "integer", "minimum": 1},
+        "raw_value_lexeme": {"type": "string", "minLength": 1, "maxLength": 128},
+        "raw_value": {"type": "string", "pattern": "^-?[0-9]+(?:\\.[0-9]{1,12})?$"},
+        "source_unit": {"type": "string", "minLength": 1, "maxLength": 128},
+        "canonical_value": {"type": "string", "pattern": "^-?[0-9]+(?:\\.[0-9]{1,12})?$"},
+        "canonical_unit": {"const": "{copies}/uL"},
+        "unit_vocabulary": {"const": "UCUM"},
+        "unit_vocabulary_version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "unit_mapping_revision": {"type": "string", "minLength": 1, "maxLength": 64},
+        "conversion_rule_version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "rounding_mode": {"enum": ["half_even", "half_up", "toward_zero"]},
+        "qualifier": {"enum": [null, "estimated", "less_than", "greater_than"]},
+        "reference_interval": {
+          "type": "object",
+          "required": ["lower", "upper"],
+          "properties": {
+            "lower": {"type": "string", "pattern": "^-?[0-9]+(?:\\.[0-9]{1,12})?$"},
+            "upper": {"type": "string", "pattern": "^-?[0-9]+(?:\\.[0-9]{1,12})?$"}
+          },
+          "additionalProperties": false
+        },
+        "detection_limits": {
+          "type": "object",
+          "required": ["lower", "upper_quantitation"],
+          "properties": {
+            "lower": {"type": "string", "pattern": "^-?[0-9]+(?:\\.[0-9]{1,12})?$"},
+            "upper_quantitation": {"type": "string", "pattern": "^-?[0-9]+(?:\\.[0-9]{1,12})?$"}
+          },
+          "additionalProperties": false
+        },
+        "observed_at": {"type": "string", "format": "date-time"},
+        "recorded_at": {"type": "string", "format": "date-time"},
+        "quality_flag": {"enum": ["pass", "review", "quarantined"]}
+      },
+      "additionalProperties": false
+    },
     "artifact": {
       "type": "object",
       "required": ["kind", "content"],

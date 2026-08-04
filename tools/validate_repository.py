@@ -68,7 +68,7 @@ def main() -> int:
         )
     manifest = load_json(ROOT / "release/repository-role.json")
     database_oracle = load_json(
-        ROOT / "database/final-state-database-oracle-v1.json"
+        ROOT / "database/final-state-database-oracle-v2.json"
     )
     database_coordinates = validate_database_oracle(database_oracle)
     expected = {
@@ -98,7 +98,7 @@ def main() -> int:
         }
     oracle_binding = manifest["database_oracle"]
     expected_oracle_binding = {
-        "path": "database/final-state-database-oracle-v1.json",
+        "path": "database/final-state-database-oracle-v2.json",
         "bundle_version": database_oracle["oracle_version"],
         "canonical_json_digest": digest(database_oracle),
         "release_coordinates": database_coordinates.as_dict(),

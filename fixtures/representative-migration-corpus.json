@@ -1,70 +1,275 @@
 {
   "fixture_class": "representative_synthetic",
-  "fixture_version": "1.0.0",
+  "fixture_version": "2.0.0",
   "profile": {
     "records": 4,
+    "result_records": 3,
+    "tenant_count": 2,
     "lineage_depth": [2, 3, 4, 5],
     "artifact_sizes_bytes": [64, 1024, 1048576],
-    "exception_classes": ["duplicate-replay", "changed-content", "stale-revision", "missing-artifact"]
+    "assay_specification_versions": [1, 2],
+    "unit_mapping_revisions": ["UNIT-MAP-CNV-003", "UNIT-MAP-CNV-004"],
+    "qualifier_classes": ["unqualified", "estimated", "less_than"],
+    "exception_classes": [
+      "duplicate-replay",
+      "changed-content",
+      "stale-revision",
+      "missing-artifact"
+    ]
   },
   "artifacts": [
-    {"artifact_id": "ART-SYN-0001", "size_bytes": 64, "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"},
-    {"artifact_id": "ART-SYN-0002", "size_bytes": 1024, "digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"},
-    {"artifact_id": "ART-SYN-0003", "size_bytes": 1048576, "digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"}
+    {
+      "artifact_id": "ART-SYN-0001",
+      "size_bytes": 64,
+      "digest": "sha256:f08e7e6bab69667e0ab18ba5af30143bc8dfcffb8fcacec2ec11d6a3130313d8"
+    },
+    {
+      "artifact_id": "ART-SYN-0002",
+      "size_bytes": 1024,
+      "digest": "sha256:c1fda90906545eebce6c32420d6cab6778e7be715fb9276fc250f30462592802"
+    },
+    {
+      "artifact_id": "ART-SYN-0003",
+      "size_bytes": 1048576,
+      "digest": "sha256:af06d97ccc79f822ab6aa178b98452d93748b148922ff462b3f29dc73a896d2a"
+    }
   ],
   "records": [
     {
-      "specimen_id": "SPM-SYN-0001",
-      "tenant_id": "TENANT-SYN-GENOMICS",
+      "tenant_id": "00000000-0000-4000-8000-000000000101",
+      "external_tenant_id": "TENANT-SYN-GENOMICS",
+      "specimen_id": "00000000-0000-4000-8000-000000001001",
+      "external_specimen_id": "SPM-SYN-0001",
       "status": "released",
       "revision": 5,
-      "result": {"unit": "copies", "quality_flag": "pass", "value": 1250},
-      "artifact_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "result": {
+        "assay_specification_id": "00000000-0000-4000-8000-000000002001",
+        "specification_version": 1,
+        "assay_code": "SYN-CNV-001",
+        "analyte_code": "synthetic-copy-number-marker",
+        "method_code": "SYN-QPCR",
+        "method_revision": 3,
+        "raw_value_lexeme": "1250",
+        "raw_value": "1250.000000000000",
+        "source_unit": "copies/uL",
+        "canonical_value": "1250.000000000000",
+        "canonical_unit": "{copies}/uL",
+        "unit_vocabulary": "UCUM",
+        "unit_vocabulary_version": "UCUM-2.2",
+        "unit_mapping_revision": "UNIT-MAP-CNV-003",
+        "conversion_rule_version": "CONVERSION-CNV-003",
+        "rounding_mode": "half_even",
+        "qualifier": null,
+        "reference_interval": {
+          "lower": "500.000000000000",
+          "upper": "2000.000000000000"
+        },
+        "detection_limits": {
+          "lower": "25.000000000000",
+          "upper_quantitation": "50000.000000000000"
+        },
+        "observed_at": "2028-06-30T13:03:00.000Z",
+        "recorded_at": "2028-06-30T13:03:01.000Z",
+        "content_digest": {
+          "algorithm": "sha256",
+          "encoding": "hex",
+          "value": "b09c814f9802d41ed285e9da271f99b48e727e03706168f04d5be152dd4d80dc",
+          "canonicalization_profile": "RFC-8785-compatible-v1",
+          "content_scope": "result quantity unit method and provenance semantic content"
+        }
+      },
+      "artifact_digest": "sha256:f08e7e6bab69667e0ab18ba5af30143bc8dfcffb8fcacec2ec11d6a3130313d8",
       "audit": [
-        {"sequence": 1, "event": "accessioned"},
-        {"sequence": 2, "event": "in_custody"},
-        {"sequence": 3, "event": "instrument_complete"},
-        {"sequence": 4, "event": "reviewed"},
-        {"sequence": 5, "event": "released"}
+        {
+          "sequence": 1,
+          "event": "accessioned",
+          "occurred_at": "2028-06-30T13:00:00.000Z",
+          "recorded_at": "2028-06-30T13:00:00.100Z"
+        },
+        {
+          "sequence": 2,
+          "event": "in_custody",
+          "occurred_at": "2028-06-30T13:01:00.000Z",
+          "recorded_at": "2028-06-30T13:01:00.100Z"
+        },
+        {
+          "sequence": 3,
+          "event": "instrument_complete",
+          "occurred_at": "2028-06-30T13:03:00.000Z",
+          "recorded_at": "2028-06-30T13:03:01.000Z"
+        },
+        {
+          "sequence": 4,
+          "event": "reviewed",
+          "occurred_at": "2028-06-30T13:04:00.000Z",
+          "recorded_at": "2028-06-30T13:04:00.100Z"
+        },
+        {
+          "sequence": 5,
+          "event": "released",
+          "occurred_at": "2028-06-30T13:05:00.000Z",
+          "recorded_at": "2028-06-30T13:05:00.100Z"
+        }
       ]
     },
     {
-      "specimen_id": "SPM-SYN-0002",
-      "tenant_id": "TENANT-SYN-GENOMICS",
+      "tenant_id": "00000000-0000-4000-8000-000000000101",
+      "external_tenant_id": "TENANT-SYN-GENOMICS",
+      "specimen_id": "00000000-0000-4000-8000-000000001002",
+      "external_specimen_id": "SPM-SYN-0002",
       "status": "reviewed",
       "revision": 4,
-      "result": {"unit": "copies", "quality_flag": "review", "value": 960},
-      "artifact_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "result": {
+        "assay_specification_id": "00000000-0000-4000-8000-000000002001",
+        "specification_version": 1,
+        "assay_code": "SYN-CNV-001",
+        "analyte_code": "synthetic-copy-number-marker",
+        "method_code": "SYN-QPCR",
+        "method_revision": 3,
+        "raw_value_lexeme": "9.60E2",
+        "raw_value": "960.000000000000",
+        "source_unit": "copies/uL",
+        "canonical_value": "960.000000000000",
+        "canonical_unit": "{copies}/uL",
+        "unit_vocabulary": "UCUM",
+        "unit_vocabulary_version": "UCUM-2.2",
+        "unit_mapping_revision": "UNIT-MAP-CNV-003",
+        "conversion_rule_version": "CONVERSION-CNV-003",
+        "rounding_mode": "half_even",
+        "qualifier": "estimated",
+        "reference_interval": {
+          "lower": "500.000000000000",
+          "upper": "2000.000000000000"
+        },
+        "detection_limits": {
+          "lower": "25.000000000000",
+          "upper_quantitation": "50000.000000000000"
+        },
+        "observed_at": "2028-06-30T13:13:00.000Z",
+        "recorded_at": "2028-06-30T13:13:02.000Z",
+        "content_digest": {
+          "algorithm": "sha256",
+          "encoding": "hex",
+          "value": "76ca796a738f205c4faf80821a97ae84befc4f5e0463f7a5ba316be0cbdfb9e2",
+          "canonicalization_profile": "RFC-8785-compatible-v1",
+          "content_scope": "result quantity unit method and provenance semantic content"
+        }
+      },
+      "artifact_digest": "sha256:c1fda90906545eebce6c32420d6cab6778e7be715fb9276fc250f30462592802",
       "audit": [
-        {"sequence": 1, "event": "accessioned"},
-        {"sequence": 2, "event": "in_custody"},
-        {"sequence": 3, "event": "instrument_complete"},
-        {"sequence": 4, "event": "reviewed"}
+        {
+          "sequence": 1,
+          "event": "accessioned",
+          "occurred_at": "2028-06-30T13:10:00.000Z",
+          "recorded_at": "2028-06-30T13:10:00.100Z"
+        },
+        {
+          "sequence": 2,
+          "event": "in_custody",
+          "occurred_at": "2028-06-30T13:11:00.000Z",
+          "recorded_at": "2028-06-30T13:11:00.100Z"
+        },
+        {
+          "sequence": 3,
+          "event": "instrument_complete",
+          "occurred_at": "2028-06-30T13:13:00.000Z",
+          "recorded_at": "2028-06-30T13:13:02.000Z"
+        },
+        {
+          "sequence": 4,
+          "event": "reviewed",
+          "occurred_at": "2028-06-30T13:14:00.000Z",
+          "recorded_at": "2028-06-30T13:14:00.100Z"
+        }
       ]
     },
     {
-      "specimen_id": "SPM-SYN-0003",
-      "tenant_id": "TENANT-SYN-GENOMICS",
+      "tenant_id": "00000000-0000-4000-8000-000000000102",
+      "external_tenant_id": "TENANT-SYN-PATHOLOGY",
+      "specimen_id": "00000000-0000-4000-8000-000000001003",
+      "external_specimen_id": "SPM-SYN-0003",
       "status": "instrument_complete",
       "revision": 3,
-      "result": {"unit": "copies", "quality_flag": "pending-review", "value": 710},
-      "artifact_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "result": {
+        "assay_specification_id": "00000000-0000-4000-8000-000000002002",
+        "specification_version": 2,
+        "assay_code": "SYN-CNV-001",
+        "analyte_code": "synthetic-copy-number-marker",
+        "method_code": "SYN-QPCR",
+        "method_revision": 4,
+        "raw_value_lexeme": "<25",
+        "raw_value": "25.000000000000",
+        "source_unit": "copies/uL",
+        "canonical_value": "25.000000000000",
+        "canonical_unit": "{copies}/uL",
+        "unit_vocabulary": "UCUM",
+        "unit_vocabulary_version": "UCUM-2.2",
+        "unit_mapping_revision": "UNIT-MAP-CNV-004",
+        "conversion_rule_version": "CONVERSION-CNV-004",
+        "rounding_mode": "half_even",
+        "qualifier": "less_than",
+        "reference_interval": {
+          "lower": "500.000000000000",
+          "upper": "2000.000000000000"
+        },
+        "detection_limits": {
+          "lower": "25.000000000000",
+          "upper_quantitation": "50000.000000000000"
+        },
+        "observed_at": "2028-06-30T13:23:00.000Z",
+        "recorded_at": "2028-06-30T13:23:01.000Z",
+        "content_digest": {
+          "algorithm": "sha256",
+          "encoding": "hex",
+          "value": "904fa3dbfd1736b18612a592c4b91546818e67ae720154e89472548518ed3bad",
+          "canonicalization_profile": "RFC-8785-compatible-v1",
+          "content_scope": "result quantity unit method and provenance semantic content"
+        }
+      },
+      "artifact_digest": "sha256:af06d97ccc79f822ab6aa178b98452d93748b148922ff462b3f29dc73a896d2a",
       "audit": [
-        {"sequence": 1, "event": "accessioned"},
-        {"sequence": 2, "event": "in_custody"},
-        {"sequence": 3, "event": "instrument_complete"}
+        {
+          "sequence": 1,
+          "event": "accessioned",
+          "occurred_at": "2028-06-30T13:20:00.000Z",
+          "recorded_at": "2028-06-30T13:20:00.100Z"
+        },
+        {
+          "sequence": 2,
+          "event": "in_custody",
+          "occurred_at": "2028-06-30T13:21:00.000Z",
+          "recorded_at": "2028-06-30T13:21:00.100Z"
+        },
+        {
+          "sequence": 3,
+          "event": "instrument_complete",
+          "occurred_at": "2028-06-30T13:23:00.000Z",
+          "recorded_at": "2028-06-30T13:23:01.000Z"
+        }
       ]
     },
     {
-      "specimen_id": "SPM-SYN-0004",
-      "tenant_id": "TENANT-SYN-GENOMICS",
+      "tenant_id": "00000000-0000-4000-8000-000000000102",
+      "external_tenant_id": "TENANT-SYN-PATHOLOGY",
+      "specimen_id": "00000000-0000-4000-8000-000000001004",
+      "external_specimen_id": "SPM-SYN-0001",
       "status": "in_custody",
       "revision": 2,
-      "result": {"unit": "copies", "quality_flag": "pending-instrument", "value": null},
-      "artifact_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "result": null,
+      "artifact_digest": "sha256:f08e7e6bab69667e0ab18ba5af30143bc8dfcffb8fcacec2ec11d6a3130313d8",
       "audit": [
-        {"sequence": 1, "event": "accessioned"},
-        {"sequence": 2, "event": "in_custody"}
+        {
+          "sequence": 1,
+          "event": "accessioned",
+          "occurred_at": "2028-06-30T13:30:00.000Z",
+          "recorded_at": "2028-06-30T13:30:00.100Z"
+        },
+        {
+          "sequence": 2,
+          "event": "in_custody",
+          "occurred_at": "2028-06-30T13:31:00.000Z",
+          "recorded_at": "2028-06-30T13:31:00.100Z"
+        }
       ]
     }
   ]

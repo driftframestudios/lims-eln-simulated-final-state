@@ -61,8 +61,8 @@ def validate_database_oracle(value: dict[str, Any]) -> DatabaseReleaseCoordinate
         "coordinates",
     }
     _exact_fields(value, root_fields, "database oracle")
-    if value["oracle_version"] != "1.0.0":
-        raise DatabaseOracleError("database oracle requires version 1.0.0")
+    if value["oracle_version"] != "2.0.0":
+        raise DatabaseOracleError("database oracle requires version 2.0.0")
     _identifier(value["oracle_id"], "oracle_id")
     expected_posture = {
         "evidence_mode": "simulated",
@@ -140,6 +140,7 @@ def _validate_data_contract(contract: dict[str, Any]) -> None:
             "database",
             "entities",
             "invariants",
+            "program_policy_bindings",
         },
         "data_contract",
     )
@@ -160,26 +161,91 @@ def _validate_data_contract(contract: dict[str, Any]) -> None:
             "database_timezone",
             "settings_digest",
             "migration_history_table",
+            "selected_major_version",
+            "supported_major_versions",
+            "canonical_json_profile",
+            "unit_vocabulary",
         },
         "data_contract.database",
     )
     if database["engine_family"] != "postgresql":
         raise DatabaseOracleError("selected-future database engine requires postgresql")
-    for field in ("engine_version", "collation", "database_timezone", "migration_history_table"):
+    for field in (
+        "engine_version",
+        "collation",
+        "database_timezone",
+        "migration_history_table",
+        "canonical_json_profile",
+        "unit_vocabulary",
+    ):
         _text(database[field], f"data_contract.database.{field}")
     if database["database_timezone"] != "UTC":
         raise DatabaseOracleError("selected-future database timezone requires UTC")
     _digest(database["settings_digest"], "database settings digest")
+    _positive_integer(
+        database["selected_major_version"],
+        "data_contract.database.selected_major_version",
+    )
+    supported_majors = database["supported_major_versions"]
+    if (
+        not isinstance(supported_majors, list)
+        or not supported_majors
+        or any(type(item) is not int or item < 1 for item in supported_majors)
+        or len(supported_majors) != len(set(supported_majors))
+        or database["selected_major_version"] not in supported_majors
+    ):
+        raise DatabaseOracleError(
+            "database supported majors require distinct positive values including the selected major"
+        )
+    if database["canonical_json_profile"] != "RFC-8785-compatible-v1":
+        raise DatabaseOracleError(
+            "database canonical JSON requires RFC-8785-compatible-v1"
+        )
+    if database["unit_vocabulary"] != "UCUM":
+        raise DatabaseOracleError("database unit vocabulary requires UCUM")
+
+    policy_bindings = contract["program_policy_bindings"]
+    if (
+        not isinstance(policy_bindings, list)
+        or len(policy_bindings) != 6
+        or set(policy_bindings)
+        != {
+            "DATA-TIME-001",
+            "DATA-ID-001",
+            "DATA-DIGEST-001",
+            "DATA-MEASURE-001",
+            "DATA-UNIT-001",
+            "DATA-TENANT-001",
+        }
+    ):
+        raise DatabaseOracleError(
+            "data contract requires the released program primitive policy bindings"
+        )
 
     entities = contract["entities"]
     if not isinstance(entities, list) or not entities:
         raise DatabaseOracleError("data contract requires at least one entity")
     entity_ids: set[str] = set()
+    entity_catalog: dict[str, dict[str, Any]] = {}
+    semantic_types: set[str] = set()
+    temporal_roles: set[str] = set()
+    quantity_contract_count = 0
     for entity_index, entity_value in enumerate(entities):
         entity = _mapping(entity_value, f"entities[{entity_index}]")
         _exact_fields(
             entity,
-            {"entity_id", "table_name", "purpose", "fields", "primary_key_field_ids"},
+            {
+                "entity_id",
+                "table_name",
+                "purpose",
+                "tenant_scoped",
+                "fields",
+                "primary_key_field_ids",
+                "foreign_keys",
+                "unique_keys",
+                "row_level_security",
+                "quantity_contracts",
+            },
             f"entities[{entity_index}]",
         )
         entity_id = _identifier(entity["entity_id"], f"entities[{entity_index}].entity_id")
@@ -188,6 +254,10 @@ def _validate_data_contract(contract: dict[str, Any]) -> None:
         entity_ids.add(entity_id)
         _text(entity["table_name"], f"entities[{entity_index}].table_name")
         _text(entity["purpose"], f"entities[{entity_index}].purpose", minimum=10)
+        if entity["tenant_scoped"] is not True:
+            raise DatabaseOracleError(
+                "selected-future laboratory entities require tenant scope"
+            )
         fields = entity["fields"]
         if not isinstance(fields, list) or not fields:
             raise DatabaseOracleError("data contract entity requires fields")
@@ -197,23 +267,8 @@ def _validate_data_contract(contract: dict[str, Any]) -> None:
                 field_value,
                 f"entities[{entity_index}].fields[{field_index}]",
             )
-            required = {
-                "field_id",
-                "column_name",
-                "semantic_type",
-                "physical_type",
-                "nullable",
-            }
-            allowed = required | {
-                "temporal_semantics",
-                "precision",
-                "scale",
-                "unit",
-            }
-            _bounded_fields(
+            _validate_contract_field(
                 field,
-                required,
-                allowed,
                 f"entities[{entity_index}].fields[{field_index}]",
             )
             field_id = _identifier(
@@ -226,60 +281,9 @@ def _validate_data_contract(contract: dict[str, Any]) -> None:
                 )
             field_ids.add(field_id)
             _text(field["column_name"], "data contract column name")
-            if type(field["nullable"]) is not bool:
-                raise DatabaseOracleError("data contract nullable requires a boolean")
-            semantic_type = _text(
-                field["semantic_type"], "data contract semantic type"
-            )
-            physical_type = _text(
-                field["physical_type"], "data contract physical type"
-            ).lower()
-            native_types = {
-                "instant": "timestamptz",
-                "civil_date": "date",
-                "boolean": "boolean",
-                "integer": "bigint",
-                "identifier": "uuid",
-                "text": "text",
-            }
-            if semantic_type not in {*native_types, "exact_decimal"}:
-                raise DatabaseOracleError(
-                    "data contract semantic type requires the released primitive vocabulary"
-                )
-            expected_physical = native_types.get(semantic_type)
-            if expected_physical is not None and physical_type != expected_physical:
-                raise DatabaseOracleError(
-                    f"PostgreSQL {semantic_type} uses {expected_physical} in the selected future"
-                )
-            if semantic_type == "instant" and field.get("temporal_semantics") != "absolute_instant":
-                raise DatabaseOracleError(
-                    "instant field requires absolute_instant temporal semantics"
-                )
-            if semantic_type == "civil_date" and field.get("temporal_semantics") != "civil_date":
-                raise DatabaseOracleError(
-                    "civil date field requires civil_date temporal semantics"
-                )
-            if semantic_type == "exact_decimal":
-                precision = field.get("precision")
-                scale = field.get("scale")
-                if (
-                    type(precision) is not int
-                    or type(scale) is not int
-                    or precision < 1
-                    or scale < 0
-                    or scale > precision
-                ):
-                    raise DatabaseOracleError(
-                        "exact decimal requires coherent integer precision and scale"
-                    )
-                if not re.fullmatch(
-                    rf"(?:numeric|decimal)\({precision},{scale}\)",
-                    physical_type,
-                ):
-                    raise DatabaseOracleError(
-                        "exact decimal physical type requires its declared precision and scale"
-                    )
-                _text(field.get("unit"), "exact decimal unit")
+            semantic_types.add(field["semantic_type"])
+            if "temporal_role" in field:
+                temporal_roles.add(field["temporal_role"])
         primary_keys = entity["primary_key_field_ids"]
         if (
             not isinstance(primary_keys, list)
@@ -291,6 +295,52 @@ def _validate_data_contract(contract: dict[str, Any]) -> None:
             raise DatabaseOracleError(
                 "data contract primary keys require unique entity field identities"
             )
+        if entity["primary_key_field_ids"][0] != "TENANT-ID":
+            raise DatabaseOracleError(
+                "tenant-scoped primary keys require TENANT-ID as the leading field"
+            )
+        _validate_row_level_security(entity["row_level_security"], field_ids)
+        unique_keys = _validate_unique_keys(entity["unique_keys"], field_ids)
+        quantity_contract_count += _validate_quantity_contracts(
+            entity["quantity_contracts"],
+            {field["field_id"]: field for field in fields},
+        )
+        foreign_keys = entity["foreign_keys"]
+        if not isinstance(foreign_keys, list):
+            raise DatabaseOracleError("data contract foreign keys require an array")
+        entity_catalog[entity_id] = {
+            "field_ids": field_ids,
+            "primary_key_field_ids": entity["primary_key_field_ids"],
+            "candidate_keys": {
+                tuple(entity["primary_key_field_ids"]),
+                *unique_keys,
+            },
+            "foreign_keys": foreign_keys,
+        }
+
+    for entity_id, entity in entity_catalog.items():
+        _validate_foreign_keys(entity_id, entity, entity_catalog)
+    required_semantics = {
+        "internal_identifier",
+        "external_identifier",
+        "instant",
+        "civil_date",
+        "exact_decimal",
+        "digest",
+        "unit_code",
+    }
+    if not required_semantics.issubset(semantic_types):
+        raise DatabaseOracleError(
+            "data contract requires internal and external identity temporal scientific unit and digest primitives"
+        )
+    if temporal_roles != {"occurrence", "recording"}:
+        raise DatabaseOracleError(
+            "data contract requires distinct occurrence and recording temporal roles"
+        )
+    if quantity_contract_count < 1:
+        raise DatabaseOracleError(
+            "data contract requires a linked scientific quantity contract"
+        )
     invariants = contract["invariants"]
     if (
         not isinstance(invariants, list)
@@ -300,6 +350,312 @@ def _validate_data_contract(contract: dict[str, Any]) -> None:
         raise DatabaseOracleError(
             "data contract requires at least four affirmative database invariants"
         )
+
+
+def _validate_contract_field(field: dict[str, Any], label: str) -> None:
+    required = {
+        "field_id",
+        "column_name",
+        "semantic_type",
+        "physical_type",
+        "nullable",
+    }
+    allowed = required | {
+        "identity_role",
+        "max_length",
+        "pattern",
+        "normalization",
+        "collation",
+        "temporal_semantics",
+        "temporal_role",
+        "precision",
+        "scale",
+        "numeric_profile",
+        "unit_role",
+        "vocabulary_system",
+        "vocabulary_version",
+        "mapping_revision_field_id",
+        "algorithm",
+        "length_bytes",
+        "canonicalization_profile",
+        "content_scope",
+    }
+    _bounded_fields(field, required, allowed, label)
+    _identifier(field["field_id"], f"{label}.field_id")
+    _text(field["column_name"], f"{label}.column_name")
+    if type(field["nullable"]) is not bool:
+        raise DatabaseOracleError("data contract nullable requires a boolean")
+    semantic_type = _text(field["semantic_type"], f"{label}.semantic_type")
+    physical_type = _text(field["physical_type"], f"{label}.physical_type").lower()
+    native_types = {
+        "instant": "timestamptz",
+        "civil_date": "date",
+        "boolean": "boolean",
+        "internal_identifier": "uuid",
+        "external_identifier": "text",
+        "text": "text",
+        "controlled_code": "text",
+        "unit_code": "text",
+        "raw_numeric_lexeme": "text",
+        "digest": "bytea",
+    }
+    if semantic_type not in {*native_types, "exact_decimal", "integer"}:
+        raise DatabaseOracleError(
+            "data contract semantic type requires the released primitive vocabulary"
+        )
+    expected_physical = native_types.get(semantic_type)
+    if expected_physical is not None and physical_type != expected_physical:
+        raise DatabaseOracleError(
+            f"PostgreSQL {semantic_type} uses {expected_physical} in the selected future"
+        )
+    if semantic_type == "integer" and physical_type not in {
+        "smallint",
+        "integer",
+        "bigint",
+    }:
+        raise DatabaseOracleError(
+            "PostgreSQL integer fields require a released integral primitive"
+        )
+    if semantic_type == "internal_identifier" and field.get("identity_role") != "internal":
+        raise DatabaseOracleError(
+            "internal identifier requires internal identity semantics"
+        )
+    if semantic_type == "external_identifier":
+        if (
+            field.get("identity_role") != "external"
+            or type(field.get("max_length")) is not int
+            or field["max_length"] < 1
+            or field.get("normalization") != "NFC"
+            or field.get("collation") != "C"
+        ):
+            raise DatabaseOracleError(
+                "external identifier requires bounded NFC-normalized C-collated semantics"
+            )
+        _text(field.get("pattern"), "external identifier pattern")
+    if semantic_type == "instant":
+        if (
+            field.get("temporal_semantics") != "absolute_instant"
+            or field.get("temporal_role") not in {"occurrence", "recording"}
+        ):
+            raise DatabaseOracleError(
+                "instant field requires absolute semantics and an occurrence or recording role"
+            )
+    if semantic_type == "civil_date" and field.get("temporal_semantics") != "civil_date":
+        raise DatabaseOracleError(
+            "civil date field requires civil_date temporal semantics"
+        )
+    if semantic_type == "exact_decimal":
+        precision = field.get("precision")
+        scale = field.get("scale")
+        if (
+            type(precision) is not int
+            or type(scale) is not int
+            or precision < 1
+            or scale < 0
+            or scale > precision
+        ):
+            raise DatabaseOracleError(
+                "exact decimal requires coherent integer precision and scale"
+            )
+        if not re.fullmatch(
+            rf"(?:numeric|decimal)\({precision},{scale}\)",
+            physical_type,
+        ):
+            raise DatabaseOracleError(
+                "exact decimal physical type requires its declared precision and scale"
+            )
+        _identifier(field.get("numeric_profile"), "exact decimal numeric profile")
+    if semantic_type == "unit_code":
+        if field.get("unit_role") not in {"source", "canonical"}:
+            raise DatabaseOracleError("unit code requires source or canonical role")
+        if field["unit_role"] == "canonical":
+            if field.get("vocabulary_system") != "UCUM":
+                raise DatabaseOracleError("canonical unit requires the UCUM vocabulary")
+            _text(field.get("vocabulary_version"), "UCUM vocabulary version")
+            _identifier(
+                field.get("mapping_revision_field_id"),
+                "canonical unit mapping revision field",
+            )
+    if semantic_type == "digest":
+        if (
+            field.get("algorithm") != "sha256"
+            or field.get("length_bytes") != 32
+            or field.get("canonicalization_profile") != "RFC-8785-compatible-v1"
+        ):
+            raise DatabaseOracleError(
+                "digest requires 32-byte SHA-256 and the released canonicalization profile"
+            )
+        _text(field.get("content_scope"), "digest content scope", minimum=10)
+
+
+def _validate_row_level_security(value: Any, field_ids: set[str]) -> None:
+    rls = _mapping(value, "row_level_security")
+    _exact_fields(
+        rls,
+        {
+            "enabled",
+            "forced",
+            "tenant_field_id",
+            "session_setting",
+            "policy_mode",
+            "commands",
+        },
+        "row_level_security",
+    )
+    if rls["enabled"] is not True or rls["forced"] is not True:
+        raise DatabaseOracleError(
+            "tenant-scoped entities require enabled and forced row-level security"
+        )
+    if rls["tenant_field_id"] != "TENANT-ID" or "TENANT-ID" not in field_ids:
+        raise DatabaseOracleError("row-level security requires TENANT-ID")
+    if rls["session_setting"] != "app.tenant_id" or rls["policy_mode"] != "default_deny":
+        raise DatabaseOracleError(
+            "row-level security requires the released default-deny tenant context"
+        )
+    if rls["commands"] != ["select", "insert", "update", "delete"]:
+        raise DatabaseOracleError(
+            "row-level security requires every data access command"
+        )
+
+
+def _validate_unique_keys(values: Any, field_ids: set[str]) -> set[tuple[str, ...]]:
+    if not isinstance(values, list):
+        raise DatabaseOracleError("data contract unique keys require an array")
+    identities: set[str] = set()
+    keys: set[tuple[str, ...]] = set()
+    for index, value in enumerate(values):
+        item = _mapping(value, f"unique key {index}")
+        _exact_fields(item, {"constraint_id", "field_ids"}, f"unique key {index}")
+        identity = _identifier(item["constraint_id"], f"unique key {index} identity")
+        if identity in identities:
+            raise DatabaseOracleError("unique key identities require uniqueness")
+        identities.add(identity)
+        key = tuple(_field_id_list(item["field_ids"], field_ids, f"unique key {index}"))
+        if key in keys:
+            raise DatabaseOracleError("unique key field sets require uniqueness")
+        keys.add(key)
+    return keys
+
+
+def _validate_foreign_keys(
+    entity_id: str,
+    entity: dict[str, Any],
+    catalog: dict[str, dict[str, Any]],
+) -> None:
+    identities: set[str] = set()
+    for index, value in enumerate(entity["foreign_keys"]):
+        foreign_key = _mapping(value, f"{entity_id} foreign key {index}")
+        _exact_fields(
+            foreign_key,
+            {
+                "constraint_id",
+                "field_ids",
+                "references_entity_id",
+                "references_field_ids",
+                "on_update",
+                "on_delete",
+            },
+            f"{entity_id} foreign key {index}",
+        )
+        identity = _identifier(
+            foreign_key["constraint_id"], f"{entity_id} foreign key identity"
+        )
+        if identity in identities:
+            raise DatabaseOracleError("foreign key identities require uniqueness")
+        identities.add(identity)
+        fields = _field_id_list(
+            foreign_key["field_ids"],
+            entity["field_ids"],
+            f"{entity_id} foreign key fields",
+        )
+        target_id = foreign_key["references_entity_id"]
+        if target_id not in catalog:
+            raise DatabaseOracleError("foreign key requires a released target entity")
+        target = catalog[target_id]
+        references = _field_id_list(
+            foreign_key["references_field_ids"],
+            target["field_ids"],
+            f"{entity_id} foreign key reference fields",
+        )
+        if len(fields) != len(references):
+            raise DatabaseOracleError(
+                "foreign key source and target field counts require parity"
+            )
+        if fields[0] != "TENANT-ID" or references[0] != "TENANT-ID":
+            raise DatabaseOracleError(
+                "tenant-preserving foreign keys require leading TENANT-ID fields"
+            )
+        if tuple(references) not in target["candidate_keys"]:
+            raise DatabaseOracleError(
+                "foreign key reference fields require a released primary or unique key"
+            )
+        if foreign_key["on_update"] != "restrict" or foreign_key["on_delete"] != "restrict":
+            raise DatabaseOracleError(
+                "laboratory foreign keys require restricted update and delete behavior"
+            )
+
+
+def _validate_quantity_contracts(
+    values: Any,
+    fields: dict[str, dict[str, Any]],
+) -> int:
+    if not isinstance(values, list):
+        raise DatabaseOracleError("quantity contracts require an array")
+    expected_roles = {
+        "raw_value_lexeme_field_id": "raw_numeric_lexeme",
+        "raw_value_field_id": "exact_decimal",
+        "source_unit_field_id": "unit_code",
+        "canonical_value_field_id": "exact_decimal",
+        "canonical_unit_field_id": "unit_code",
+        "assay_specification_id_field_id": "internal_identifier",
+        "assay_specification_version_field_id": "integer",
+        "qualifier_field_id": "controlled_code",
+        "reference_interval_low_field_id": "exact_decimal",
+        "reference_interval_high_field_id": "exact_decimal",
+        "lower_detection_limit_field_id": "exact_decimal",
+        "upper_quantitation_limit_field_id": "exact_decimal",
+        "conversion_rule_version_field_id": "external_identifier",
+        "rounding_mode_field_id": "controlled_code",
+        "unit_mapping_revision_field_id": "external_identifier",
+        "content_digest_field_id": "digest",
+    }
+    for index, value in enumerate(values):
+        contract = _mapping(value, f"quantity contract {index}")
+        _exact_fields(
+            contract,
+            {"quantity_contract_id", *expected_roles},
+            f"quantity contract {index}",
+        )
+        _identifier(
+            contract["quantity_contract_id"],
+            f"quantity contract {index} identity",
+        )
+        for role, semantic_type in expected_roles.items():
+            field_id = contract[role]
+            if field_id not in fields or fields[field_id]["semantic_type"] != semantic_type:
+                raise DatabaseOracleError(
+                    f"quantity contract {role} requires a {semantic_type} field"
+                )
+        if fields[contract["source_unit_field_id"]].get("unit_role") != "source":
+            raise DatabaseOracleError(
+                "quantity contract source unit requires source unit semantics"
+            )
+        if fields[contract["canonical_unit_field_id"]].get("unit_role") != "canonical":
+            raise DatabaseOracleError(
+                "quantity contract canonical unit requires canonical unit semantics"
+            )
+    return len(values)
+
+
+def _field_id_list(value: Any, known: set[str], label: str) -> list[str]:
+    if (
+        not isinstance(value, list)
+        or not value
+        or not all(isinstance(item, str) and item in known for item in value)
+        or len(value) != len(set(value))
+    ):
+        raise DatabaseOracleError(f"{label} require unique released field identities")
+    return value
 
 
 def _validate_migration_manifest(
@@ -430,6 +786,7 @@ def _validate_migration_receipt(
             "target_schema_digest",
             "environment",
             "phase_results",
+            "invariant_results",
             "reconciliation",
             "recovery",
             "performed_at",
@@ -509,6 +866,46 @@ def _validate_migration_receipt(
                 "migration receipt phase results require plan-ordered passing outcomes"
             )
         _digest(result["checkpoint_digest"], "migration phase checkpoint digest")
+    invariant_results = receipt["invariant_results"]
+    if not isinstance(invariant_results, list):
+        raise DatabaseOracleError("migration receipt invariant results require an array")
+    observed_policy_ids: set[str] = set()
+    for index, result_value in enumerate(invariant_results):
+        result = _mapping(result_value, f"migration invariant result {index}")
+        _exact_fields(
+            result,
+            {
+                "policy_id",
+                "evaluated_record_count",
+                "outcome",
+                "evidence_digest",
+            },
+            f"migration invariant result {index}",
+        )
+        policy_id = _identifier(
+            result["policy_id"], f"migration invariant result {index} policy"
+        )
+        if policy_id in observed_policy_ids:
+            raise DatabaseOracleError(
+                "migration invariant policy identities require uniqueness"
+            )
+        observed_policy_ids.add(policy_id)
+        _nonnegative_integer(
+            result["evaluated_record_count"],
+            f"migration invariant result {index} record count",
+        )
+        if result["outcome"] != "passed":
+            raise DatabaseOracleError(
+                "migration invariant results require passing outcomes"
+            )
+        _digest(
+            result["evidence_digest"],
+            f"migration invariant result {index} evidence digest",
+        )
+    if observed_policy_ids != set(contract["program_policy_bindings"]):
+        raise DatabaseOracleError(
+            "migration invariant results require every released primitive policy"
+        )
     reconciliation = _mapping(receipt["reconciliation"], "migration reconciliation")
     _exact_fields(
         reconciliation,

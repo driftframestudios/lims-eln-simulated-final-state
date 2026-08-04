@@ -66,7 +66,7 @@ class SimulationTests(unittest.TestCase):
             (
                 ROOT
                 / "database"
-                / "final-state-database-oracle-v1.json"
+                / "final-state-database-oracle-v2.json"
             ).read_text()
         )
         cls.redaction_key = synthetic_redaction_key(cls.fixture["redaction_key_id"])
@@ -365,6 +365,52 @@ class SimulationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "complete audit lineage"):
             validate_representative_corpus(revision_drift)
 
+    def test_representative_corpus_covers_tenant_and_scientific_semantics(
+        self,
+    ) -> None:
+        records = validate_representative_corpus(self.migration_corpus)
+        self.assertEqual(self.migration_corpus["fixture_version"], "2.0.0")
+        self.assertEqual(len({item["tenant_id"] for item in records}), 2)
+        self.assertEqual(
+            len([item for item in records if item["result"] is not None]),
+            3,
+        )
+        self.assertEqual(
+            {item["result"]["canonical_unit"] for item in records if item["result"]},
+            {"{copies}/uL"},
+        )
+        self.assertEqual(
+            {
+                item["result"]["qualifier"]
+                for item in records
+                if item["result"]
+            },
+            {None, "estimated", "less_than"},
+        )
+        shared_external = [
+            item for item in records if item["external_specimen_id"] == "SPM-SYN-0001"
+        ]
+        self.assertEqual(len(shared_external), 2)
+        self.assertEqual(len({item["tenant_id"] for item in shared_external}), 2)
+
+    def test_representative_corpus_rejects_scientific_contract_drift(self) -> None:
+        bare_unit = deepcopy(self.migration_corpus)
+        bare_unit["records"][0]["result"]["canonical_unit"] = "copies"
+        with self.assertRaisesRegex(ValueError, "canonical UCUM"):
+            validate_representative_corpus(bare_unit)
+
+        recording_precedes_observation = deepcopy(self.migration_corpus)
+        recording_precedes_observation["records"][0]["result"]["recorded_at"] = (
+            "2028-06-30T13:02:59.000Z"
+        )
+        with self.assertRaisesRegex(ValueError, "observation-time ordering"):
+            validate_representative_corpus(recording_precedes_observation)
+
+        unversioned_mapping = deepcopy(self.migration_corpus)
+        unversioned_mapping["records"][0]["result"]["unit_mapping_revision"] = ""
+        with self.assertRaisesRegex(ValueError, "unit_mapping_revision"):
+            validate_representative_corpus(unversioned_mapping)
+
     def test_migration_readiness_distinguishes_boolean_from_integer_revision(
         self,
     ) -> None:
@@ -415,8 +461,8 @@ class SimulationTests(unittest.TestCase):
                 "name": "Flyway Community",
                 "version": "13.0.0",
                 "implementation_digest": (
-                    "sha256:f3c8433401abf859ef9022584c8e6111"
-                    "684363ec490f737e749e9a4705ea32d0"
+                    "sha256:031722729a3c47c61bc7a22db507975d"
+                    "faa9c31138815977f82adb408b60563e"
                 ),
             },
         )
@@ -439,7 +485,7 @@ class SimulationTests(unittest.TestCase):
         mutations.append((boolean_sequence, "positive integer"))
 
         text_instant = deepcopy(self.database_oracle)
-        text_instant["data_contract"]["entities"][0]["fields"][5][
+        text_instant["data_contract"]["entities"][2]["fields"][4][
             "physical_type"
         ] = "text"
         mutations.append((text_instant, "uses timestamptz"))
@@ -472,6 +518,51 @@ class SimulationTests(unittest.TestCase):
         with self.assertRaisesRegex(DatabaseOracleError, "canonical nested"):
             validate_database_oracle(drifted)
 
+    def test_database_oracle_enforces_tenant_and_quantity_convergence(self) -> None:
+        result_entity = self.database_oracle["data_contract"]["entities"][3]
+        self.assertEqual(
+            result_entity["primary_key_field_ids"],
+            ["TENANT-ID", "OBSERVATION-ID"],
+        )
+        self.assertTrue(result_entity["row_level_security"]["forced"])
+        self.assertEqual(len(result_entity["quantity_contracts"]), 1)
+
+        cross_tenant_fk = deepcopy(self.database_oracle)
+        specimen_fk = cross_tenant_fk["data_contract"]["entities"][3][
+            "foreign_keys"
+        ][1]
+        specimen_fk["field_ids"] = ["SPECIMEN-ID"]
+        specimen_fk["references_field_ids"] = ["SPECIMEN-ID"]
+
+        permissive_rls = deepcopy(self.database_oracle)
+        permissive_rls["data_contract"]["entities"][2]["row_level_security"][
+            "forced"
+        ] = False
+
+        detached_conversion = deepcopy(self.database_oracle)
+        detached_conversion["data_contract"]["entities"][3][
+            "quantity_contracts"
+        ][0]["conversion_rule_version_field_id"] = "QUALIFIER"
+
+        text_digest = deepcopy(self.database_oracle)
+        digest_field = next(
+            field
+            for field in text_digest["data_contract"]["entities"][3]["fields"]
+            if field["field_id"] == "CONTENT-DIGEST"
+        )
+        digest_field["physical_type"] = "text"
+
+        for candidate, message in (
+            (cross_tenant_fk, "leading TENANT-ID"),
+            (permissive_rls, "forced row-level security"),
+            (detached_conversion, "external_identifier"),
+            (text_digest, "digest uses bytea"),
+        ):
+            with self.subTest(message=message), self.assertRaisesRegex(
+                DatabaseOracleError, message
+            ):
+                validate_database_oracle(candidate)
+
     def test_schema_valid_utc_offset_produces_canonical_event_times(self) -> None:
         fixture = deepcopy(self.fixture)
         fixture["clock"] = "2026-08-17T14:30:00+00:00"
@@ -499,6 +590,19 @@ class SimulationTests(unittest.TestCase):
         fixture["result"]["api_key"] = "SYNTHETIC-CREDENTIAL-SHAPE"
         with self.assertRaisesRegex(SyntheticBoundary, "protected content"):
             self.simulate(fixture)
+
+    def test_fixture_boundary_requires_scientific_quantity_semantics(self) -> None:
+        bare_unit = deepcopy(self.fixture)
+        bare_unit["result"]["canonical_unit"] = "copies"
+        with self.assertRaisesRegex(SyntheticBoundary, "canonical UCUM"):
+            self.simulate(bare_unit)
+
+        recording_precedes_observation = deepcopy(self.fixture)
+        recording_precedes_observation["result"]["recorded_at"] = (
+            "2026-08-17T14:29:57.000Z"
+        )
+        with self.assertRaisesRegex(SyntheticBoundary, "observation-time ordering"):
+            self.simulate(recording_precedes_observation)
 
     def test_aws_provider_receipt_preserves_references_and_versions(self) -> None:
         reference = AwsRuntimeReference.from_dict(self.fixture["runtime_configuration"])
@@ -535,7 +639,7 @@ class SimulationTests(unittest.TestCase):
         horizon = json.loads((ROOT / "COORDINATION-HORIZON.json").read_text())
         result = self.simulate()
         closure_digest = digest(result["governance_closure"])
-        self.assertEqual(__version__, "0.3.1")
+        self.assertEqual(__version__, "0.3.2")
         self.assertEqual(manifest["repository_release"], __version__)
         self.assertEqual(manifest["repository_role"], "simulated_final_state")
         self.assertEqual(manifest["contract_bindings"]["governance_schema"], "2.0.1")
@@ -672,7 +776,7 @@ class SimulationTests(unittest.TestCase):
         )
 
         lock = json.loads((ROOT / "constellation.lock.json").read_text())
-        self.assertEqual(lock["constellation_version"], "0.3.1")
+        self.assertEqual(lock["constellation_version"], "0.3.2")
         self.assertEqual(lock["simulation"]["release"], "forecast-2028-FR-v1")
         self.assertEqual(
             lock["simulation"]["canonical_closure_digest"],
