@@ -410,6 +410,17 @@ class SimulationTests(unittest.TestCase):
         coordinates = validate_database_oracle(self.database_oracle)
         role = json.loads((ROOT / "release" / "repository-role.json").read_text())
         self.assertEqual(
+            self.database_oracle["migration_manifest"]["tool"],
+            {
+                "name": "Flyway Community",
+                "version": "13.0.0",
+                "implementation_digest": (
+                    "sha256:f3c8433401abf859ef9022584c8e6111"
+                    "684363ec490f737e749e9a4705ea32d0"
+                ),
+            },
+        )
+        self.assertEqual(
             role["database_oracle"]["release_coordinates"],
             coordinates.as_dict(),
         )
