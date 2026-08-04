@@ -2,6 +2,9 @@
 
 ## 0.3.1
 
+- Assign the simulated program-owned PostgreSQL schema history to Flyway Community
+  13.0.0 while retaining vendor upgrades and scientific data reconciliation as
+  separate responsibility surfaces.
 - Add a canonical final-state database oracle with native PostgreSQL temporal,
   boolean, integer, identifier, and exact-decimal primitives.
 - Bind an expand/backfill/validate/cutover/contract manifest to typed migration and

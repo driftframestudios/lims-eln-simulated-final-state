@@ -82,6 +82,12 @@ release-receipt, and complete-bundle digests. This provides the comparative syst
 with one deterministic final-state coordinate while preserving the boundary between
 simulated acceptance and accountable environment observation.
 
+The selected future assigns repository-owned PostgreSQL schema evolution to Flyway
+Community 13.0.0. Vendor-owned LIMS and ELN schemas continue through their supported
+upgrade paths and APIs. Cross-platform scientific data movement remains a separately
+checkpointed and reconciled program concern, so the simulation evaluates semantic
+parity without modeling a second schema-migration runner.
+
 ## Coordination Horizon
 
 [`COORDINATION-HORIZON.json`](COORDINATION-HORIZON.json) describes the current focus,
