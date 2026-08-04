@@ -41,6 +41,9 @@ not reopen the simulated closures.
 - Sapio, Benchling, and LabKey behavior through deterministic emulators;
 - stable-request reconciliation after ambiguous vendor writes;
 - representative migration, rollback, clean restore, and data exit;
+- a canonical database oracle binding native PostgreSQL primitives, an
+  expand-through-contract migration manifest, rehearsal evidence, recovery
+  objectives, and five acceptance projections into one comparison coordinate;
 - tenant authorization, recursive keyed trace pseudonymization, telemetry, and incident exercises;
 - an executable AWS Parameter Store and Secrets Manager provider boundary with
   value-free receipts;
@@ -71,6 +74,13 @@ reproduce the aggregate artifact. The byte-identical promoted candidate is retai
 at `release/future-reality-2028-06-30-v1.json`; the aggregate validation gate
 regenerates and compares it after the complete Python test matrix. Generated build
 output remains a transient workflow artifact.
+
+The retained database oracle lives at
+[`database/final-state-database-oracle-v1.json`](database/final-state-database-oracle-v1.json).
+Its validator recomputes the data-contract, migration-manifest, migration-receipt,
+release-receipt, and complete-bundle digests. This provides the comparative system
+with one deterministic final-state coordinate while preserving the boundary between
+simulated acceptance and accountable environment observation.
 
 ## Coordination Horizon
 

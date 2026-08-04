@@ -3,6 +3,7 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass
 import math
+import re
 from typing import Any
 
 from .domain import digest
@@ -24,6 +25,7 @@ CORPUS_FIELDS = {
     "artifacts",
     "records",
 }
+SHA256_PATTERN = re.compile(r"^sha256:[a-f0-9]{64}$")
 
 
 @dataclass(frozen=True)
@@ -66,10 +68,7 @@ class MigrationHarness:
 
         mismatches = tuple(_difference_paths(source_projection, target))
         rollback_ready = bool(records) and all(
-            isinstance(record.get("revision"), int)
-            and isinstance(record.get("artifact_digest"), str)
-            and bool(record.get("audit"))
-            for record in source_projection
+            _record_rollback_ready(record) for record in source_projection
         )
         report = MigrationReport(
             source_count=len(source_projection),
@@ -187,6 +186,20 @@ def validate_representative_corpus(corpus: dict[str, Any]) -> list[dict[str, Any
         "exception_classes",
     }:
         raise ValueError("representative migration profile requires released dimensions")
+    if type(profile["records"]) is not int or profile["records"] < 1:
+        raise ValueError(
+            "representative migration profile record count requires a positive integer"
+        )
+    for field in ("lineage_depth", "artifact_sizes_bytes"):
+        values = profile[field]
+        if (
+            not isinstance(values, list)
+            or not values
+            or any(type(item) is not int or item < 1 for item in values)
+        ):
+            raise ValueError(
+                f"representative migration profile {field} requires positive integers"
+            )
     records = corpus.get("records")
     artifacts = corpus.get("artifacts")
     if not isinstance(records, list) or not isinstance(artifacts, list):
@@ -204,11 +217,19 @@ def validate_representative_corpus(corpus: dict[str, Any]) -> list[dict[str, Any
         }:
             raise ValueError("representative artifact requires identity, size, and digest")
         if (
-            not isinstance(artifact["size_bytes"], int)
-            or isinstance(artifact["size_bytes"], bool)
+            type(artifact["size_bytes"]) is not int
             or artifact["size_bytes"] <= 0
         ):
             raise ValueError("representative artifact size requires a positive integer")
+        if (
+            not isinstance(artifact["artifact_id"], str)
+            or not artifact["artifact_id"].startswith("ART-SYN-")
+            or not isinstance(artifact["digest"], str)
+            or SHA256_PATTERN.fullmatch(artifact["digest"]) is None
+        ):
+            raise ValueError(
+                "representative artifact requires generated identity and canonical digest"
+            )
         artifact_sizes.append(artifact["size_bytes"])
         artifact_digests.add(artifact["digest"])
     lineage_depth = []
@@ -230,6 +251,16 @@ def validate_representative_corpus(corpus: dict[str, Any]) -> list[dict[str, Any
             raise ValueError(
                 "representative migration corpus requires generated identities"
             )
+        if type(record["revision"]) is not int or record["revision"] < 1:
+            raise ValueError(
+                "representative migration revision requires a positive integer"
+            )
+        if not isinstance(record["artifact_digest"], str) or SHA256_PATTERN.fullmatch(
+            record["artifact_digest"]
+        ) is None:
+            raise ValueError(
+                "representative record artifact requires a canonical digest"
+            )
         if record["artifact_digest"] not in artifact_digests:
             raise ValueError(
                 "representative record artifact requires a declared corpus artifact"
@@ -237,6 +268,30 @@ def validate_representative_corpus(corpus: dict[str, Any]) -> list[dict[str, Any
         if not isinstance(record["audit"], list) or not record["audit"]:
             raise ValueError(
                 "representative migration record requires reconstructable audit lineage"
+            )
+        expected_sequences = list(range(1, len(record["audit"]) + 1))
+        observed_sequences = []
+        for event in record["audit"]:
+            if not isinstance(event, dict) or set(event) != {"sequence", "event"}:
+                raise ValueError(
+                    "representative audit event requires sequence and event fields"
+                )
+            if type(event["sequence"]) is not int or event["sequence"] < 1:
+                raise ValueError(
+                    "representative audit sequence requires a positive integer"
+                )
+            if not isinstance(event["event"], str) or not event["event"].strip():
+                raise ValueError(
+                    "representative audit event requires a released event identity"
+                )
+            observed_sequences.append(event["sequence"])
+        if observed_sequences != expected_sequences:
+            raise ValueError(
+                "representative audit lineage requires contiguous ordered sequences"
+            )
+        if record["revision"] != len(record["audit"]):
+            raise ValueError(
+                "representative revision requires the complete audit lineage depth"
             )
         lineage_depth.append(len(record["audit"]))
     if sorted(artifact_sizes) != sorted(profile["artifact_sizes_bytes"]):
@@ -258,6 +313,29 @@ def validate_representative_corpus(corpus: dict[str, Any]) -> list[dict[str, Any
             "representative migration profile requires every released exception class"
         )
     return deepcopy(records)
+
+
+def _record_rollback_ready(record: dict[str, Any]) -> bool:
+    revision = record.get("revision")
+    audit = record.get("audit")
+    if (
+        type(revision) is not int
+        or revision < 1
+        or not isinstance(record.get("artifact_digest"), str)
+        or SHA256_PATTERN.fullmatch(record["artifact_digest"]) is None
+        or not isinstance(audit, list)
+        or len(audit) != revision
+    ):
+        return False
+    return all(
+        isinstance(event, dict)
+        and set(event) == {"sequence", "event"}
+        and type(event["sequence"]) is int
+        and event["sequence"] == sequence
+        and isinstance(event["event"], str)
+        and bool(event["event"].strip())
+        for sequence, event in enumerate(audit, start=1)
+    )
 
 
 def _difference_paths(left: Any, right: Any, path: str = "$") -> list[str]:

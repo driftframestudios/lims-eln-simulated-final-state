@@ -2,6 +2,12 @@
 
 ## 0.3.1
 
+- Add a canonical final-state database oracle with native PostgreSQL temporal,
+  boolean, integer, identifier, and exact-decimal primitives.
+- Bind an expand/backfill/validate/cutover/contract manifest to typed migration and
+  release receipts with reconciliation, recovery, and five acceptance projections.
+- Require exact JSON primitive types, canonical SHA-256 coordinates, contiguous
+  audit lineage, and timezone-aware domain instants.
 - Evaluate each simulated receipt family from executable evidence criteria.
 - Exercise the declared representative migration corpus and its failure twins.
 - Canonicalize UTC event timestamps across `Z` and `+00:00` inputs.

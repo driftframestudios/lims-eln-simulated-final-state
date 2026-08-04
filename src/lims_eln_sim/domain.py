@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
+from copy import deepcopy
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from hashlib import sha256
 import json
@@ -27,9 +28,19 @@ class AuditEvent:
     event_id: str
     action: str
     actor: str
-    occurred_at: str
+    occurred_at: datetime
     revision: int
     detail_digest: str
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "event_id": self.event_id,
+            "action": self.action,
+            "actor": self.actor,
+            "occurred_at": canonical_utc(self.occurred_at),
+            "revision": self.revision,
+            "detail_digest": self.detail_digest,
+        }
 
 
 @dataclass
@@ -49,7 +60,7 @@ class Specimen:
         target: str,
         actor: str,
         detail: dict[str, Any],
-        occurred_at: str,
+        occurred_at: str | datetime,
     ) -> None:
         if target not in ALLOWED_TRANSITIONS.get(self.status, set()):
             raise DomainRuleError(f"transition {self.status!r} -> {target!r} requires a released rule")
@@ -60,18 +71,52 @@ class Specimen:
                 event_id=f"evt-{self.specimen_id}-{self.revision:03d}",
                 action=target,
                 actor=actor,
-                occurred_at=occurred_at,
+                occurred_at=parse_instant(occurred_at, label="audit occurred_at"),
                 revision=self.revision,
                 detail_digest=digest(detail),
             )
         )
 
     def view(self) -> dict[str, Any]:
-        return asdict(self)
+        return {
+            "specimen_id": self.specimen_id,
+            "tenant_id": self.tenant_id,
+            "source_alias": self.source_alias,
+            "status": self.status,
+            "revision": self.revision,
+            "custody_location": self.custody_location,
+            "result": deepcopy(self.result),
+            "artifact_digest": self.artifact_digest,
+            "audit": [event.as_dict() for event in self.audit],
+        }
 
 
 def utc_now() -> str:
-    return datetime.now(tz=timezone.utc).isoformat()
+    return canonical_utc(datetime.now(tz=timezone.utc))
+
+
+def parse_instant(value: str | datetime, *, label: str = "instant") -> datetime:
+    """Return one timezone-aware instant normalized to UTC."""
+
+    if isinstance(value, datetime):
+        parsed = value
+    elif isinstance(value, str):
+        try:
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        except ValueError as error:
+            raise ValueError(f"{label} requires an ISO 8601 instant") from error
+    else:
+        raise ValueError(f"{label} requires a datetime or ISO 8601 instant")
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError(f"{label} requires an explicit timezone")
+    return parsed.astimezone(timezone.utc)
+
+
+def canonical_utc(value: datetime) -> str:
+    """Serialize an aware datetime as canonical RFC 3339 UTC text."""
+
+    instant = parse_instant(value)
+    return instant.isoformat(timespec="milliseconds").replace("+00:00", "Z")
 
 
 def canonical_json(value: Any) -> str:

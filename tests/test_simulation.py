@@ -32,8 +32,12 @@ from lims_eln_sim.configuration import (
     SyntheticAwsProvider,
     resolve_runtime_configuration,
 )
-from lims_eln_sim.domain import digest
-from lims_eln_sim.migration import validate_representative_corpus
+from lims_eln_sim.database_oracle import (
+    DatabaseOracleError,
+    validate_database_oracle,
+)
+from lims_eln_sim.domain import Specimen, digest, parse_instant
+from lims_eln_sim.migration import MigrationHarness, validate_representative_corpus
 from lims_eln_sim.open_receipts import ReceiptCriteriaError, close_open_receipts
 from lims_eln_sim.safety import (
     SyntheticBoundary,
@@ -56,6 +60,13 @@ class SimulationTests(unittest.TestCase):
                 ROOT
                 / "specification"
                 / "intended-use-and-applicability-profile.json"
+            ).read_text()
+        )
+        cls.database_oracle = json.loads(
+            (
+                ROOT
+                / "database"
+                / "final-state-database-oracle-v1.json"
             ).read_text()
         )
         cls.redaction_key = synthetic_redaction_key(cls.fixture["redaction_key_id"])
@@ -317,6 +328,138 @@ class SimulationTests(unittest.TestCase):
         corpus["records"][1]["specimen_id"] = corpus["records"][0]["specimen_id"]
         with self.assertRaisesRegex(ValueError, "unique specimen"):
             validate_representative_corpus(corpus)
+
+    def test_representative_corpus_requires_exact_integer_and_digest_primitives(
+        self,
+    ) -> None:
+        boolean_revision = deepcopy(self.migration_corpus)
+        boolean_revision["records"][0]["revision"] = True
+        with self.assertRaisesRegex(ValueError, "positive integer"):
+            validate_representative_corpus(boolean_revision)
+
+        boolean_size = deepcopy(self.migration_corpus)
+        boolean_size["artifacts"][0]["size_bytes"] = True
+        with self.assertRaisesRegex(ValueError, "positive integer"):
+            validate_representative_corpus(boolean_size)
+
+        boolean_profile_size = deepcopy(self.migration_corpus)
+        boolean_profile_size["profile"]["artifact_sizes_bytes"][0] = True
+        with self.assertRaisesRegex(ValueError, "positive integers"):
+            validate_representative_corpus(boolean_profile_size)
+
+        malformed_digest = deepcopy(self.migration_corpus)
+        malformed_digest["records"][0]["artifact_digest"] = "sha256:short"
+        with self.assertRaisesRegex(ValueError, "canonical digest"):
+            validate_representative_corpus(malformed_digest)
+
+    def test_representative_corpus_requires_contiguous_audit_revision_lineage(
+        self,
+    ) -> None:
+        sequence_drift = deepcopy(self.migration_corpus)
+        sequence_drift["records"][0]["audit"][0]["sequence"] = 2
+        with self.assertRaisesRegex(ValueError, "contiguous ordered"):
+            validate_representative_corpus(sequence_drift)
+
+        revision_drift = deepcopy(self.migration_corpus)
+        revision_drift["records"][0]["revision"] += 1
+        with self.assertRaisesRegex(ValueError, "complete audit lineage"):
+            validate_representative_corpus(revision_drift)
+
+    def test_migration_readiness_distinguishes_boolean_from_integer_revision(
+        self,
+    ) -> None:
+        records = deepcopy(self.migration_corpus["records"])
+        records[0]["revision"] = True
+        unused_target, report = MigrationHarness().migrate(records)
+        self.assertFalse(report.rollback_ready)
+
+        records = deepcopy(self.migration_corpus["records"])
+        records[0]["audit"][0]["sequence"] = 2
+        unused_target, report = MigrationHarness().migrate(records)
+        self.assertFalse(report.rollback_ready)
+
+    def test_runtime_cache_policy_distinguishes_boolean_from_integer(self) -> None:
+        runtime_reference = deepcopy(self.fixture["runtime_configuration"])
+        runtime_reference["cache_ttl_seconds"] = True
+        with self.assertRaisesRegex(ConfigurationBoundary, "bounded 30-900"):
+            AwsRuntimeReference.from_dict(runtime_reference)
+
+    def test_domain_uses_aware_instants_and_returns_detached_json_views(self) -> None:
+        specimen = Specimen("SPM-SYN-TIME", "TENANT-SYN-001", "source-sim")
+        specimen.result = {"measurements": [{"value": "1.250000"}]}
+        specimen.transition(
+            "accessioned",
+            "simulated-operator",
+            {"source": "selected-future"},
+            "2028-06-30T10:00:00-04:00",
+        )
+
+        self.assertIsInstance(specimen.audit[0].occurred_at, datetime)
+        self.assertEqual(
+            parse_instant("2028-06-30T10:00:00-04:00"),
+            datetime(2028, 6, 30, 14, 0, tzinfo=timezone.utc),
+        )
+        view = specimen.view()
+        self.assertEqual(view["audit"][0]["occurred_at"], "2028-06-30T14:00:00.000Z")
+        view["result"]["measurements"][0]["value"] = "changed-by-consumer"
+        self.assertEqual(specimen.result["measurements"][0]["value"], "1.250000")
+        with self.assertRaisesRegex(ValueError, "explicit timezone"):
+            parse_instant("2028-06-30T14:00:00")
+
+    def test_database_oracle_binds_contract_manifest_and_release_receipts(self) -> None:
+        coordinates = validate_database_oracle(self.database_oracle)
+        role = json.loads((ROOT / "release" / "repository-role.json").read_text())
+        self.assertEqual(
+            role["database_oracle"]["release_coordinates"],
+            coordinates.as_dict(),
+        )
+        self.assertEqual(
+            role["database_oracle"]["canonical_json_digest"],
+            digest(self.database_oracle),
+        )
+
+    def test_database_oracle_enforces_native_primitives_and_exact_json_types(
+        self,
+    ) -> None:
+        mutations = []
+
+        boolean_sequence = deepcopy(self.database_oracle)
+        boolean_sequence["migration_manifest"]["phases"][0]["sequence"] = True
+        mutations.append((boolean_sequence, "positive integer"))
+
+        text_instant = deepcopy(self.database_oracle)
+        text_instant["data_contract"]["entities"][0]["fields"][5][
+            "physical_type"
+        ] = "text"
+        mutations.append((text_instant, "uses timestamptz"))
+
+        numeric_acceptance_flag = deepcopy(self.database_oracle)
+        numeric_acceptance_flag["actual_acceptance_required"] = 1
+        mutations.append((numeric_acceptance_flag, "actual_acceptance_required"))
+
+        noncanonical_time = deepcopy(self.database_oracle)
+        noncanonical_time["migration_receipt"]["performed_at"] = (
+            "2028-06-30T14:25:00Z"
+        )
+        mutations.append((noncanonical_time, "millisecond canonical UTC"))
+
+        missing_acceptance = deepcopy(self.database_oracle)
+        missing_acceptance["release_receipt"]["acceptance_bindings"].pop()
+        mutations.append((missing_acceptance, "distinct Scientific"))
+
+        for candidate, message in mutations:
+            with self.subTest(message=message), self.assertRaisesRegex(
+                DatabaseOracleError, message
+            ):
+                validate_database_oracle(candidate)
+
+    def test_database_oracle_detects_nested_digest_drift(self) -> None:
+        drifted = deepcopy(self.database_oracle)
+        drifted["coordinates"]["release_receipt_digest"] = (
+            "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        )
+        with self.assertRaisesRegex(DatabaseOracleError, "canonical nested"):
+            validate_database_oracle(drifted)
 
     def test_schema_valid_utc_offset_produces_canonical_event_times(self) -> None:
         fixture = deepcopy(self.fixture)

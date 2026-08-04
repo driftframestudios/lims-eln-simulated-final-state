@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from lims_eln_sim.cli import load_json
+from lims_eln_sim.database_oracle import validate_database_oracle
 from lims_eln_sim.domain import digest
 from lims_eln_sim.safety import synthetic_redaction_key
 from lims_eln_sim.simulation import closure_bundle, run
@@ -66,6 +67,10 @@ def main() -> int:
             "retained selected-future closure differs from regenerated evidence"
         )
     manifest = load_json(ROOT / "release/repository-role.json")
+    database_oracle = load_json(
+        ROOT / "database/final-state-database-oracle-v1.json"
+    )
+    database_coordinates = validate_database_oracle(database_oracle)
     expected = {
         "reference_result_digest": result["content_digest"],
         "reference_closure_digest": digest(result["governance_closure"]),
@@ -91,6 +96,18 @@ def main() -> int:
             "manifest": canonical.get("file_sha256"),
             "derived": file_sha256,
         }
+    oracle_binding = manifest["database_oracle"]
+    expected_oracle_binding = {
+        "path": "database/final-state-database-oracle-v1.json",
+        "bundle_version": database_oracle["oracle_version"],
+        "canonical_json_digest": digest(database_oracle),
+        "release_coordinates": database_coordinates.as_dict(),
+    }
+    if oracle_binding != expected_oracle_binding:
+        drift["database_oracle"] = {
+            "manifest": oracle_binding,
+            "derived": expected_oracle_binding,
+        }
     if drift:
         raise ValueError(
             "release manifest differs from regenerated evidence: "
@@ -112,6 +129,8 @@ def main() -> int:
                     "reference_closure_digest"
                 ],
                 "canonical_bundle_digest": digest(retained),
+                "database_oracle_digest": digest(database_oracle),
+                "database_release": database_coordinates.database_release,
             },
             sort_keys=True,
         )
