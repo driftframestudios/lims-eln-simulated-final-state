@@ -95,7 +95,7 @@ class AwsRuntimeReference:
 class RuntimeConfiguration:
     parameters: dict[str, str] = field(repr=False)
     secrets: dict[str, str] = field(repr=False)
-    receipt: dict[str, Any]
+    reference: dict[str, Any]
 
 
 class SyntheticAwsProvider:
@@ -128,8 +128,9 @@ def resolve_runtime_configuration(
         raise ConfigurationBoundary(
             "resolved settings require values and versions from the workload-role provider"
         )
-    receipt = {
-        "evidence_mode": "simulated",
+    public_reference = {
+        "reference_kind": "synthetic_aws_configuration",
+        "runtime_effect": "none",
         "provider_contract": "aws-ssm-and-secrets-manager",
         "workload_role_arn": reference.workload_role_arn,
         "kms_key_arn": reference.kms_key_arn,
@@ -142,10 +143,10 @@ def resolve_runtime_configuration(
         "secret_stage": reference.secret_stage,
         "cache_ttl_seconds": reference.cache_ttl_seconds,
         "rotation_behavior": "refresh by version stage within the bounded cache window",
-        "receipt_projection": "references, versions, role, key, and cache policy",
+        "projection": "references, versions, role, key, and cache policy",
     }
     return RuntimeConfiguration(
         parameters={name: item.value for name, item in parameters.items()},
         secrets={name: item.value for name, item in secrets.items()},
-        receipt=receipt,
+        reference=public_reference,
     )

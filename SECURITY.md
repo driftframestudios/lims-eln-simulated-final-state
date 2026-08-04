@@ -1,27 +1,21 @@
 # Security policy
 
-## Supported line
-
-The latest forecast release on `main` receives security and privacy corrections. A
-correction travels through `hotfix/<bounded-finding>` and returns to `develop`.
-
 ## Reporting
 
-Use GitHub's private vulnerability reporting surface for credential exposure,
-synthetic-boundary escape, tenant authorization, trace pseudonymization, migration,
-restore, or artifact-disclosure findings. Include a minimal generated fixture, the
-affected forecast, and the governed replacement path.
+Use GitHub private vulnerability reporting for credential exposure,
+synthetic-boundary escape, cross-tenant behavior, trace pseudonymization,
+migration, restore, or artifact-disclosure findings. Include a minimal generated
+fixture and the affected reference version.
 
 ## Repository boundary
 
-The repository accepts generated fixtures through the executable synthetic-data gate.
-Live laboratory records, vendor exports, credential values, signing material, and
-regulated evidence remain in their approved systems. AWS behavior resolves through the
-deterministic provider contract, while production authority remains with workload
-roles, Parameter Store, Secrets Manager, and KMS in the implementation environment.
+Generated fixtures enter through the synthetic-data checks. Live laboratory
+records, vendor exports, credential values, signing material, and regulated
+evidence stay in their approved systems.
 
-## Response
+The implementation repository uses workload IAM roles, Parameter Store, Secrets
+Manager, KMS, and provider-native logging. This repository uses a deterministic
+provider that exposes reference metadata while keeping resolved values private.
 
-The security owner records severity, containment, corrected scenario, regression
-evidence, release, and disclosure decisions. Credential-shaped findings enter the
-approved rotation workflow and receive fresh artifact assessment.
+GitHub secret scanning and push protection provide repository-level prevention.
+Provider-side monitoring and credential rotation provide defense in depth.

@@ -9,30 +9,6 @@ from typing import Any
 import unicodedata
 
 
-class AuthorizationBoundary(PermissionError):
-    """The request receives an explicit boundary and a governed escalation path."""
-
-
-@dataclass(frozen=True)
-class Principal:
-    principal_id: str
-    tenant_id: str
-    roles: tuple[str, ...]
-
-
-def authorize(principal: Principal, tenant_id: str, required_role: str) -> dict[str, str]:
-    if principal.tenant_id != tenant_id:
-        raise AuthorizationBoundary("tenant boundary applied; submit through the governed transfer workflow")
-    if required_role not in principal.roles:
-        raise AuthorizationBoundary(f"role {required_role!r} required; request accountable role assignment")
-    return {
-        "decision": "allow",
-        "principal_id": principal.principal_id,
-        "tenant_id": tenant_id,
-        "role": required_role,
-    }
-
-
 PROTECTED_KEYS = {
     "accesskey",
     "accesstoken",

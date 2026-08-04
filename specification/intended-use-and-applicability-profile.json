@@ -1,34 +1,25 @@
 {
   "profile_version": "1.0.0",
-  "evidence_mode": "simulated",
-  "intended_use": "Counterfactual laboratory workflow and integration platform for synthetic genomic specimen operations",
-  "population_cartographies": [
-    "scientists",
-    "pathologists",
-    "laboratory-operations",
-    "platform-engineering",
-    "quality",
-    "regulatory",
-    "security",
-    "executive-evaluators"
+  "intended_use": "Advisory comparison of synthetic LIMS and ELN vendor integration, migration, restore, data-exit, configuration-reference, and event-delivery behavior",
+  "runtime_effect": "none",
+  "comparison_scope": [
+    "Sapio synthetic adapter behavior",
+    "Benchling synthetic adapter and event readback behavior",
+    "LabKey synthetic validation and write behavior",
+    "Representative synthetic migration and restore behavior",
+    "AWS Parameter Store and Secrets Manager reference handling",
+    "PostgreSQL data-contract primitive inspection"
   ],
   "record_classes": [
-    "specimen-identity",
-    "custody-event",
-    "instrument-artifact",
-    "scientific-result",
-    "review-and-release",
-    "correction",
-    "audit-event",
-    "vendor-projection",
-    "migration-and-recovery-receipt"
+    "specimen identity",
+    "custody event",
+    "instrument artifact",
+    "scientific result",
+    "vendor projection",
+    "migration and restore comparison"
   ],
-  "applicability_forks": {
-    "research_only": "modeled",
-    "glp": "provisional-assessment-required",
-    "gmp_quality_control": "provisional-assessment-required",
-    "clinical_diagnostic": "provisional-assessment-required"
-  },
-  "accountable_determination": "Observed organizational context and configured-environment evidence determine the applicable controls."
+  "limitations": [
+    "Inputs, vendor endpoints, credentials, and infrastructure are synthetic.",
+    "Results support technical comparison and planning."
+  ]
 }
-

@@ -1,24 +1,22 @@
-# Simulated production security and privacy model
+# Synthetic security and privacy checks
 
 ## Protected assets
 
 - specimen identity and scientific meaning;
 - raw and derived artifacts;
-- audit chronology and signature meaning;
 - tenant, site, and project boundaries;
 - credentials, configuration, and recovery material.
 
-## Exercised boundaries and replacement behavior
+## Exercised behavior
 
-| Exercise | Applied boundary | Replacement behavior |
-|---|---|---|
-| Cross-tenant read | tenant authorization gate | governed transfer request with accountable approval |
-| Missing release role | role gate | explicit role-assignment workflow |
-| Sensitive trace value | classification filter | classification label plus stable digest |
-| Revoked token | credential gate | fresh workload identity through approved rotation |
-| Webhook replay | signed request identity | idempotent readback and recorded reconciliation |
-| Break-glass access | time-bound elevated role | review, expiry, and closure receipt |
+| Exercise | Established control | Observable outcome |
+| --- | --- | --- |
+| Cross-tenant request | application tenant policy and PostgreSQL RLS | request stays within the selected tenant |
+| Sensitive trace value | OpenTelemetry redaction processor | trace retains class and pseudonym |
+| Rotated credential | workload IAM and Secrets Manager stage | next cache refresh uses the new version |
+| Webhook replay | signature verification and idempotency key | one durable effect and convergent readback |
+| Telemetry interruption | selected telemetry platform buffering | delivery resumes with measurable continuity |
 
-Production exercises use approved synthetic probes and governed evidence storage.
-The simulation stores representative results with `evidence_mode: simulated`.
-
+The repository exercises these behaviors with generated inputs. Implementation
+environments use their selected identity, policy, database, AWS, and observability
+platforms.

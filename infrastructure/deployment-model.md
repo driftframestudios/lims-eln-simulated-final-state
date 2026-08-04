@@ -15,9 +15,7 @@ Python's standard library.
 | Vendor adapters | bounded workers with inbox/outbox and reconciliation | configured-tenant conformance |
 | Identity | workload and user identity with short-lived credentials | access review, rotation, revocation |
 | Telemetry | traces, metrics, logs, dashboards, alerts | denominator-rich SLO and incident exercise |
-| Evidence | governed raw store plus redacted manifests | digest, locator, performer, reviewer, approver |
+| Evidence | governed raw store plus redacted manifests | digest, locator, and observed outcome |
 
-Actual delivery selects concrete infrastructure through reviewed architecture
-decisions. Configured-environment receipts replace the simulation's projected
-qualities.
-
+Actual delivery selects concrete infrastructure through the implementation
+repository and its established platform processes.

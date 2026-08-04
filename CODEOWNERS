@@ -1,42 +1,10 @@
-# Enforceable GitHub owner: @driftframestudios.
-# Role vocabulary below preserves the intended accountability map. These
-# labels can become organization teams after an intentional ownership move.
-
-# Default role: solution-architecture
 * @driftframestudios
 
-# Role: platform-engineering
 /src/ @driftframestudios
-
-# Role: scientific-data
+/tests/ @driftframestudios
 /fixtures/ @driftframestudios
-
-# Roles: quality-regulatory and scientific-data
-/acceptance/ @driftframestudios
-/ledgers/assumptions.json @driftframestudios
-
-# Role: security
+/database/ @driftframestudios
+/reference/ @driftframestudios
 /security/ @driftframestudios
-/SECURITY.md @driftframestudios
-
-# Roles: security and scientific-data
-/src/lims_eln_sim/safety.py @driftframestudios
-
-# Roles: security and platform-engineering
-/src/lims_eln_sim/configuration.py @driftframestudios
-/infrastructure/aws-runtime-configuration.md @driftframestudios
 /.github/workflows/ @driftframestudios
-/.github/dependabot.yml @driftframestudios
-/tools/check_branch_flow.py @driftframestudios
-/tools/check_artifacts.py @driftframestudios
-/tests/test_branch_flow.py @driftframestudios
-
-# Roles: solution-architecture and quality-regulatory
-/release/ @driftframestudios
-/machine-node.json @driftframestudios
-/first-receipt.json @driftframestudios
-/COORDINATION-HORIZON.json @driftframestudios
-
-# Roles: solution-architecture and platform-engineering
-/constellation.lock.json @driftframestudios
 /CODEOWNERS @driftframestudios

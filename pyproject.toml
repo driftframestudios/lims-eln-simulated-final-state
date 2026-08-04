@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "lims-eln-simulated-final-state"
 version = "0.3.2"
-description = "Executable counterfactual for comparative LIMS/ELN collaboration"
+description = "Synthetic vendor-evaluation reference for LIMS/ELN comparison"
 requires-python = ">=3.11"
 dependencies = []
 

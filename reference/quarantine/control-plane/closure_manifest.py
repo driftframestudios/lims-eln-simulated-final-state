@@ -258,7 +258,6 @@ def _vendor_projection(receipt: dict[str, Any]) -> dict[str, Any]:
         ],
     }
 
-
 def _migration_projection(receipt: dict[str, Any]) -> dict[str, Any]:
     return {
         "simulated_receipt_id": "RECEIPT-SIM-MIGRATION-RESTORE-2028-V1",

@@ -1,33 +1,18 @@
-# Contribution and forecast discipline
+# Contributing
 
-Start bounded work from `develop` using `feature/<decision-or-scenario>`. Open a pull
-request into `develop` with the affected specification IDs, assumptions, falsifiers,
-and expected material effects. A release branch freezes fixtures and decision inputs.
+Start work from `develop` using `feature/<issue>-<slug>`. Merge through a reviewed
+pull request after the focused vendor-evaluation tests pass. Release and hotfix
+branches follow the repository's GitFlow-like convention.
 
-A correction to a released forecast uses `hotfix/<forecast-defect>`, targets `main`,
-and is merged back into `develop`. The correction creates a new release. The earlier
-release remains available for calibration.
+GitHub branch protection, required checks, and CODEOWNERS implement branch
+policy. Dependabot updates GitHub Actions monthly and follows the same tests and
+review path.
 
-Dependabot maintains immutable GitHub Action references on a monthly cadence.
-Minor and patch updates may share one bounded pull request; major updates retain
-separate review and rollback coordinates. Dependabot uses the complete
-`dependabot/github_actions/<dependency-update>` grammar with
-`dependabot[bot]`; Renovate uses `renovate/<dependency-update>` with
-`renovate[bot]`. Either flow targets `main` or `develop`, and all three
-coordinates must agree. Each update runs the executable forecast tests and
-receives human review. A security update accepted on `main` is reconciled into
-`develop`.
+Each change should preserve these qualities:
 
-The branch-policy workflow receives pull-request metadata through a read-only
-event, checks out the exact protected base SHA into `.base-policy`, and executes
-only that base-controlled checker. Contributor code remains evidence input for
-the ordinary verification workflow.
-
-Each change preserves these qualities:
-
-1. Synthetic data provenance is machine-readable.
-2. `evidence_mode` remains `simulated`.
-3. Decisions include alternatives, assumptions, probability, and falsifiers.
-4. Scenarios pair ordinary behavior with boundary, failure, and recovery behavior.
-5. Code comments state the desired behavior and replacement path.
-6. The package imports repository-local modules and Python standard-library modules.
+1. Inputs remain synthetic and reproducible.
+2. Vendor behavior is explicit and versioned.
+3. Migration, restore, and data-exit comparisons preserve scientific meaning.
+4. AWS configuration output contains references and versions while resolved values stay private.
+5. The runtime emits one portable advisory result with `runtime_effect: none`.
+6. Historical control-plane material stays under `reference/quarantine/`.

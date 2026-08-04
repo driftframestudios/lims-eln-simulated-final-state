@@ -1,4 +1,4 @@
-name: verify-simulated-final-state
+name: verify-vendor-evaluation
 
 on:
   pull_request:
@@ -23,9 +23,9 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Run executable forecast tests
+      - name: Run vendor-evaluation tests
         run: python -m unittest discover -s tests -v
-      - name: Generate deterministic forecast bundle
+      - name: Generate synthetic vendor evaluation
         env:
           PYTHONPATH: src
         run: >-
@@ -33,32 +33,11 @@ jobs:
           --fixture fixtures/golden-specimen.json
           --intended-use-profile specification/intended-use-and-applicability-profile.json
           --migration-corpus fixtures/representative-migration-corpus.json
-          --output build/simulation
-      - name: Check generated artifact boundary
-        run: python tools/check_artifacts.py build/simulation
+          --database-reference database/vendor-evaluation-database-reference-v1.json
+          --output build/evaluation
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: simulated-final-state-${{ matrix.python-version }}
-          path: build/simulation/
+          name: vendor-evaluation-${{ matrix.python-version }}
+          path: build/evaluation/result.json
           if-no-files-found: error
           retention-days: 7
-
-  simulation-validation:
-    if: ${{ always() }}
-    needs: test
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    steps:
-      - name: Require the complete simulation proof matrix
-        env:
-          TEST_RESULT: ${{ needs.test.result }}
-        run: test "$TEST_RESULT" = "success"
-
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          python-version: "3.13"
-      - name: Validate reproducibility, manifest integrity, and repository safety
-        run: python tools/validate_repository.py

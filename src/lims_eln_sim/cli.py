@@ -10,10 +10,13 @@ from .simulation import run, write_bundle
 
 
 def parser() -> argparse.ArgumentParser:
-    command = argparse.ArgumentParser(description="Run the independent LIMS/ELN final-state forecast")
+    command = argparse.ArgumentParser(
+        description="Run the synthetic LIMS/ELN vendor evaluation"
+    )
     command.add_argument("--fixture", type=Path, required=True)
     command.add_argument("--intended-use-profile", type=Path, required=True)
     command.add_argument("--migration-corpus", type=Path, required=True)
+    command.add_argument("--database-reference", type=Path, required=True)
     command.add_argument("--output", type=Path, required=True)
     return command
 
@@ -23,16 +26,21 @@ def main() -> None:
     fixture = load_json(args.fixture)
     intended_use_profile = load_json(args.intended_use_profile)
     migration_corpus = load_json(args.migration_corpus)
-    bundle = run(
+    database_reference = load_json(args.database_reference)
+    evaluation = run(
         fixture,
         intended_use_profile=intended_use_profile,
         migration_corpus=migration_corpus,
+        database_reference=database_reference,
         redaction_key=synthetic_redaction_key(fixture.get("redaction_key_id", "")),
     )
-    write_bundle(bundle, args.output)
+    write_bundle(evaluation, args.output)
     print(
         json.dumps(
-            {"simulation_id": bundle["simulation_id"], "content_digest": bundle["content_digest"]},
+            {
+                "evaluation_id": evaluation["evaluation_id"],
+                "reference_version": evaluation["reference_version"],
+            },
             allow_nan=False,
         )
     )
