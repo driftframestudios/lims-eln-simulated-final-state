@@ -54,6 +54,30 @@ not reopen the simulated closures.
 - assumptions, forecasts, decisions, falsifiers, and four fully closed simulated
   receipt manifests.
 
+## Shared contract boundary
+
+The simulator reads the contract-v1 golden specimen journey from its bound package
+resource and uses that five-command sequence to drive the existing accession-through-
+release slice. Each run emits `scenario-execution.json` with source command, actor,
+time, payload digest, and projected legacy state, plus `observation-envelope.json`
+with the shared `ObservationEnvelope` shape and canonical contract digest.
+
+The repository stays runnable while the sibling distribution remains private. It
+packages byte-identical scenario and schema snapshots with their raw and canonical
+digests. A focused conformance command compares those snapshots and emitted values
+with the authoritative Pydantic models whenever the private package or sibling source
+is available:
+
+```bash
+python tools/check_contract_conformance.py \
+  --contract-source ../lims-eln-program-specification/src
+```
+
+Once the private distribution is available to Python 3.12+ installers, the optional
+`contract-conformance` extra becomes the direct version-pinned path. The snapshot
+remains a bounded fallback for standalone forecast execution on the repository's
+current Python 3.11+ runtime.
+
 ## Run it
 
 ```bash
@@ -66,14 +90,15 @@ PYTHONPATH=src python -m lims_eln_sim.cli \
 ```
 
 The command validates the synthetic-data contract and writes a deterministic
-`result.json`, closed receipt bundle, migration report, restore manifest, security
-exercise, bounded-caller evidence, telemetry summary, acceptance decisions, and a
-governance-2.0-conformant `simulated-receipt-closure.json`. It also writes a
-2.0.1 closure bundle whose source-result digest allows an independent comparator to
-reproduce the aggregate artifact. The byte-identical promoted candidate is retained
-at `release/future-reality-2028-06-30-v1.json`; the aggregate validation gate
-regenerates and compares it after the complete Python test matrix. Generated build
-output remains a transient workflow artifact.
+`result.json`, contract-v1 `scenario-execution.json` and
+`observation-envelope.json`, closed receipt bundle, migration report, restore
+manifest, security exercise, bounded-caller evidence, telemetry summary, acceptance
+decisions, and a governance-2.0-conformant `simulated-receipt-closure.json`. It also
+writes a 2.0.1 closure bundle whose source-result digest allows an independent
+comparator to reproduce the aggregate artifact. The byte-identical promoted candidate
+is retained at `release/future-reality-2028-06-30-v1.json`; the aggregate validation
+gate regenerates and compares it after the complete Python test matrix. Generated
+build output remains a transient workflow artifact.
 
 The retained database oracle lives at
 [`database/final-state-database-oracle-v1.json`](database/final-state-database-oracle-v1.json).

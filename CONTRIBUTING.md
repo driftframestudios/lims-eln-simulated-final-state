@@ -8,20 +8,25 @@ A correction to a released forecast uses `hotfix/<forecast-defect>`, targets `ma
 and is merged back into `develop`. The correction creates a new release. The earlier
 release remains available for calibration.
 
-Dependabot maintains immutable GitHub Action references on a monthly cadence.
-Minor and patch updates may share one bounded pull request; major updates retain
+Local forecast tests are the standing proof path. GitHub Actions rests disabled
+in repository settings at a **$0** budget. The manual
+`verify-simulated-final-state` workflow becomes available only when a named
+human enables Actions, sets `ENABLE_GITHUB_ACTIONS=true`, selects
+`confirm_run`, and dispatches it. After the proof is read, set
+`ENABLE_GITHUB_ACTIONS=false` and disable Actions in repository settings to
+restore the resting state.
+
+Dependency scheduling rests in `.github/dependabot.manual.yml`. A reviewed
+rename to `.github/dependabot.yml` activates its monthly cadence. When active,
+minor and patch updates may share one bounded pull request; major updates retain
 separate review and rollback coordinates. Dependabot uses the complete
 `dependabot/github_actions/<dependency-update>` grammar with
 `dependabot[bot]`; Renovate uses `renovate/<dependency-update>` with
 `renovate[bot]`. Either flow targets `main` or `develop`, and all three
-coordinates must agree. Each update runs the executable forecast tests and
-receives human review. A security update accepted on `main` is reconciled into
-`develop`.
-
-The branch-policy workflow receives pull-request metadata through a read-only
-event, checks out the exact protected base SHA into `.base-policy`, and executes
-only that base-controlled checker. Contributor code remains evidence input for
-the ordinary verification workflow.
+coordinates must agree. Each update receives the executable local forecast
+tests and human review. A security update accepted on `main` is reconciled into
+`develop`. The repository-local branch checker remains available to reviewers;
+the resting state has no automatic branch-policy workflow.
 
 Each change preserves these qualities:
 

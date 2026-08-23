@@ -9,6 +9,11 @@ description = "Executable counterfactual for comparative LIMS/ELN collaboration"
 requires-python = ">=3.11"
 dependencies = []
 
+[project.optional-dependencies]
+contract-conformance = [
+  "lims-eln-program-specification==0.3.0",
+]
+
 [project.scripts]
 lims-eln-simulate = "lims_eln_sim.cli:main"
 
@@ -17,3 +22,6 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+lims_eln_sim = ["contract_resources/*.json"]
