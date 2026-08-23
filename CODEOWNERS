@@ -26,7 +26,7 @@
 /src/lims_eln_sim/configuration.py @driftframestudios
 /infrastructure/aws-runtime-configuration.md @driftframestudios
 /.github/workflows/ @driftframestudios
-/.github/dependabot.yml @driftframestudios
+/.github/dependabot.manual.yml @driftframestudios
 /tools/check_branch_flow.py @driftframestudios
 /tools/check_artifacts.py @driftframestudios
 /tests/test_branch_flow.py @driftframestudios
