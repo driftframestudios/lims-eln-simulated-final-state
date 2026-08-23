@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from hashlib import sha256
 import json
 from pathlib import Path
 import sys
+import tomllib
 import unittest
 
 
@@ -11,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from lims_eln_sim.contract_v1 import (
+    CONTRACT_DISTRIBUTION_VERSION,
     canonical_digest,
     contract_reference,
     load_contract_binding,
@@ -77,6 +80,42 @@ class ContractV1Tests(unittest.TestCase):
                 "golden_scenario_document_digest"
             ],
             contract_reference()["golden_scenario_document_digest"],
+        )
+
+    def test_shared_distribution_coordinates_remain_aligned(self) -> None:
+        binding = load_contract_binding()
+        release = json.loads((ROOT / "release" / "repository-role.json").read_text())
+        project = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]
+        distribution = binding["distribution"]
+        pinned_distribution = (
+            f"{distribution['name']}=={CONTRACT_DISTRIBUTION_VERSION}"
+        )
+
+        self.assertEqual(distribution["version"], CONTRACT_DISTRIBUTION_VERSION)
+        self.assertEqual(
+            project["optional-dependencies"]["contract-conformance"],
+            [pinned_distribution],
+        )
+        self.assertEqual(
+            release["external_contract_bindings"]["shared_contract_nucleus"][
+                "distribution"
+            ],
+            pinned_distribution,
+        )
+
+        scenario_path = (
+            ROOT
+            / "src"
+            / "lims_eln_sim"
+            / "contract_resources"
+            / "golden-specimen.v1.json"
+        )
+        scenario_bytes = scenario_path.read_bytes()
+        self.assertTrue(scenario_bytes.endswith(b"}\n"))
+        self.assertFalse(scenario_bytes.endswith(b"}\n\n"))
+        self.assertEqual(
+            binding["resources"]["golden_scenario"]["sha256"],
+            f"sha256:{sha256(scenario_bytes).hexdigest()}",
         )
 
     def test_shared_golden_journey_drives_emitted_observation(self) -> None:

@@ -70,7 +70,7 @@
       "contract_id": "LIMS-ELN-CONTRACT-NUCLEUS",
       "version": "1.0.0",
       "authority": "driftframestudios/lims-eln-program-specification",
-      "distribution": "lims-eln-program-specification==0.3.0",
+      "distribution": "lims-eln-program-specification==0.3.1",
       "binding_path": "src/lims_eln_sim/contract_resources/contract-binding.v1.json",
       "golden_scenario_document_digest": "sha256:d383578b8c55facd4613a8915f3f2137f8dfa14b2530ad9829e879c0db3a7261",
       "golden_scenario_validated_model_digest": "sha256:fea95444dbbfbd3e26f5fb8d3975038541bf75bb1e4a7ffb748dd2cefdf173e9",
