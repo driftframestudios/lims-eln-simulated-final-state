@@ -9,11 +9,13 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from lims_eln_sim.assurance import AuthorizationBoundary, Principal, authorize, redact_trace
+from lims_eln_sim import artifact_boundary
 from lims_eln_sim.artifact_boundary import (
     ArtifactBoundaryError,
     verify_reproducible_artifacts,
@@ -176,6 +178,50 @@ class SimulationTests(unittest.TestCase):
             with self.assertRaisesRegex(
                 ArtifactBoundaryError,
                 "regular output file",
+            ):
+                verify_reproducible_artifacts(first_path, replay_path)
+
+    def test_artifact_boundary_rejects_exponent_overflow_twins(self) -> None:
+        for numeric_value in ("1e400", "-1e400"):
+            with (
+                self.subTest(numeric_value=numeric_value),
+                tempfile.TemporaryDirectory(prefix="simulation-first-") as first,
+                tempfile.TemporaryDirectory(prefix="simulation-replay-") as replay,
+            ):
+                first_path = Path(first)
+                replay_path = Path(replay)
+                write_bundle(self.simulate(), first_path)
+                write_bundle(self.simulate(), replay_path)
+                (replay_path / "result.json").write_text(
+                    '{"value":' + numeric_value + "}\n",
+                    encoding="utf-8",
+                )
+                with self.assertRaisesRegex(
+                    ArtifactBoundaryError,
+                    "finite representation",
+                ):
+                    verify_reproducible_artifacts(first_path, replay_path)
+
+    def test_artifact_boundary_requires_no_follow_platform_support(self) -> None:
+        with (
+            tempfile.TemporaryDirectory(prefix="simulation-first-") as first,
+            tempfile.TemporaryDirectory(prefix="simulation-replay-") as replay,
+        ):
+            first_path = Path(first)
+            replay_path = Path(replay)
+            write_bundle(self.simulate(), first_path)
+            write_bundle(self.simulate(), replay_path)
+            with (
+                mock.patch.object(
+                    artifact_boundary.os,
+                    "O_NOFOLLOW",
+                    None,
+                    create=True,
+                ),
+                self.assertRaisesRegex(
+                    ArtifactBoundaryError,
+                    "platform support for fail-closed final-path no-follow opening",
+                ),
             ):
                 verify_reproducible_artifacts(first_path, replay_path)
 
@@ -592,6 +638,8 @@ class SimulationTests(unittest.TestCase):
         examples = (
             ('{"fixture_class":"synthetic","fixture_class":"observed"}', "single definition"),
             ('{"value":NaN}', "finite representation"),
+            ('{"value":1e400}', "finite representation"),
+            ('{"value":-1e400}', "finite representation"),
         )
         for content, message in examples:
             with self.subTest(message=message), tempfile.TemporaryDirectory() as directory:

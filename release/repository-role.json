@@ -43,9 +43,12 @@
   "first_receipt_contract": {
     "evidence_mode": "simulated",
     "assurance_stage": "verified",
+    "simulation_authority": "definitive_within_selected_future_reality",
+    "accountable_observation_required": false,
     "closure_status": "closed_in_simulation",
     "environment_observed_closure": "separate_unasserted_state",
-    "production_authorization_effect": "none"
+    "production_authorization_effect": "none",
+    "future_reality_version": "future-reality-2028-06-30-v1"
   },
   "coordination_horizon": "COORDINATION-HORIZON.json",
   "historical_external_releases": [

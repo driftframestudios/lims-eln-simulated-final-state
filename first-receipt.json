@@ -3,8 +3,22 @@
   "machine_node_id": "NODE-LIMS-ELN-SIMULATION",
   "as_of": "2026-07-28T18:45:00Z",
   "orientation_purpose": "Give a human or AI collaborator the minimum complete selected-future state, evidence posture, authority boundary, invalidation conditions, and safe handoff needed to reproduce or compare this simulation.",
+  "selected_future": {
+    "future_reality_id": "FUTURE-REALITY-LIMS-2028-001",
+    "future_reality_version": "future-reality-2028-06-30-v1",
+    "forecast_release": "forecast-2028-FR-v1",
+    "assumption_ids": [
+      "ASSUMPTION-VENDOR-BANDS-2028",
+      "ASSUMPTION-REPRESENTATIVE-CORPUS-2028",
+      "ASSUMPTION-MODELED-AUTHORITY-2028"
+    ]
+  },
   "authority_posture": {
     "mode": "orientation_only",
+    "simulation_authority": "definitive_within_selected_future_reality",
+    "accountable_observation_required": false,
+    "environment_observed_closure": "separate_unasserted_state",
+    "production_authorization_effect": "none",
     "statement": "This receipt orients collaborators. It grants no production authority, and environment-observed closure remains a separate unasserted evidence state."
   },
   "contract_state": [

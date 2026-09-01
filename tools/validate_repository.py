@@ -14,8 +14,14 @@ from lims_eln_sim.cli import load_json
 from lims_eln_sim.artifact_boundary import verify_reproducible_artifacts
 from lims_eln_sim.database_oracle import validate_database_oracle
 from lims_eln_sim.domain import digest
+from lims_eln_sim.release_boundary import validate_release_alignment
 from lims_eln_sim.safety import synthetic_redaction_key
-from lims_eln_sim.simulation import closure_bundle, run, write_bundle
+from lims_eln_sim.simulation import (
+    FORECAST_METADATA,
+    closure_bundle,
+    run,
+    write_bundle,
+)
 from check_artifacts import PATTERNS
 
 
@@ -87,10 +93,21 @@ def main() -> int:
             "retained selected-future closure differs from regenerated evidence"
         )
     manifest = load_json(ROOT / "release/repository-role.json")
+    first_receipt = load_json(ROOT / "first-receipt.json")
+    machine_node = load_json(ROOT / "machine-node.json")
     database_oracle = load_json(
         ROOT / "database/final-state-database-oracle-v1.json"
     )
     assumptions_ledger = load_json(ROOT / "ledgers/assumptions.json")
+    validate_release_alignment(
+        forecast_metadata=FORECAST_METADATA,
+        governance_closure=result["governance_closure"],
+        detailed_receipts=result["receipts"],
+        assumptions_ledger=assumptions_ledger,
+        release_manifest=manifest,
+        first_receipt=first_receipt,
+        machine_node=machine_node,
+    )
     database_coordinates = validate_database_oracle(database_oracle)
     expected = {
         "reference_result_digest": result["content_digest"],

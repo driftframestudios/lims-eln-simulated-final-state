@@ -110,9 +110,13 @@ def verify_reproducible_artifacts(first: Path, replay: Path) -> dict[str, str]:
 
 
 def _read_regular_file(path: Path, relative: str) -> bytes:
-    flags = os.O_RDONLY
-    if hasattr(os, "O_NOFOLLOW"):
-        flags |= os.O_NOFOLLOW
+    no_follow = getattr(os, "O_NOFOLLOW", None)
+    if not isinstance(no_follow, int) or no_follow == 0:
+        raise ArtifactBoundaryError(
+            "artifact verification requires platform support for fail-closed "
+            "final-path no-follow opening"
+        )
+    flags = os.O_RDONLY | no_follow
     try:
         descriptor = os.open(path, flags)
     except OSError as error:
