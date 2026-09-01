@@ -12,6 +12,16 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
+COMPANY = "Driftframe Studios, Limited Liability Company"
+APPROVED_PERSONAL_NAME_CARRIERS = {"AUTHORS"}
+IGNORED_ATTRIBUTION_PARTS = {
+    ".git",
+    ".pytest_cache",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+}
 sys.path.insert(0, str(ROOT / "src"))
 
 from lims_eln_sim.release_boundary import (  # noqa: E402
@@ -20,6 +30,41 @@ from lims_eln_sim.release_boundary import (  # noqa: E402
 )
 from lims_eln_sim.safety import synthetic_redaction_key  # noqa: E402
 from lims_eln_sim.simulation import FORECAST_METADATA, run  # noqa: E402
+
+
+def _personal_name(authors: str) -> str:
+    match = re.search(
+        r"is authored by (?P<name>[^\n]+) and\s+maintained by",
+        authors,
+    )
+    if match is None:
+        raise AssertionError("AUTHORS requires an explicit personal authorship entry")
+    name = match.group("name").strip()
+    if len(name.split()) < 2:
+        raise AssertionError("AUTHORS requires an unambiguous personal name")
+    return name
+
+
+def _observed_personal_name_carriers(personal_name: str) -> set[str]:
+    pattern = re.compile(
+        rf"(?<!\w){re.escape(personal_name)}(?!\w)",
+        re.IGNORECASE,
+    )
+    carriers: set[str] = set()
+    for path in sorted(ROOT.rglob("*")):
+        if (
+            not path.is_file()
+            or path.is_symlink()
+            or any(part in IGNORED_ATTRIBUTION_PARTS for part in path.parts)
+        ):
+            continue
+        try:
+            content = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            continue
+        if pattern.search(content):
+            carriers.add(path.relative_to(ROOT).as_posix())
+    return carriers
 
 
 class ReleaseBoundaryTests(unittest.TestCase):
@@ -73,14 +118,17 @@ class ReleaseBoundaryTests(unittest.TestCase):
         package = tomllib.loads(
             (ROOT / "pyproject.toml").read_text(encoding="utf-8")
         )["project"]
-        self.assertIn("Vikrant Varun Kudesia", authors)
-        self.assertIn("Driftframe Studios, Limited Liability Company", authors)
+        self.assertIn(COMPANY, authors)
         self.assertEqual(
             package["authors"],
-            [{"name": "Vikrant Varun Kudesia"}],
+            [{"name": COMPANY}],
         )
         self.assertEqual(package["license"], {"text": "Apache-2.0"})
         self.assertEqual(package["readme"], "README.md")
+        self.assertEqual(
+            _observed_personal_name_carriers(_personal_name(authors)),
+            APPROVED_PERSONAL_NAME_CARRIERS,
+        )
 
     def test_selected_future_assumption_ids_keep_one_definition(self) -> None:
         mutations = (
