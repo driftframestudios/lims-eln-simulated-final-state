@@ -150,10 +150,11 @@ identifier cited by the selected-future closure and names its recalculation trig
 
 This repository uses a GitFlow-like pattern:
 
-- `main` contains released forecast baselines.
-- `develop` integrates the next forecast.
+- `main` contains released forecast baselines and carries protected promotion.
+- `develop` is the lean integration branch for the next forecast.
 - `feature/*` carries bounded scenario or model work.
-- `release/*` freezes comparison inputs and accepts stabilization changes.
+- `release/*` is a short-lived branch that freezes comparison inputs and
+  accepts stabilization changes for one promotion.
 - `hotfix/*` repairs a released simulation defect and returns the correction to
   `develop`.
 

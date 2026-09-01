@@ -26,10 +26,12 @@
 /src/lims_eln_sim/configuration.py @driftframestudios
 /infrastructure/aws-runtime-configuration.md @driftframestudios
 /.github/workflows/ @driftframestudios
-/.github/dependabot.manual.yml @driftframestudios
+/.github/dependabot.yml @driftframestudios
 /tools/check_branch_flow.py @driftframestudios
+/tools/check_bounded_automation.py @driftframestudios
 /tools/check_artifacts.py @driftframestudios
 /tests/test_branch_flow.py @driftframestudios
+/tests/test_bounded_automation.py @driftframestudios
 
 # Roles: solution-architecture and quality-regulatory
 /release/ @driftframestudios

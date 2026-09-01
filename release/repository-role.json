@@ -85,6 +85,27 @@
       "distribution_state": "source_bound_awaiting_private_distribution"
     }
   },
+  "automation_controls": {
+    "pull_request_workflow": ".github/workflows/pull-request.yml",
+    "pull_request_targets": ["develop", "main"],
+    "pull_request_runner": "ubuntu-24.04",
+    "pull_request_python": "3.12",
+    "pull_request_timeout_minutes": 10,
+    "pull_request_permissions": {"contents": "read"},
+    "pull_request_actions": {
+      "actions/checkout": "3d3c42e5aac5ba805825da76410c181273ba90b1",
+      "actions/setup-python": "5fda3b95a4ea91299a34e894583c3862153e4b97"
+    },
+    "pull_request_concurrency_cancellation": true,
+    "manual_full_proof_workflow": ".github/workflows/verify.yml",
+    "dependabot_configuration": ".github/dependabot.yml",
+    "dependabot_target": "develop",
+    "dependabot_interval": "monthly",
+    "dependabot_open_pull_requests_per_ecosystem": 2,
+    "dependabot_grouped_update_types": ["minor", "patch"],
+    "monthly_budget_minutes": {"minimum": 100, "maximum": 300},
+    "settings_state": "pending_source_acceptance_and_observed_check_name"
+  },
   "release_coordinates": {
     "seed_governance_commit": "716d4581d723a5c1b56f16efdbcd25790549ae33",
     "seed_program_specification_commit": "fc7707134b58ed12ad349bf649d2af1c3689bd01",

@@ -8,25 +8,23 @@ A correction to a released forecast uses `hotfix/<forecast-defect>`, targets `ma
 and is merged back into `develop`. The correction creates a new release. The earlier
 release remains available for calibration.
 
-Local forecast tests are the standing proof path. GitHub Actions rests disabled
-in repository settings at a **$0** budget. The manual
-`verify-simulated-final-state` workflow becomes available only when a named
-human enables Actions, sets `ENABLE_GITHUB_ACTIONS=true`, selects
-`confirm_run`, and dispatches it. After the proof is read, set
-`ENABLE_GITHUB_ACTIONS=false` and disable Actions in repository settings to
-restore the resting state.
+Local forecast tests remain the standing proof path. The repository allocates
+100–300 hosted runner minutes per month. One read-only, cancellable Python 3.12
+proof accompanies pull requests into `develop` and `main`. The confirmed
+`verify-simulated-final-state` dispatch preserves the three-version matrix,
+generated bundle, artifact check, and optional one-day retention when a named
+receiver sets `ENABLE_GITHUB_ACTIONS=true` and selects `confirm_run`.
 
-Dependency scheduling rests in `.github/dependabot.manual.yml`. A reviewed
-rename to `.github/dependabot.yml` activates its monthly cadence. When active,
-minor and patch updates may share one bounded pull request; major updates retain
-separate review and rollback coordinates. Dependabot uses the complete
+`.github/dependabot.yml` supplies monthly GitHub Actions version updates into
+`develop`, with at most two open pull requests. Minor and patch updates share
+one bounded pull request; major updates retain separate review and recovery
+coordinates. Default-branch security updates retain their `main` route.
+Dependabot uses the complete
 `dependabot/github_actions/<dependency-update>` grammar with
 `dependabot[bot]`; Renovate uses `renovate/<dependency-update>` with
-`renovate[bot]`. Either flow targets `main` or `develop`, and all three
-coordinates must agree. Each update receives the executable local forecast
-tests and human review. A security update accepted on `main` is reconciled into
-`develop`. The repository-local branch checker remains available to reviewers;
-the resting state has no automatic branch-policy workflow.
+`renovate[bot]`. Each branch identity and target agree with the repository
+checker. Each update receives the executable local forecast tests and human
+review. A security update accepted on `main` is reconciled into `develop`.
 
 Each change preserves these qualities:
 

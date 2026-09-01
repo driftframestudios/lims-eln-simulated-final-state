@@ -5,6 +5,7 @@ from __future__ import annotations
 from contextlib import redirect_stdout
 import importlib.util
 from io import StringIO
+import json
 from pathlib import Path
 import re
 import sys
@@ -79,8 +80,9 @@ class BranchFlowTests(unittest.TestCase):
 
     def test_dependabot_requires_identity_and_target(self) -> None:
         head = "dependabot/github_actions/actions/checkout-5.0.0"
+        self.assertEqual(0, self.invoke("develop", head, "dependabot[bot]")[0])
+        self.assertEqual(1, self.invoke("develop", head, "contributor")[0])
         self.assertEqual(0, self.invoke("main", head, "dependabot[bot]")[0])
-        self.assertEqual(1, self.invoke("main", head, "contributor")[0])
         self.assertEqual(1, self.invoke("release/0.3.0", head, "dependabot[bot]")[0])
 
     def test_renovate_identity_is_exact(self) -> None:
@@ -107,12 +109,9 @@ class BranchFlowTests(unittest.TestCase):
         self.assertEqual(1, result)
         self.assertIn("outside the branch naming contract", output)
 
-    def test_dependency_activation_template_matches_branch_grammar(self) -> None:
-        config = (ROOT / ".github" / "dependabot.manual.yml").read_text(
-            encoding="utf-8"
-        )
-        self.assertFalse((ROOT / ".github" / "dependabot.yml").exists())
-        self.assertIn("Activation template:", config)
+    def test_dependency_schedule_matches_branch_grammar(self) -> None:
+        config = (ROOT / ".github" / "dependabot.yml").read_text(encoding="utf-8")
+        self.assertFalse((ROOT / ".github" / "dependabot.manual.yml").exists())
         configured = {
             item.replace("-", "_")
             for item in re.findall(
@@ -123,6 +122,13 @@ class BranchFlowTests(unittest.TestCase):
         }
         self.assertEqual(check_branch_flow.DEPENDABOT_BRANCH_ECOSYSTEMS, configured)
         self.assertNotIn("pull-request-branch-name:", config)
+        self.assertIn("    target-branch: develop", config)
+        self.assertIn("      interval: monthly", config)
+        self.assertIn("    open-pull-requests-limit: 2", config)
+        self.assertIn("    groups:", config)
+        self.assertIn('          - "*"', config)
+        self.assertIn("          - minor", config)
+        self.assertIn("          - patch", config)
         self.assertEqual(
             1,
             self.invoke(
@@ -137,13 +143,16 @@ class BranchFlowTests(unittest.TestCase):
         self.assertEqual(0, self.invoke("develop", head, "contributor")[0])
         self.assertEqual(1, self.invoke("main", head, "contributor")[0])
 
-    def test_remote_proof_uses_human_cued_activation_boundary(self) -> None:
+    def test_full_proof_uses_human_cued_activation_boundary(self) -> None:
         workflow_directory = ROOT / ".github" / "workflows"
         workflow_paths = sorted(
             [*workflow_directory.glob("*.yml"), *workflow_directory.glob("*.yaml")]
         )
-        self.assertEqual(["verify.yml"], [path.name for path in workflow_paths])
-        workflow = workflow_paths[0].read_text(encoding="utf-8")
+        self.assertEqual(
+            ["pull-request.yml", "verify.yml"],
+            [path.name for path in workflow_paths],
+        )
+        workflow = (workflow_directory / "verify.yml").read_text(encoding="utf-8")
         self.assertFalse(
             (ROOT / ".github" / "workflows" / "branch-policy.yml").exists()
         )
@@ -166,14 +175,68 @@ class BranchFlowTests(unittest.TestCase):
                 self.assertIn("vars.ENABLE_GITHUB_ACTIONS == 'true'", gate.group(1))
                 self.assertIn("inputs.confirm_run", gate.group(1))
 
+    def test_pull_request_workflow_is_bounded_and_read_only(self) -> None:
+        workflow = (
+            ROOT / ".github" / "workflows" / "pull-request.yml"
+        ).read_text(encoding="utf-8")
+        self.assertEqual({"pull_request"}, workflow_trigger_keys(workflow))
+        self.assertIn("      - develop\n      - main", workflow)
+        self.assertIn("permissions:\n  contents: read", workflow)
+        self.assertIn("cancel-in-progress: true", workflow)
+        self.assertEqual(1, workflow.count("runs-on: ubuntu-24.04"))
+        self.assertEqual(1, workflow.count("timeout-minutes: 10"))
+        self.assertNotIn("matrix:", workflow)
+        self.assertNotIn("services:", workflow)
+        self.assertNotIn("actions/upload-artifact", workflow)
+        self.assertNotIn("workflow_dispatch:", workflow)
+        self.assertNotIn("ENABLE_GITHUB_ACTIONS", workflow)
+        self.assertIn(
+            "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            workflow,
+        )
+        self.assertIn(
+            "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+            workflow,
+        )
+        self.assertEqual(1, workflow.count('python-version: "3.12"'))
+        self.assertIn("python -m unittest discover -s tests -v", workflow)
+        self.assertIn("python tools/validate_repository.py", workflow)
+        self.assertEqual({"repository-validation"}, set(runner_job_blocks(workflow)))
+
+    def test_release_manifest_records_bounded_automation_source(self) -> None:
+        release = json.loads(
+            (ROOT / "release" / "repository-role.json").read_text(encoding="utf-8")
+        )
+        automation = release["automation_controls"]
+        self.assertEqual(["develop", "main"], automation["pull_request_targets"])
+        self.assertEqual("ubuntu-24.04", automation["pull_request_runner"])
+        self.assertEqual("3.12", automation["pull_request_python"])
+        self.assertEqual(10, automation["pull_request_timeout_minutes"])
+        self.assertEqual({"contents": "read"}, automation["pull_request_permissions"])
+        self.assertEqual(
+            {
+                "actions/checkout": "3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "actions/setup-python": "5fda3b95a4ea91299a34e894583c3862153e4b97",
+            },
+            automation["pull_request_actions"],
+        )
+        self.assertTrue(automation["pull_request_concurrency_cancellation"])
+        self.assertEqual("develop", automation["dependabot_target"])
+        self.assertEqual(
+            {"minimum": 100, "maximum": 300},
+            automation["monthly_budget_minutes"],
+        )
+
     def test_control_surfaces_have_explicit_review_ownership(self) -> None:
         owners = (ROOT / "CODEOWNERS").read_text(encoding="utf-8")
         for surface in (
             "/.github/workflows/",
-            "/.github/dependabot.manual.yml",
+            "/.github/dependabot.yml",
             "/tools/check_branch_flow.py",
+            "/tools/check_bounded_automation.py",
             "/tools/check_artifacts.py",
             "/tests/test_branch_flow.py",
+            "/tests/test_bounded_automation.py",
             "/machine-node.json",
             "/first-receipt.json",
             "/COORDINATION-HORIZON.json",

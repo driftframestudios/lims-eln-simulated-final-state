@@ -2,6 +2,11 @@
 
 ## 0.3.1
 
+- Add one read-only, cancellable Python 3.12 pull-request proof and a monthly,
+  bounded GitHub Actions dependency-update stream into `develop`; retain the
+  three-version forecast bundle as a confirmed manual proof. Validate the
+  hosted controls through a restricted semantic checker and material mutation
+  probes.
 - Share one finite-number, unique-key JSON parser across repository ingress and
   generated-artifact verification, including exponent-overflow rejection.
 - Bind assumptions, selected-future identity, evidence posture, authorization

@@ -23,6 +23,7 @@ from lims_eln_sim.simulation import (
     write_bundle,
 )
 from check_artifacts import PATTERNS
+from check_bounded_automation import validate_repository_automation
 
 
 def _repository_json_documents() -> int:
@@ -54,6 +55,15 @@ def _repository_secret_shape_findings() -> list[str]:
 
 
 def main() -> int:
+    manifest = load_json(ROOT / "release/repository-role.json")
+    automation_findings = validate_repository_automation(
+        ROOT, manifest["automation_controls"]
+    )
+    if automation_findings:
+        raise ValueError(
+            "bounded hosted automation differs from its source contract: "
+            + "; ".join(automation_findings)
+        )
     json_count = _repository_json_documents()
     fixture = load_json(ROOT / "fixtures/golden-specimen.json")
 
@@ -92,7 +102,6 @@ def main() -> int:
         raise ValueError(
             "retained selected-future closure differs from regenerated evidence"
         )
-    manifest = load_json(ROOT / "release/repository-role.json")
     first_receipt = load_json(ROOT / "first-receipt.json")
     machine_node = load_json(ROOT / "machine-node.json")
     database_oracle = load_json(
