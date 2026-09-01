@@ -4,16 +4,18 @@ import json
 from hashlib import sha256
 from pathlib import Path
 import sys
+import tempfile
 
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from lims_eln_sim.cli import load_json
+from lims_eln_sim.artifact_boundary import verify_reproducible_artifacts
 from lims_eln_sim.database_oracle import validate_database_oracle
 from lims_eln_sim.domain import digest
 from lims_eln_sim.safety import synthetic_redaction_key
-from lims_eln_sim.simulation import closure_bundle, run
+from lims_eln_sim.simulation import closure_bundle, run, write_bundle
 from check_artifacts import PATTERNS
 
 
@@ -48,16 +50,34 @@ def _repository_secret_shape_findings() -> list[str]:
 def main() -> int:
     json_count = _repository_json_documents()
     fixture = load_json(ROOT / "fixtures/golden-specimen.json")
-    result = run(
-        fixture,
-        intended_use_profile=load_json(
-            ROOT / "specification/intended-use-and-applicability-profile.json"
-        ),
-        migration_corpus=load_json(
-            ROOT / "fixtures/representative-migration-corpus.json"
-        ),
-        redaction_key=synthetic_redaction_key(fixture["redaction_key_id"]),
-    )
+
+    def reference_run() -> dict:
+        return run(
+            load_json(ROOT / "fixtures/golden-specimen.json"),
+            intended_use_profile=load_json(
+                ROOT
+                / "specification/intended-use-and-applicability-profile.json"
+            ),
+            migration_corpus=load_json(
+                ROOT / "fixtures/representative-migration-corpus.json"
+            ),
+            redaction_key=synthetic_redaction_key(fixture["redaction_key_id"]),
+        )
+
+    result = reference_run()
+    replay = reference_run()
+    with (
+        tempfile.TemporaryDirectory(prefix="simulation-first-") as first_directory,
+        tempfile.TemporaryDirectory(prefix="simulation-replay-") as replay_directory,
+    ):
+        first_path = Path(first_directory)
+        replay_path = Path(replay_directory)
+        write_bundle(result, first_path)
+        write_bundle(replay, replay_path)
+        artifact_inventory = verify_reproducible_artifacts(
+            first_path,
+            replay_path,
+        )
     retained = load_json(
         ROOT / "release/future-reality-2028-06-30-v1.json"
     )
@@ -70,9 +90,16 @@ def main() -> int:
     database_oracle = load_json(
         ROOT / "database/final-state-database-oracle-v1.json"
     )
+    assumptions_ledger = load_json(ROOT / "ledgers/assumptions.json")
     database_coordinates = validate_database_oracle(database_oracle)
     expected = {
         "reference_result_digest": result["content_digest"],
+        "reference_simulation_observation_digest": result[
+            "observation_digest"
+        ],
+        "reference_scenario_execution_digest": result[
+            "scenario_execution_digest"
+        ],
         "reference_closure_digest": digest(result["governance_closure"]),
         "aggregate_closure_artifact_digest": retained["governance_closure"][
             "aggregate_artifacts"
@@ -108,6 +135,26 @@ def main() -> int:
             "manifest": oracle_binding,
             "derived": expected_oracle_binding,
         }
+    expected_assumption_ids = {
+        item["assumption_id"] for item in assumptions_ledger["assumptions"]
+    }
+    selected_assumption_ids = set(
+        result["governance_closure"]["future_reality"]["assumption_ids"]
+    )
+    if selected_assumption_ids != expected_assumption_ids:
+        drift["selected_future_assumption_ids"] = {
+            "ledger": sorted(expected_assumption_ids),
+            "selected_future": sorted(selected_assumption_ids),
+        }
+    expected_assumptions_binding = {
+        "path": "ledgers/assumptions.json",
+        "canonical_json_digest": digest(assumptions_ledger),
+    }
+    if manifest.get("assumptions_ledger") != expected_assumptions_binding:
+        drift["assumptions_ledger"] = {
+            "manifest": manifest.get("assumptions_ledger"),
+            "derived": expected_assumptions_binding,
+        }
     if drift:
         raise ValueError(
             "release manifest differs from regenerated evidence: "
@@ -131,6 +178,8 @@ def main() -> int:
                 "canonical_bundle_digest": digest(retained),
                 "database_oracle_digest": digest(database_oracle),
                 "database_release": database_coordinates.database_release,
+                "assumptions_ledger_digest": digest(assumptions_ledger),
+                "artifact_inventory_digest": digest(artifact_inventory),
             },
             sort_keys=True,
         )

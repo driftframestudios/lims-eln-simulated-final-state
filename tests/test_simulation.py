@@ -14,6 +14,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from lims_eln_sim.assurance import AuthorizationBoundary, Principal, authorize, redact_trace
+from lims_eln_sim.artifact_boundary import (
+    ArtifactBoundaryError,
+    verify_reproducible_artifacts,
+)
 from lims_eln_sim.bounded_caller import (
     Approval,
     CallIntent,
@@ -43,7 +47,7 @@ from lims_eln_sim.safety import (
     SyntheticBoundary,
     synthetic_redaction_key,
 )
-from lims_eln_sim.simulation import closure_bundle, run
+from lims_eln_sim.simulation import closure_bundle, run, write_bundle
 from lims_eln_sim.receipt_checks import verify_family
 from lims_eln_sim.vendors import IdempotencyConflict, SapioEmulator
 
@@ -106,6 +110,74 @@ class SimulationTests(unittest.TestCase):
             result["governance_closure"]["production_authorization_effect"],
             "none",
         )
+
+    def test_isolated_runs_emit_the_same_strict_json_artifacts(self) -> None:
+        with (
+            tempfile.TemporaryDirectory(prefix="simulation-first-") as first,
+            tempfile.TemporaryDirectory(prefix="simulation-replay-") as replay,
+        ):
+            first_path = Path(first)
+            replay_path = Path(replay)
+            write_bundle(self.simulate(), first_path)
+            write_bundle(self.simulate(), replay_path)
+
+            inventory = verify_reproducible_artifacts(first_path, replay_path)
+
+            self.assertEqual(
+                inventory["observation-envelope.json"],
+                "sha256:"
+                + sha256(
+                    (first_path / "observation-envelope.json").read_bytes()
+                ).hexdigest(),
+            )
+
+    def test_artifact_replay_detects_strict_json_and_byte_drift(self) -> None:
+        with (
+            tempfile.TemporaryDirectory(prefix="simulation-first-") as first,
+            tempfile.TemporaryDirectory(prefix="simulation-replay-") as replay,
+        ):
+            first_path = Path(first)
+            replay_path = Path(replay)
+            write_bundle(self.simulate(), first_path)
+            write_bundle(self.simulate(), replay_path)
+
+            replay_result = replay_path / "result.json"
+            replay_result.write_bytes(replay_result.read_bytes() + b"\n")
+            with self.assertRaisesRegex(ArtifactBoundaryError, "byte drift"):
+                verify_reproducible_artifacts(first_path, replay_path)
+
+            write_bundle(self.simulate(), replay_path)
+            changed_observation = json.loads(
+                (first_path / "observation-envelope.json").read_text()
+            )
+            changed_observation["result"]["specimen"]["status"] = "changed"
+            (first_path / "observation-envelope.json").write_text(
+                json.dumps(changed_observation, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(
+                ArtifactBoundaryError,
+                "projections carried by result.json",
+            ):
+                verify_reproducible_artifacts(first_path, replay_path)
+
+            write_bundle(self.simulate(), first_path)
+            (replay_path / "result.json").write_text(
+                '{"simulation_id":"one","simulation_id":"two"}\n',
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(ArtifactBoundaryError, "strict JSON"):
+                verify_reproducible_artifacts(first_path, replay_path)
+
+            write_bundle(self.simulate(), replay_path)
+            replay_result = replay_path / "result.json"
+            replay_result.unlink()
+            replay_result.symlink_to(first_path / "result.json")
+            with self.assertRaisesRegex(
+                ArtifactBoundaryError,
+                "regular output file",
+            ):
+                verify_reproducible_artifacts(first_path, replay_path)
 
     def test_bounded_caller_control_plane_models_authority_and_replay(self) -> None:
         result = simulate_control_plane()
@@ -650,6 +722,9 @@ class SimulationTests(unittest.TestCase):
         assumptions = json.loads(
             (ROOT / "ledgers" / "assumptions.json").read_text()
         )
+        manifest = json.loads(
+            (ROOT / "release" / "repository-role.json").read_text()
+        )
         result = self.simulate()
         expected_ids = set(
             result["governance_closure"]["future_reality"]["assumption_ids"]
@@ -657,6 +732,13 @@ class SimulationTests(unittest.TestCase):
         self.assertEqual(
             expected_ids,
             {item["assumption_id"] for item in assumptions["assumptions"]},
+        )
+        self.assertEqual(
+            manifest["assumptions_ledger"],
+            {
+                "path": "ledgers/assumptions.json",
+                "canonical_json_digest": digest(assumptions),
+            },
         )
         self.assertEqual(
             assumptions["future_reality_id"],

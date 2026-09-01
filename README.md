@@ -54,6 +54,13 @@ not reopen the simulated closures.
 - assumptions, forecasts, decisions, falsifiers, and four fully closed simulated
   receipt manifests.
 
+The aggregate repository check runs the simulation twice in isolated directories,
+parses every generated document through the strict JSON boundary, and compares the
+complete set of output paths and their exact bytes. It also derives the observation
+and scenario execution digests named by the release manifest. A successful check
+therefore binds the retained oracle and assumptions to one repeatable artifact set;
+configured environment evidence remains a separate comparison input.
+
 ## Shared contract boundary
 
 The simulator reads the contract-v1 golden specimen journey from its bound package

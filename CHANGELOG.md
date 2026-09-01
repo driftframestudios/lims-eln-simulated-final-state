@@ -2,6 +2,9 @@
 
 ## 0.3.1
 
+- Verify two isolated simulation runs produce the same strict-JSON artifact paths
+  and bytes, and bind the manifest to the assumption ledger, observation, and
+  scenario execution.
 - Assign the simulated program-owned PostgreSQL schema history to Flyway Community
   13.0.0 while retaining vendor upgrades and scientific data reconciliation as
   separate responsibility surfaces.
