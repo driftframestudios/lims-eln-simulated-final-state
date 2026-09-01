@@ -17,6 +17,7 @@ def validate_release_alignment(
     forecast_metadata: Mapping[str, Any],
     governance_closure: Mapping[str, Any],
     detailed_receipts: Sequence[Mapping[str, Any]],
+    bounded_caller: Mapping[str, Any],
     assumptions_ledger: Mapping[str, Any],
     release_manifest: Mapping[str, Any],
     first_receipt: Mapping[str, Any],
@@ -143,6 +144,7 @@ def validate_release_alignment(
             f"detailed receipts[{index}] reality basis",
         )
         for field, expected in (
+            ("kind", "selected_future_simulation"),
             ("authority", simulation_authority),
             ("environment_observed_closure", environment_observed_closure),
             ("production_authorization_effect", production_authorization_effect),
@@ -224,41 +226,44 @@ def validate_release_alignment(
         first_receipt.get("evidence_posture"),
         "first receipt evidence posture",
     )
-    simulated_evidence = [
-        item for item in evidence_posture if item.get("mode") == evidence_mode
-    ]
-    if not simulated_evidence:
+    observed_evidence_present = False
+    simulated_evidence_present = False
+    for index, item in enumerate(evidence_posture):
+        _text(item.get("claim"), f"first receipt evidence posture[{index}] claim")
+        mode = _text(
+            item.get("mode"),
+            f"first receipt evidence posture[{index}] mode",
+        )
+        if mode == evidence_mode:
+            simulated_evidence_present = True
+            expected_assurance_stage = assurance_stage
+            expected_status = "active"
+        elif mode == "observed":
+            observed_evidence_present = True
+            expected_assurance_stage = "specified"
+            expected_status = "designed_but_unexercised"
+        else:
+            raise ReleaseBoundaryError(
+                f"first receipt evidence posture[{index}] mode stays within "
+                "the simulated and observed evidence paths"
+            )
+        _equal(
+            item.get("assurance_stage"),
+            expected_assurance_stage,
+            f"first receipt evidence posture[{index}] assurance stage",
+        )
+        _equal(
+            item.get("status"),
+            expected_status,
+            f"first receipt evidence posture[{index}] status",
+        )
+    if not simulated_evidence_present:
         raise ReleaseBoundaryError(
             "first receipt carries active simulated evidence posture"
         )
-    for index, item in enumerate(simulated_evidence):
-        _equal(
-            item.get("assurance_stage"),
-            assurance_stage,
-            f"first receipt simulated evidence[{index}] assurance stage",
-        )
-        _equal(
-            item.get("status"),
-            "active",
-            f"first receipt simulated evidence[{index}] status",
-        )
-    observed_evidence = [
-        item for item in evidence_posture if item.get("mode") == "observed"
-    ]
-    if not observed_evidence:
+    if not observed_evidence_present:
         raise ReleaseBoundaryError(
             "first receipt carries the retained observed-evidence path"
-        )
-    for index, item in enumerate(observed_evidence):
-        _equal(
-            item.get("assurance_stage"),
-            "specified",
-            f"first receipt observed evidence[{index}] assurance stage",
-        )
-        _equal(
-            item.get("status"),
-            "designed_but_unexercised",
-            f"first receipt observed evidence[{index}] status",
         )
 
     _equal(
@@ -267,32 +272,87 @@ def validate_release_alignment(
         "first receipt identity",
     )
     _equal(
+        first_receipt.get("machine_node_id"),
+        machine_node.get("machine_node_id"),
+        "first receipt Machine Node identity",
+    )
+    machine_authority = _object(
+        machine_node.get("authority"),
+        "Machine Node authority",
+    )
+    _equal(
+        machine_authority.get("mode"),
+        "orientation_only",
+        "Machine Node authority mode",
+    )
+    _text(
+        machine_node.get("canonical_identity"),
+        "Machine Node canonical identity",
+    )
+    first_open_receipts = _unique_strings(
         first_receipt.get("open_receipts"),
+        "first receipt open-receipt IDs",
+    )
+    machine_open_receipts = _unique_strings(
         machine_node.get("open_receipts"),
+        "Machine Node open-receipt IDs",
+    )
+    _equal(
+        first_open_receipts,
+        machine_open_receipts,
         "first receipt open-receipt route",
     )
-    closure_contracts = [
-        item
-        for item in _object_sequence(
-            first_receipt.get("contract_state"),
-            "first receipt contract state",
-        )
-        if item.get("contract_id") == "SIMULATED-SUBSTANTIVE-CLOSURE-2028-V1"
-    ]
-    if len(closure_contracts) != 1:
-        raise ReleaseBoundaryError(
-            "first receipt carries one simulated substantive closure contract"
-        )
+    expected_contracts = {
+        "SIMULATED-SUBSTANTIVE-CLOSURE-2028-V1": {
+            "version": "2.0.0",
+            "digest": digest(dict(governance_closure)),
+        },
+        "SIMULATION-BOUNDED-CALLER-001": {
+            "version": "1.0.0",
+            "digest": digest(dict(bounded_caller)),
+        },
+        "SIMULATED-FAMILY-RECEIPTS-2028-V1": {
+            "version": "2.0.0",
+            "digest": digest(list(detailed_receipts)),
+        },
+    }
+    first_contracts = _contract_map(
+        first_receipt.get("contract_state"),
+        "first receipt contract state",
+    )
+    machine_contracts = _contract_map(
+        machine_node.get("contracts"),
+        "Machine Node contracts",
+    )
     _equal(
-        closure_contracts[0].get("digest"),
-        digest(dict(governance_closure)),
-        "first receipt governance closure digest",
+        first_contracts,
+        expected_contracts,
+        "first receipt contract set",
+    )
+    _equal(
+        machine_contracts,
+        expected_contracts,
+        "Machine Node contract set",
+    )
+    _equal(
+        first_contracts,
+        machine_contracts,
+        "first receipt and Machine Node contract sets",
     )
     handoff = _object(first_receipt.get("handoff"), "first receipt handoff")
     _equal(
         handoff.get("recipient_role"),
         "comparative evidence stewardship",
         "first receipt next receiver",
+    )
+    handoff_action_ids = _unique_strings(
+        handoff.get("action_ids"),
+        "first receipt handoff action IDs",
+    )
+    _equal(
+        handoff_action_ids,
+        first_open_receipts,
+        "first receipt structured handoff actions",
     )
 
 
@@ -322,6 +382,31 @@ def _unique_strings(value: Any, label: str) -> list[str]:
             + ", ".join(duplicates)
         )
     return list(value)
+
+
+def _contract_map(value: Any, label: str) -> dict[str, dict[str, str]]:
+    contracts = _object_sequence(value, label)
+    result: dict[str, dict[str, str]] = {}
+    for index, contract in enumerate(contracts):
+        contract_id = _text(
+            contract.get("contract_id"),
+            f"{label}[{index}] contract ID",
+        )
+        if contract_id in result:
+            raise ReleaseBoundaryError(
+                f"{label} carries one definition per contract ID"
+            )
+        result[contract_id] = {
+            "version": _text(
+                contract.get("version"),
+                f"{label}[{index}] version",
+            ),
+            "digest": _text(
+                contract.get("digest"),
+                f"{label}[{index}] digest",
+            ),
+        }
+    return result
 
 
 def _text(value: Any, label: str) -> str:

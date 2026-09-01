@@ -16,6 +16,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from lims_eln_sim.assurance import AuthorizationBoundary, Principal, authorize, redact_trace
 from lims_eln_sim import artifact_boundary
+from lims_eln_sim import receipt_checks
 from lims_eln_sim.artifact_boundary import (
     ArtifactBoundaryError,
     verify_reproducible_artifacts,
@@ -224,6 +225,48 @@ class SimulationTests(unittest.TestCase):
                 ),
             ):
                 verify_reproducible_artifacts(first_path, replay_path)
+
+    def test_receipt_family_checker_uses_strict_repository_json_ingress(
+        self,
+    ) -> None:
+        cases = (
+            (
+                "fixtures/golden-specimen.json",
+                '{"fixture_class":"synthetic","fixture_class":"synthetic"}',
+                "single definition",
+            ),
+            (
+                "fixtures/representative-migration-corpus.json",
+                '{"fixture_class":"representative_synthetic","value":1e400}',
+                "finite representation",
+            ),
+            (
+                "specification/intended-use-and-applicability-profile.json",
+                '{"profile_version":"1.0.0","value":-1e400}',
+                "finite representation",
+            ),
+        )
+        source_paths = (
+            "fixtures/golden-specimen.json",
+            "fixtures/representative-migration-corpus.json",
+            "specification/intended-use-and-applicability-profile.json",
+        )
+        for relative, content, message in cases:
+            with (
+                self.subTest(relative=relative),
+                tempfile.TemporaryDirectory(prefix="receipt-input-") as directory,
+            ):
+                input_root = Path(directory)
+                for source_relative in source_paths:
+                    target = input_root / source_relative
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_bytes((ROOT / source_relative).read_bytes())
+                (input_root / relative).write_text(content, encoding="utf-8")
+                with (
+                    mock.patch.object(receipt_checks, "ROOT", input_root),
+                    self.assertRaisesRegex(ValueError, message),
+                ):
+                    verify_family("configured_vendor_environments")
 
     def test_bounded_caller_control_plane_models_authority_and_replay(self) -> None:
         result = simulate_control_plane()

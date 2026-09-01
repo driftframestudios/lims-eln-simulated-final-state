@@ -103,6 +103,7 @@ def main() -> int:
         forecast_metadata=FORECAST_METADATA,
         governance_closure=result["governance_closure"],
         detailed_receipts=result["receipts"],
+        bounded_caller=result["result"]["bounded_caller"],
         assumptions_ledger=assumptions_ledger,
         release_manifest=manifest,
         first_receipt=first_receipt,

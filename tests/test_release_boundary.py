@@ -46,6 +46,7 @@ class ReleaseBoundaryTests(unittest.TestCase):
             "metadata": deepcopy(FORECAST_METADATA),
             "closure": deepcopy(self.result["governance_closure"]),
             "receipts": deepcopy(self.result["receipts"]),
+            "bounded": deepcopy(self.result["result"]["bounded_caller"]),
             "assumptions": self._load("ledgers/assumptions.json"),
             "manifest": self._load("release/repository-role.json"),
             "first": self._load("first-receipt.json"),
@@ -57,6 +58,7 @@ class ReleaseBoundaryTests(unittest.TestCase):
             forecast_metadata=documents["metadata"],
             governance_closure=documents["closure"],
             detailed_receipts=documents["receipts"],
+            bounded_caller=documents["bounded"],
             assumptions_ledger=documents["assumptions"],
             release_manifest=documents["manifest"],
             first_receipt=documents["first"],
@@ -154,6 +156,12 @@ class ReleaseBoundaryTests(unittest.TestCase):
             ),
             (
                 "receipts",
+                (0, "reality_basis", "kind"),
+                "environment_observed",
+                "detailed receipts[0] reality basis kind",
+            ),
+            (
+                "receipts",
                 (0, "reality_basis", "authority"),
                 "observed",
                 "detailed receipts[0] reality basis authority",
@@ -217,19 +225,37 @@ class ReleaseBoundaryTests(unittest.TestCase):
                 "first",
                 ("evidence_posture", 0, "assurance_stage"),
                 "specified",
-                "first receipt simulated evidence[0] assurance stage",
+                "first receipt evidence posture[0] assurance stage",
             ),
             (
                 "first",
                 ("evidence_posture", 2, "status"),
                 "active",
-                "first receipt observed evidence[0] status",
+                "first receipt evidence posture[2] status",
             ),
             (
                 "first",
-                ("contract_state", 0, "digest"),
+                ("evidence_posture", 1, "mode"),
+                "production",
+                "first receipt evidence posture[1] mode",
+            ),
+            (
+                "first",
+                ("contract_state", 1, "digest"),
                 "sha256:" + "0" * 64,
-                "first receipt governance closure digest",
+                "first receipt contract set",
+            ),
+            (
+                "first",
+                ("contract_state", 2, "digest"),
+                "sha256:" + "0" * 64,
+                "first receipt contract set",
+            ),
+            (
+                "machine",
+                ("contracts", 1, "digest"),
+                "sha256:" + "0" * 64,
+                "Machine Node contract set",
             ),
             (
                 "machine",
@@ -239,15 +265,33 @@ class ReleaseBoundaryTests(unittest.TestCase):
             ),
             (
                 "first",
+                ("machine_node_id",),
+                "NODE-OTHER",
+                "first receipt Machine Node identity",
+            ),
+            (
+                "machine",
+                ("authority", "mode"),
+                "production",
+                "Machine Node authority mode",
+            ),
+            (
+                "first",
                 ("open_receipts",),
                 [],
-                "first receipt open-receipt route",
+                "first receipt open-receipt IDs",
             ),
             (
                 "first",
                 ("handoff", "recipient_role"),
                 "release automation",
                 "first receipt next receiver",
+            ),
+            (
+                "first",
+                ("handoff", "action_ids"),
+                ["RCP-SIMULATION-PROMOTION-003"],
+                "first receipt structured handoff actions",
             ),
         )
         for carrier, path, value, message in mutations:
@@ -259,6 +303,13 @@ class ReleaseBoundaryTests(unittest.TestCase):
                     re.escape(message),
                 ):
                     self.assert_aligned(documents)
+
+    def test_handoff_narrative_can_evolve_behind_stable_action_ids(self) -> None:
+        documents = self.documents()
+        documents["first"]["handoff"]["next_safe_action"] = (
+            "Continue through the named structured action identifiers."
+        )
+        self.assert_aligned(documents)
 
 
 def _resolve(value: object, path: tuple[object, ...]) -> object:
