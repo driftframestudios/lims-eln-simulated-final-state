@@ -3,8 +3,22 @@
   "machine_node_id": "NODE-LIMS-ELN-SIMULATION",
   "as_of": "2026-07-28T18:45:00Z",
   "orientation_purpose": "Give a human or AI collaborator the minimum complete selected-future state, evidence posture, authority boundary, invalidation conditions, and safe handoff needed to reproduce or compare this simulation.",
+  "selected_future": {
+    "future_reality_id": "FUTURE-REALITY-LIMS-2028-001",
+    "future_reality_version": "future-reality-2028-06-30-v1",
+    "forecast_release": "forecast-2028-FR-v1",
+    "assumption_ids": [
+      "ASSUMPTION-VENDOR-BANDS-2028",
+      "ASSUMPTION-REPRESENTATIVE-CORPUS-2028",
+      "ASSUMPTION-MODELED-AUTHORITY-2028"
+    ]
+  },
   "authority_posture": {
     "mode": "orientation_only",
+    "simulation_authority": "definitive_within_selected_future_reality",
+    "accountable_observation_required": false,
+    "environment_observed_closure": "separate_unasserted_state",
+    "production_authorization_effect": "none",
     "statement": "This receipt orients collaborators. It grants no production authority, and environment-observed closure remains a separate unasserted evidence state."
   },
   "contract_state": [
@@ -21,7 +35,7 @@
     {
       "contract_id": "SIMULATED-FAMILY-RECEIPTS-2028-V1",
       "version": "2.0.0",
-      "digest": "sha256:bc0c2605a5bdbf4a888919212eaa340b5e5ffebfa8838cc827aa503454b340c0"
+      "digest": "sha256:1affe49636ad01a89fbe819afd246244267d30b7476e0530566c388c0692377b"
     }
   ],
   "evidence_posture": [
@@ -84,6 +98,13 @@
   ],
   "handoff": {
     "recipient_role": "comparative evidence stewardship",
+    "action_ids": [
+      "RCP-SIMULATION-PROMOTION-003",
+      "RECEIPT-OBSERVED-VENDORS-001",
+      "RECEIPT-OBSERVED-MIGRATION-RESTORE-001",
+      "RECEIPT-OBSERVED-SECURITY-OBSERVABILITY-001",
+      "RECEIPT-OBSERVED-ACCOUNTABLE-ACCEPTANCE-001"
+    ],
     "next_safe_action": "Regenerate the canonical closure, confirm its digest, admit the exact bundle through the independent comparator, promote the candidate through the protected release path, and close RCP-SIMULATION-PROMOTION-003 against that immutable coordinate.",
     "success_evidence": "Governance schema validation passes, comparator admission preserves all four family digests with immutable replay, promoted provenance replaces the explicit candidate placeholders, and the observed-successor receipts remain independently available."
   },

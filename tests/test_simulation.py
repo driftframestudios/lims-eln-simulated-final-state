@@ -9,11 +9,18 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from lims_eln_sim.assurance import AuthorizationBoundary, Principal, authorize, redact_trace
+from lims_eln_sim import artifact_boundary
+from lims_eln_sim import receipt_checks
+from lims_eln_sim.artifact_boundary import (
+    ArtifactBoundaryError,
+    verify_reproducible_artifacts,
+)
 from lims_eln_sim.bounded_caller import (
     Approval,
     CallIntent,
@@ -43,7 +50,7 @@ from lims_eln_sim.safety import (
     SyntheticBoundary,
     synthetic_redaction_key,
 )
-from lims_eln_sim.simulation import closure_bundle, run
+from lims_eln_sim.simulation import closure_bundle, run, write_bundle
 from lims_eln_sim.receipt_checks import verify_family
 from lims_eln_sim.vendors import IdempotencyConflict, SapioEmulator
 
@@ -106,6 +113,160 @@ class SimulationTests(unittest.TestCase):
             result["governance_closure"]["production_authorization_effect"],
             "none",
         )
+
+    def test_isolated_runs_emit_the_same_strict_json_artifacts(self) -> None:
+        with (
+            tempfile.TemporaryDirectory(prefix="simulation-first-") as first,
+            tempfile.TemporaryDirectory(prefix="simulation-replay-") as replay,
+        ):
+            first_path = Path(first)
+            replay_path = Path(replay)
+            write_bundle(self.simulate(), first_path)
+            write_bundle(self.simulate(), replay_path)
+
+            inventory = verify_reproducible_artifacts(first_path, replay_path)
+
+            self.assertEqual(
+                inventory["observation-envelope.json"],
+                "sha256:"
+                + sha256(
+                    (first_path / "observation-envelope.json").read_bytes()
+                ).hexdigest(),
+            )
+
+    def test_artifact_replay_detects_strict_json_and_byte_drift(self) -> None:
+        with (
+            tempfile.TemporaryDirectory(prefix="simulation-first-") as first,
+            tempfile.TemporaryDirectory(prefix="simulation-replay-") as replay,
+        ):
+            first_path = Path(first)
+            replay_path = Path(replay)
+            write_bundle(self.simulate(), first_path)
+            write_bundle(self.simulate(), replay_path)
+
+            replay_result = replay_path / "result.json"
+            replay_result.write_bytes(replay_result.read_bytes() + b"\n")
+            with self.assertRaisesRegex(ArtifactBoundaryError, "byte drift"):
+                verify_reproducible_artifacts(first_path, replay_path)
+
+            write_bundle(self.simulate(), replay_path)
+            changed_observation = json.loads(
+                (first_path / "observation-envelope.json").read_text()
+            )
+            changed_observation["result"]["specimen"]["status"] = "changed"
+            (first_path / "observation-envelope.json").write_text(
+                json.dumps(changed_observation, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(
+                ArtifactBoundaryError,
+                "projections carried by result.json",
+            ):
+                verify_reproducible_artifacts(first_path, replay_path)
+
+            write_bundle(self.simulate(), first_path)
+            (replay_path / "result.json").write_text(
+                '{"simulation_id":"one","simulation_id":"two"}\n',
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(ArtifactBoundaryError, "strict JSON"):
+                verify_reproducible_artifacts(first_path, replay_path)
+
+            write_bundle(self.simulate(), replay_path)
+            replay_result = replay_path / "result.json"
+            replay_result.unlink()
+            replay_result.symlink_to(first_path / "result.json")
+            with self.assertRaisesRegex(
+                ArtifactBoundaryError,
+                "regular output file",
+            ):
+                verify_reproducible_artifacts(first_path, replay_path)
+
+    def test_artifact_boundary_rejects_exponent_overflow_twins(self) -> None:
+        for numeric_value in ("1e400", "-1e400"):
+            with (
+                self.subTest(numeric_value=numeric_value),
+                tempfile.TemporaryDirectory(prefix="simulation-first-") as first,
+                tempfile.TemporaryDirectory(prefix="simulation-replay-") as replay,
+            ):
+                first_path = Path(first)
+                replay_path = Path(replay)
+                write_bundle(self.simulate(), first_path)
+                write_bundle(self.simulate(), replay_path)
+                (replay_path / "result.json").write_text(
+                    '{"value":' + numeric_value + "}\n",
+                    encoding="utf-8",
+                )
+                with self.assertRaisesRegex(
+                    ArtifactBoundaryError,
+                    "finite representation",
+                ):
+                    verify_reproducible_artifacts(first_path, replay_path)
+
+    def test_artifact_boundary_requires_no_follow_platform_support(self) -> None:
+        with (
+            tempfile.TemporaryDirectory(prefix="simulation-first-") as first,
+            tempfile.TemporaryDirectory(prefix="simulation-replay-") as replay,
+        ):
+            first_path = Path(first)
+            replay_path = Path(replay)
+            write_bundle(self.simulate(), first_path)
+            write_bundle(self.simulate(), replay_path)
+            with (
+                mock.patch.object(
+                    artifact_boundary.os,
+                    "O_NOFOLLOW",
+                    None,
+                    create=True,
+                ),
+                self.assertRaisesRegex(
+                    ArtifactBoundaryError,
+                    "platform support for fail-closed final-path no-follow opening",
+                ),
+            ):
+                verify_reproducible_artifacts(first_path, replay_path)
+
+    def test_receipt_family_checker_uses_strict_repository_json_ingress(
+        self,
+    ) -> None:
+        cases = (
+            (
+                "fixtures/golden-specimen.json",
+                '{"fixture_class":"synthetic","fixture_class":"synthetic"}',
+                "single definition",
+            ),
+            (
+                "fixtures/representative-migration-corpus.json",
+                '{"fixture_class":"representative_synthetic","value":1e400}',
+                "finite representation",
+            ),
+            (
+                "specification/intended-use-and-applicability-profile.json",
+                '{"profile_version":"1.0.0","value":-1e400}',
+                "finite representation",
+            ),
+        )
+        source_paths = (
+            "fixtures/golden-specimen.json",
+            "fixtures/representative-migration-corpus.json",
+            "specification/intended-use-and-applicability-profile.json",
+        )
+        for relative, content, message in cases:
+            with (
+                self.subTest(relative=relative),
+                tempfile.TemporaryDirectory(prefix="receipt-input-") as directory,
+            ):
+                input_root = Path(directory)
+                for source_relative in source_paths:
+                    target = input_root / source_relative
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_bytes((ROOT / source_relative).read_bytes())
+                (input_root / relative).write_text(content, encoding="utf-8")
+                with (
+                    mock.patch.object(receipt_checks, "ROOT", input_root),
+                    self.assertRaisesRegex(ValueError, message),
+                ):
+                    verify_family("configured_vendor_environments")
 
     def test_bounded_caller_control_plane_models_authority_and_replay(self) -> None:
         result = simulate_control_plane()
@@ -520,6 +681,8 @@ class SimulationTests(unittest.TestCase):
         examples = (
             ('{"fixture_class":"synthetic","fixture_class":"observed"}', "single definition"),
             ('{"value":NaN}', "finite representation"),
+            ('{"value":1e400}', "finite representation"),
+            ('{"value":-1e400}', "finite representation"),
         )
         for content, message in examples:
             with self.subTest(message=message), tempfile.TemporaryDirectory() as directory:
@@ -650,6 +813,9 @@ class SimulationTests(unittest.TestCase):
         assumptions = json.loads(
             (ROOT / "ledgers" / "assumptions.json").read_text()
         )
+        manifest = json.loads(
+            (ROOT / "release" / "repository-role.json").read_text()
+        )
         result = self.simulate()
         expected_ids = set(
             result["governance_closure"]["future_reality"]["assumption_ids"]
@@ -657,6 +823,13 @@ class SimulationTests(unittest.TestCase):
         self.assertEqual(
             expected_ids,
             {item["assumption_id"] for item in assumptions["assumptions"]},
+        )
+        self.assertEqual(
+            manifest["assumptions_ledger"],
+            {
+                "path": "ledgers/assumptions.json",
+                "canonical_json_digest": digest(assumptions),
+            },
         )
         self.assertEqual(
             assumptions["future_reality_id"],

@@ -2,6 +2,17 @@
 
 ## 0.3.1
 
+- Share one finite-number, unique-key JSON parser across repository ingress and
+  generated-artifact verification, including exponent-overflow rejection.
+- Bind assumptions, selected-future identity, evidence posture, authorization
+  effect, detailed receipts, and the first-receipt structured recipient and
+  action identifiers to the executable forecast and governance closure through
+  mutation checks.
+- Require final-path no-follow support for artifact reads, document the retained
+  parent-directory boundary, and add repository and package attribution carriers.
+- Verify two isolated simulation runs produce the same strict-JSON artifact paths
+  and bytes, and bind the manifest to the assumption ledger, observation, and
+  scenario execution.
 - Assign the simulated program-owned PostgreSQL schema history to Flyway Community
   13.0.0 while retaining vendor upgrades and scientific data reconciliation as
   separate responsibility surfaces.

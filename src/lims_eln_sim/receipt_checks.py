@@ -3,8 +3,9 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import Sequence
+from typing import Any, Sequence
 
+from .contract_v1 import ContractBoundaryError, strict_json_loads
 from .open_receipts import RECEIPT_FAMILIES
 from .safety import synthetic_redaction_key
 from .simulation import run
@@ -18,20 +19,16 @@ def verify_family(family: str) -> dict:
 
     if family not in RECEIPT_FAMILIES:
         raise ValueError(f"receipt family {family!r} is outside the released set")
-    fixture = json.loads(
-        (ROOT / "fixtures" / "golden-specimen.json").read_text(encoding="utf-8")
+    fixture = _load_repository_object(
+        ROOT / "fixtures" / "golden-specimen.json"
     )
-    migration_corpus = json.loads(
-        (ROOT / "fixtures" / "representative-migration-corpus.json").read_text(
-            encoding="utf-8"
-        )
+    migration_corpus = _load_repository_object(
+        ROOT / "fixtures" / "representative-migration-corpus.json"
     )
-    intended_use_profile = json.loads(
-        (
-            ROOT
-            / "specification"
-            / "intended-use-and-applicability-profile.json"
-        ).read_text(encoding="utf-8")
+    intended_use_profile = _load_repository_object(
+        ROOT
+        / "specification"
+        / "intended-use-and-applicability-profile.json"
     )
     result = run(
         fixture,
@@ -48,6 +45,15 @@ def verify_family(family: str) -> dict:
     ):
         raise ValueError(f"receipt family {family!r} requires a passing closure")
     return receipt
+
+
+def _load_repository_object(path: Path) -> dict[str, Any]:
+    value = strict_json_loads(path.read_bytes())
+    if not isinstance(value, dict):
+        raise ContractBoundaryError(
+            f"repository input {path.name!r} requires one JSON object"
+        )
+    return value
 
 
 def main(argv: Sequence[str] | None = None) -> int:

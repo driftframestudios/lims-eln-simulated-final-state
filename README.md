@@ -54,6 +54,23 @@ not reopen the simulated closures.
 - assumptions, forecasts, decisions, falsifiers, and four fully closed simulated
   receipt manifests.
 
+The aggregate repository check runs the simulation twice in isolated directories,
+parses every generated document through the strict JSON boundary, and compares the
+complete set of output paths and their exact bytes. It also derives the observation
+and scenario execution digests named by the release manifest. A successful check
+therefore binds the retained oracle and assumptions to one repeatable artifact set;
+configured environment evidence remains a separate comparison input.
+
+Repository validation supplies fresh, caller-controlled temporary directories for
+the complete artifact comparison. Within those directories, each final artifact is
+opened with the platform's `O_NOFOLLOW` support and verified as a regular file.
+Artifact verification completes on platforms that supply this final-path protection;
+other platforms receive a boundary error before artifact bytes enter comparison.
+Concurrent replacement of parent-directory components remains outside this
+repository-local verifier's claim. A caller sharing parent paths with an untrusted
+actor needs a directory-descriptor traversal or an equivalently isolated execution
+boundary.
+
 ## Shared contract boundary
 
 The simulator reads the contract-v1 golden specimen journey from its bound package
@@ -156,3 +173,6 @@ fields while sensitive values are replaced with classification labels and keyed
 pseudonyms. Runtime-configuration receipts retain references, versions, workload role,
 KMS key, cache policy, and rotation behavior while resolved values remain in process
 memory.
+
+Repository-wide provenance is recorded in [`AUTHORS`](AUTHORS). Package metadata
+provides the corresponding author and license coordinates for built distributions.

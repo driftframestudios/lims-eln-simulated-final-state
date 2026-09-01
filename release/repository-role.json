@@ -35,13 +35,20 @@
       "schema_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
     }
   },
+  "assumptions_ledger": {
+    "path": "ledgers/assumptions.json",
+    "canonical_json_digest": "sha256:c2e4008787648241cbc2f90bc8557f6f949f4f21f0834643aae8eb2ea815c8e6"
+  },
   "authority_posture": "definitive_within_selected_future_reality",
   "first_receipt_contract": {
     "evidence_mode": "simulated",
     "assurance_stage": "verified",
+    "simulation_authority": "definitive_within_selected_future_reality",
+    "accountable_observation_required": false,
     "closure_status": "closed_in_simulation",
     "environment_observed_closure": "separate_unasserted_state",
-    "production_authorization_effect": "none"
+    "production_authorization_effect": "none",
+    "future_reality_version": "future-reality-2028-06-30-v1"
   },
   "coordination_horizon": "COORDINATION-HORIZON.json",
   "historical_external_releases": [
