@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Reconcile the living constellation and re-entry surfaces with the accepted
+  `comparison-v0.3.1` tag, commit, tree, archive, and canonical closure while
+  preserving the signed Simulation release and retained artifacts byte for byte.
+
 ## 0.3.1
 
 - Bind the accepted Program 0.3.1 package as an authenticated full-commit Git
