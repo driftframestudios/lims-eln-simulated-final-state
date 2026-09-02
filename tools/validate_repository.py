@@ -12,6 +12,10 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from lims_eln_sim.cli import load_json
 from lims_eln_sim.artifact_boundary import verify_reproducible_artifacts
+from lims_eln_sim.contract_v1 import (
+    canonical_digest as contract_digest,
+    contract_reference,
+)
 from lims_eln_sim.database_oracle import validate_database_oracle
 from lims_eln_sim.domain import digest
 from lims_eln_sim.release_boundary import validate_release_alignment
@@ -66,6 +70,9 @@ def main() -> int:
         )
     json_count = _repository_json_documents()
     fixture = load_json(ROOT / "fixtures/golden-specimen.json")
+    database_oracle = load_json(
+        ROOT / "database/final-state-database-oracle-v1.json"
+    )
 
     def reference_run() -> dict:
         return run(
@@ -77,6 +84,7 @@ def main() -> int:
             migration_corpus=load_json(
                 ROOT / "fixtures/representative-migration-corpus.json"
             ),
+            database_oracle=database_oracle,
             redaction_key=synthetic_redaction_key(fixture["redaction_key_id"]),
         )
 
@@ -104,9 +112,6 @@ def main() -> int:
         )
     first_receipt = load_json(ROOT / "first-receipt.json")
     machine_node = load_json(ROOT / "machine-node.json")
-    database_oracle = load_json(
-        ROOT / "database/final-state-database-oracle-v1.json"
-    )
     assumptions_ledger = load_json(ROOT / "ledgers/assumptions.json")
     validate_release_alignment(
         forecast_metadata=FORECAST_METADATA,
@@ -154,13 +159,58 @@ def main() -> int:
     expected_oracle_binding = {
         "path": "database/final-state-database-oracle-v1.json",
         "bundle_version": database_oracle["oracle_version"],
-        "canonical_json_digest": digest(database_oracle),
+        "canonical_json_digest": contract_digest(database_oracle),
         "release_coordinates": database_coordinates.as_dict(),
     }
     if oracle_binding != expected_oracle_binding:
         drift["database_oracle"] = {
             "manifest": oracle_binding,
             "derived": expected_oracle_binding,
+        }
+    observation_oracle_binding = result["observation"]["result"][
+        "producer_detail"
+    ]["database_oracle"]
+    expected_observation_oracle_binding = {
+        "oracle_id": database_oracle["oracle_id"],
+        "oracle_version": database_oracle["oracle_version"],
+        "canonical_json_digest": contract_digest(database_oracle),
+        "release_coordinates": database_coordinates.as_dict(),
+    }
+    if observation_oracle_binding != expected_observation_oracle_binding:
+        drift["observation.result.producer_detail.database_oracle"] = {
+            "emitted": observation_oracle_binding,
+            "derived": expected_observation_oracle_binding,
+        }
+    shared_contract_binding = manifest["external_contract_bindings"][
+        "shared_contract_nucleus"
+    ]
+    released_contract_reference = contract_reference()
+    expected_contract_digests = {
+        field: released_contract_reference[field]
+        for field in (
+            "golden_scenario_document_digest",
+            "golden_scenario_validated_model_digest",
+            "observation_schema_document_digest",
+            "golden_result_projection_schema_document_digest",
+        )
+    }
+    observed_contract_digests = {
+        field: shared_contract_binding.get(field)
+        for field in expected_contract_digests
+    }
+    if observed_contract_digests != expected_contract_digests:
+        drift["external_contract_bindings.shared_contract_nucleus"] = {
+            "manifest": observed_contract_digests,
+            "derived": expected_contract_digests,
+        }
+    if manifest["contract_bindings"].get(
+        "golden_specimen_result_projection_schema"
+    ) != "1.0.0":
+        drift["contract_bindings.golden_specimen_result_projection_schema"] = {
+            "manifest": manifest["contract_bindings"].get(
+                "golden_specimen_result_projection_schema"
+            ),
+            "derived": "1.0.0",
         }
     expected_assumption_ids = {
         item["assumption_id"] for item in assumptions_ledger["assumptions"]

@@ -79,6 +79,9 @@ class ReleaseBoundaryTests(unittest.TestCase):
             migration_corpus=cls._load(
                 "fixtures/representative-migration-corpus.json"
             ),
+            database_oracle=cls._load(
+                "database/final-state-database-oracle-v1.json"
+            ),
             redaction_key=synthetic_redaction_key(fixture["redaction_key_id"]),
         )
 

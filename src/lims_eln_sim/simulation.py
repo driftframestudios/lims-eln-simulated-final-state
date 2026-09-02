@@ -14,11 +14,18 @@ from .configuration import (
     resolve_runtime_configuration,
 )
 from .contract_v1 import (
+    GOLDEN_SPECIMEN_RESULT_COMPATIBILITY,
+    GOLDEN_SPECIMEN_RESULT_PROJECTION_ID,
+    GOLDEN_SPECIMEN_RESULT_PROJECTION_VERSION,
+    GOLDEN_SPECIMEN_SCENARIO_DIGEST,
+    GOLDEN_SPECIMEN_SCENARIO_ID,
+    GOLDEN_SPECIMEN_SCENARIO_VERSION,
     canonical_digest as contract_digest,
     contract_reference,
     load_golden_specimen_scenario,
-    validate_observation_v1,
+    validate_golden_specimen_observation,
 )
+from .database_oracle import validate_database_oracle
 from .closure_manifest import build_governance_closure
 from .domain import Specimen, digest
 from .migration import MigrationHarness, validate_representative_corpus
@@ -50,11 +57,13 @@ def run(
     *,
     intended_use_profile: dict[str, Any],
     migration_corpus: dict[str, Any],
+    database_oracle: dict[str, Any],
     redaction_key: bytes,
     scenario: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     validate_synthetic_fixture(fixture)
     _validate_intended_use_profile(intended_use_profile)
+    database_coordinates = validate_database_oracle(database_oracle)
     scenario = load_golden_specimen_scenario() if scenario is None else scenario
     _validate_fixture_against_scenario(fixture, scenario)
     clock = fixture["clock"]
@@ -187,7 +196,13 @@ def run(
         },
         "telemetry": metrics.summary(),
     }
-    observation = _build_observation(core, fixture, scenario)
+    observation = _build_observation(
+        core,
+        fixture,
+        scenario,
+        database_oracle,
+        database_coordinates.as_dict(),
+    )
     scenario_execution = _scenario_execution_projection(scenario, transitions)
     receipt_closures = close_open_receipts(core, bounded_caller)
     governance_closure = build_governance_closure(core, receipt_closures)
@@ -385,7 +400,7 @@ def _scenario_transitions(
         "accession": (
             "in_custody",
             "courier",
-            {"location": "receiving-freezer-2"},
+            {"location": scenario["expected_state"]["custody_location"]},
         ),
         "start_processing": (
             "instrument_complete",
@@ -410,27 +425,52 @@ def _build_observation(
     core: dict[str, Any],
     fixture: dict[str, Any],
     scenario: dict[str, Any],
+    database_oracle: dict[str, Any],
+    database_coordinates: dict[str, str],
 ) -> dict[str, Any]:
     specimen = core["specimen"]
+    expected_state = scenario["expected_state"]
+    review_command = scenario["commands"][-2]
+    release_command = scenario["commands"][-1]
+    expected_executed_state = {
+        "tenant_id": scenario["specimen"]["tenant_id"],
+        "specimen_id": scenario["specimen"]["specimen_id"],
+        "status": expected_state["lifecycle_state"],
+        "revision": expected_state["aggregate_version"],
+        "custody_location": expected_state["custody_location"],
+        "result": expected_state["result"],
+    }
+    executed_drift = sorted(
+        field
+        for field, expected in expected_executed_state.items()
+        if specimen.get(field) != expected
+    )
+    if executed_drift:
+        raise ValueError(
+            "executed selected-future state aligns with the released Golden "
+            "Specimen projection; revise fields: " + ", ".join(executed_drift)
+        )
     forecast_recovery_seconds = min(
         fixture["recovery_objective_seconds"],
         fixture["observed_recovery_seconds"] + FORECAST_RECOVERY_MARGIN_SECONDS,
     )
-    observation = {
-        "envelope_version": "1.0.0",
-        "observation_id": "SIM-OBS-GOLDEN-001",
-        "evidence_mode": "simulated",
-        "assurance_stage": "specified",
-        "scenario_id": scenario["scenario_id"],
-        "source": {
-            "environment_id": "simulated-final-state",
-            "implementation_commit": FORECAST_METADATA["forecast_release"],
-            "configuration_digest": digest(fixture["runtime_configuration"]),
+    observation_configuration = {
+        "future_reality_version": FUTURE_REALITY_VERSION,
+        "forecast_recovery_seconds": forecast_recovery_seconds,
+        "runtime_configuration_digest": contract_digest(
+            fixture["runtime_configuration"]
+        ),
+    }
+    producer_detail = {
+        "configuration": observation_configuration,
+        "database_oracle": {
+            "oracle_id": database_oracle["oracle_id"],
+            "oracle_version": database_oracle["oracle_version"],
+            "canonical_json_digest": contract_digest(database_oracle),
+            "release_coordinates": database_coordinates,
         },
-        "result": {
+        "simulation": {
             "specimen": {
-                "specimen_id": specimen["specimen_id"],
-                "tenant_id": specimen["tenant_id"],
                 "status": specimen["status"],
                 "revision": specimen["revision"],
                 "result": {
@@ -453,12 +493,56 @@ def _build_observation(
             },
             "operations": {"manual_steps": 1},
             "execution": {
-                "completed_at": scenario["commands"][-1]["occurred_at"],
+                "completed_at": release_command["occurred_at"],
                 "trace_id": "sim-trace-001",
             },
         },
+    }
+    observation_result = {
+        "projection": {
+            "projection_id": GOLDEN_SPECIMEN_RESULT_PROJECTION_ID,
+            "projection_version": GOLDEN_SPECIMEN_RESULT_PROJECTION_VERSION,
+            "comparison_compatibility": GOLDEN_SPECIMEN_RESULT_COMPATIBILITY,
+            "tenant_id": specimen["tenant_id"],
+            "specimen_id": specimen["specimen_id"],
+            "lifecycle": {
+                "state": specimen["status"],
+                "aggregate_version": specimen["revision"],
+            },
+            "custody": {
+                "current_location": specimen["custody_location"],
+            },
+            "measurement": specimen["result"],
+            "review_resolution": {
+                "review_id": review_command["payload"]["review_id"],
+                "decision": "accepted",
+                "resolved_at": release_command["occurred_at"],
+            },
+            "release": {
+                "approval_receipt_id": release_command["payload"][
+                    "approval_receipt_id"
+                ],
+                "released_at": release_command["occurred_at"],
+            },
+        },
+        "producer_detail": producer_detail,
+    }
+    observation = {
+        "envelope_version": "1.0.0",
+        "observation_id": "SIM-OBS-GOLDEN-001",
+        "evidence_mode": "simulated",
+        "assurance_stage": "specified",
+        "scenario_id": GOLDEN_SPECIMEN_SCENARIO_ID,
+        "scenario_version": GOLDEN_SPECIMEN_SCENARIO_VERSION,
+        "scenario_digest": GOLDEN_SPECIMEN_SCENARIO_DIGEST,
+        "source": {
+            "environment_id": "simulated-final-state",
+            "implementation_commit": FORECAST_METADATA["forecast_release"],
+            "configuration_digest": contract_digest(observation_configuration),
+        },
+        "result": observation_result,
         "provenance": {
-            "raw_artifact_digest": specimen["artifact_digest"],
+            "raw_artifact_digest": contract_digest(observation_result),
             "governed_locator": (
                 "simulation://forecast-2028-FR-v1/golden-specimen"
             ),
@@ -471,7 +555,7 @@ def _build_observation(
             "redaction_status": "generated-identities",
         },
     }
-    return validate_observation_v1(observation)
+    return validate_golden_specimen_observation(observation)
 
 
 def _scenario_execution_projection(

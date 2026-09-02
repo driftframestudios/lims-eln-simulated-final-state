@@ -103,6 +103,7 @@ PYTHONPATH=src python -m lims_eln_sim.cli \
   --fixture fixtures/golden-specimen.json \
   --intended-use-profile specification/intended-use-and-applicability-profile.json \
   --migration-corpus fixtures/representative-migration-corpus.json \
+  --database-oracle database/final-state-database-oracle-v1.json \
   --output build/simulation
 ```
 
@@ -119,10 +120,14 @@ build output remains a transient workflow artifact.
 
 The retained database oracle lives at
 [`database/final-state-database-oracle-v1.json`](database/final-state-database-oracle-v1.json).
-Its validator recomputes the data-contract, migration-manifest, migration-receipt,
-release-receipt, and complete-bundle digests. This provides the comparative system
-with one deterministic final-state coordinate while preserving the boundary between
-simulated acceptance and accountable environment observation.
+Each run receives this oracle explicitly. Its validator recomputes the data-contract,
+migration-manifest, migration-receipt, release-receipt, and complete-bundle digests
+before the shared Golden Specimen projection is emitted. The observation carries a
+content-addressed oracle binding in `result.producer_detail`; its shared lifecycle,
+custody, measurement, review, and release fields remain derived from the released
+scenario and executed simulated state. This provides the comparative system with one
+deterministic final-state coordinate while preserving the boundary between simulated
+acceptance and accountable environment observation.
 
 The selected future assigns repository-owned PostgreSQL schema evolution to Flyway
 Community 13.0.0. Vendor-owned LIMS and ELN schemas continue through their supported

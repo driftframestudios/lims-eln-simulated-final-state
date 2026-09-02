@@ -15,6 +15,7 @@ def parser() -> argparse.ArgumentParser:
     command.add_argument("--fixture", type=Path, required=True)
     command.add_argument("--intended-use-profile", type=Path, required=True)
     command.add_argument("--migration-corpus", type=Path, required=True)
+    command.add_argument("--database-oracle", type=Path, required=True)
     command.add_argument("--output", type=Path, required=True)
     return command
 
@@ -24,10 +25,12 @@ def main() -> None:
     fixture = load_json(args.fixture)
     intended_use_profile = load_json(args.intended_use_profile)
     migration_corpus = load_json(args.migration_corpus)
+    database_oracle = load_json(args.database_oracle)
     bundle = run(
         fixture,
         intended_use_profile=intended_use_profile,
         migration_corpus=migration_corpus,
+        database_oracle=database_oracle,
         redaction_key=synthetic_redaction_key(fixture.get("redaction_key_id", "")),
     )
     write_bundle(bundle, args.output)

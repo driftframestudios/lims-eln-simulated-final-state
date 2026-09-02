@@ -165,6 +165,13 @@ class BranchFlowTests(unittest.TestCase):
         self.assertIn("retention-days: 1", workflow)
         self.assertIn("timeout-minutes: 10", workflow)
         self.assertIn("persist-credentials: false", workflow)
+        self.assertEqual(
+            1,
+            workflow.count(
+                "--database-oracle "
+                "database/final-state-database-oracle-v1.json"
+            ),
+        )
         jobs = runner_job_blocks(workflow)
         self.assertTrue(jobs)
         for name, block in jobs.items():

@@ -23,6 +23,12 @@
       "local_path": "contract_resources/observation-envelope.v1.schema.json",
       "sha256": "sha256:88de7f800a1b705c46a95cc5b5c7ef74092ce31abf02642c23e0701071856282",
       "canonical_digest": "sha256:954e5a3643a7a139ec1e7bf40d1d356ba49c0be98953310ffce1b24043a4d47f"
+    },
+    "golden_result_projection_schema": {
+      "package_path": "resources/schemas/golden-specimen-result-projection.v1.schema.json",
+      "local_path": "contract_resources/golden-specimen-result-projection.v1.schema.json",
+      "sha256": "sha256:ab2f3200045b5521b5c9da29c6f2e03a69ced3d5e8531a3107e20d06728f2696",
+      "canonical_digest": "sha256:0519835a178742d52994b1342f3fdf38281b982feca9283782d45489123871fb"
     }
   }
 }

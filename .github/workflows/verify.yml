@@ -43,6 +43,7 @@ jobs:
           --fixture fixtures/golden-specimen.json
           --intended-use-profile specification/intended-use-and-applicability-profile.json
           --migration-corpus fixtures/representative-migration-corpus.json
+          --database-oracle database/final-state-database-oracle-v1.json
           --output build/simulation
       - name: Check generated artifact boundary
         run: python tools/check_artifacts.py build/simulation

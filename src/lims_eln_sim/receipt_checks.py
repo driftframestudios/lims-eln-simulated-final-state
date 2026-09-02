@@ -30,10 +30,14 @@ def verify_family(family: str) -> dict:
         / "specification"
         / "intended-use-and-applicability-profile.json"
     )
+    database_oracle = _load_repository_object(
+        ROOT / "database" / "final-state-database-oracle-v1.json"
+    )
     result = run(
         fixture,
         intended_use_profile=intended_use_profile,
         migration_corpus=migration_corpus,
+        database_oracle=database_oracle,
         redaction_key=synthetic_redaction_key(fixture["redaction_key_id"]),
     )
     receipt = next(

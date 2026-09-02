@@ -2,6 +2,11 @@
 
 ## 0.3.1
 
+- Emit the shared Golden Specimen result from executed selected-future state,
+  require its final-state database oracle as an explicit input, and retain the
+  content-addressed oracle coordinate as producer-owned comparison context.
+- Bind the exact shared projection schema and validate the comparison envelope
+  through matching standalone and Program-package boundaries.
 - Add one read-only, cancellable Python 3.12 pull-request proof and a monthly,
   bounded GitHub Actions dependency-update stream into `develop`; retain the
   three-version forecast bundle as a confirmed manual proof. Validate the
@@ -44,7 +49,7 @@
 
 - Selected `future-reality-2028-06-30-v1` as a self-contained simulation baseline.
 - Closed all four substantive receipt families inside the selected future.
-- Added a typed bounded-caller control plane and adversarial boundary scenarios.
+- Added a typed bounded-caller control plane and failure-twin boundary scenarios.
 - Added a generic Coordination Horizon and first-receipt contract.
 - Advanced the simulated receipt schema to 2.0.0.
 - Added monthly, grouped minor and patch maintenance for immutable GitHub Action
