@@ -1,13 +1,33 @@
 # LIMS/ELN Simulated Final State
 
-This repository is an independently runnable counterfactual for a mature laboratory
-integration platform. It lets a hybrid team inspect a complete forecast before the
-delivery system reaches the same decisions.
+This repository is an independently runnable model of one possible mature laboratory
+integration platform. The model is a counterfactual: a deliberately selected future
+that lets a hybrid team inspect a complete forecast before the delivery system
+reaches the same decisions.
 
 The runtime resolves entirely from this repository, Python's standard library, and
 synthetic fixtures. The actual implementation remains an independent system. Ideas
 move from this simulation into delivery through reviewed decisions and released
 specifications.
+
+## Start here
+
+Read [`AGENTS.md`](AGENTS.md) for the current source, branch, evidence, writing,
+and validation route. Four repository-local skills support bounded work:
+
+- [`repository-reentry`](.agents/skills/repository-reentry/SKILL.md) reconstructs
+  current source, accepted release, living orientation, and comparison state;
+- [`source-authority-mapping`](.agents/skills/source-authority-mapping/SKILL.md)
+  traces assumptions, executable behavior, artifacts, release evidence, and
+  receiving use while each retains its authority;
+- [`constellation-coherence-reconciliation`](.agents/skills/constellation-coherence-reconciliation/SKILL.md)
+  reconciles accepted sibling coordinates with living Simulation carriers; and
+- [`contextual-jargon-scan`](.agents/skills/contextual-jargon-scan/SKILL.md)
+  reviews shorthand in stride while preserving exact technical and governed
+  terms.
+
+These skills are self-contained and public-possible. They remain outside any
+public projection until a separate public-ready review accepts them.
 
 ## Selected future reality
 
@@ -88,7 +108,7 @@ the snapshots and emitted values with the authoritative Pydantic models whenever
 installed package or a sibling source checkout is available:
 
 ```bash
-python tools/check_contract_conformance.py \
+python3 tools/check_contract_conformance.py \
   --contract-source ../lims-eln-program-specification/src
 ```
 
@@ -100,8 +120,8 @@ can replace the pin without changing the shared projection identity.
 ## Run it
 
 ```bash
-python -m unittest discover -s tests -v
-PYTHONPATH=src python -m lims_eln_sim.cli \
+python3 -m unittest discover -s tests -v
+PYTHONPATH=src python3 -m lims_eln_sim.cli \
   --fixture fixtures/golden-specimen.json \
   --intended-use-profile specification/intended-use-and-applicability-profile.json \
   --migration-corpus fixtures/representative-migration-corpus.json \
@@ -156,7 +176,7 @@ checks validate those fields and keep their simulated meaning explicit.
 [`receipts/promotion-receipt.json`](receipts/promotion-receipt.json) records the
 observed signed release event, accepted source objects, reproducible archive,
 hosted checks, and local verification while preserving simulated forecast authority.
-`python tools/verify_release_coordinate.py` verifies the annotated tag, accepted
+`python3 tools/verify_release_coordinate.py` verifies the annotated tag, accepted
 history, source tree, archive bytes, receipt carrier, and repository-trusted signer.
 
 [`constellation.lock.json`](constellation.lock.json) records distinct observed
@@ -172,7 +192,8 @@ This repository uses a GitFlow-like pattern:
 
 - `main` contains released forecast baselines and carries protected promotion.
 - `develop` is the lean integration branch for the next forecast.
-- `feature/*` carries bounded scenario or model work.
+- `feature/*` carries bounded scenario or model work; `fix/*` and `chore/*`
+  carry focused corrections and upkeep into `develop`.
 - `release/*` is a short-lived branch that freezes comparison inputs and
   accepts stabilization changes for one promotion.
 - `hotfix/*` repairs a released simulation defect and returns the correction to

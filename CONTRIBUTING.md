@@ -1,12 +1,16 @@
 # Contribution and forecast discipline
 
-Start bounded work from `develop` using `feature/<decision-or-scenario>`. Open a pull
-request into `develop` with the affected specification IDs, assumptions, falsifiers,
-and expected material effects. A release branch freezes fixtures and decision inputs.
+Start bounded work from `develop` using `feature/<decision-or-scenario>`,
+`fix/<focused-correction>`, or `chore/<bounded-upkeep>`. Open a pull request into
+`develop` with the affected specification IDs, assumptions, falsifiers, and expected
+material effects. A release branch freezes fixtures and decision inputs.
 
-A correction to a released forecast uses `hotfix/<forecast-defect>`, targets `main`,
-and is merged back into `develop`. The correction creates a new release. The earlier
-release remains available for calibration.
+An accepted-release repair uses `hotfix/<forecast-defect>`, targets `main`, and
+returns to `develop`. A correction to selected-future behavior, inputs, or retained
+artifact meaning forms a successor release. A reviewed correction limited to living
+orientation or an accepted sibling coordinate can advance those carriers while the
+signed Simulation release remains immutable. The earlier release remains available
+for calibration.
 
 Local forecast tests remain the standing proof path. The repository allocates
 100–300 hosted runner minutes per month. One read-only, cancellable Python 3.12

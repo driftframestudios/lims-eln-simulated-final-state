@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add a copy-local collaboration workbench for re-entry, source-authority
+  mapping, constellation reconciliation, and in-stride ordinary-language review;
+  align contributor routes with the executable branch and Python contracts.
 - Reconcile the living constellation and re-entry surfaces with the accepted
   `comparison-v0.3.1` tag, commit, tree, archive, and canonical closure while
   preserving the signed Simulation release and retained artifacts byte for byte.
