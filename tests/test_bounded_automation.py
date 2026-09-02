@@ -108,6 +108,7 @@ class BoundedAutomationTests(unittest.TestCase):
                 "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
                 "vendor/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
             ),
+            ("          fetch-depth: 0", "          fetch-depth: 1"),
             (
                 '          python-version: "3.12"',
                 '          python-version: "3.12"\n'
@@ -122,6 +123,10 @@ class BoundedAutomationTests(unittest.TestCase):
                 "        run: python tools/validate_repository.py",
                 "        run: python tools/validate_repository.py --quick\n"
                 "        # run: python tools/validate_repository.py",
+            ),
+            (
+                "        run: python tools/verify_release_coordinate.py",
+                "        run: python tools/verify_release_coordinate.py --accepted-ref HEAD",
             ),
         )
         for before, after in mutations:

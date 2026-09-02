@@ -4,10 +4,10 @@
   "promotion_receipt_id": "RCP-SIMULATION-PROMOTION-003",
   "repository": "driftframestudios/lims-eln-simulated-final-state",
   "target_release": "forecast-2028-FR-v1",
-  "promotion_state": "candidate_ready",
+  "promotion_state": "release_observed",
   "release_event_evidence": {
-    "evidence_mode": "planned",
-    "assurance_stage": "specified"
+    "evidence_mode": "observed",
+    "assurance_stage": "verified"
   },
   "forecast_authority": {
     "evidence_mode": "simulated",
@@ -16,7 +16,34 @@
     "environment_observed_closure": "separate_unasserted_state",
     "production_authorization_effect": "none"
   },
-  "release_subject": null,
+  "release_subject": {
+    "git_object_format": "sha1",
+    "tag": "forecast-2028-FR-v1",
+    "tag_object_oid": "73fc89690b6cc9df7a99ea495e580e7f4e2caedc",
+    "commit_oid": "37c3861b5411db8e772feedf41e4abf1fb7829bc",
+    "tree_oid": "595ae59f25f522732577c5f8e00709f023464a6d",
+    "archive_format": "git-tar",
+    "archive_digest": "sha256:c6a062a6efb6786c53dc9e7298a9dd881fcc2301d807db5cecf84663c98438e2",
+    "promoted_at": "2026-09-02T04:32:11Z",
+    "tag_signature_verification": "valid",
+    "hosted_check_contexts": [
+      {
+        "name": "Repository validation",
+        "run_id": "33588934525",
+        "conclusion": "success"
+      },
+      {
+        "name": "branch-shape",
+        "run_id": "33588934514",
+        "conclusion": "success"
+      }
+    ],
+    "local_verification_signals": [
+      "python3.12 -m unittest discover -s tests -v completed successfully",
+      "python3.12 tools/validate_repository.py reproduced the selected-future artifact set",
+      "python3.12 tools/verify_release_coordinate.py matched the signed tag, commit, tree, archive, and signing key"
+    ]
+  },
   "required_evidence": [
     "Repository validation reproduces the retained selected-future bundle and its complete artifact inventory.",
     "The reviewed release candidate and accepted main merge resolve to one Git tree.",

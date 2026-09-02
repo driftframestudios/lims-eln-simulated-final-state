@@ -909,33 +909,43 @@ class SimulationTests(unittest.TestCase):
             },
             {"forecast-2026-Q3-r1", "forecast-2026-Q3-r2"},
         )
-        self.assertEqual("settling", machine_node["lifecycle_state"])
+        self.assertEqual("active", machine_node["lifecycle_state"])
         self.assertEqual(
-            "0000000000000000000000000000000000000000",
+            "37c3861b5411db8e772feedf41e4abf1fb7829bc",
             machine_node["current_provenance"]["commit"],
         )
         self.assertEqual(
             machine_node["open_receipts"],
             first_receipt["open_receipts"],
         )
-        self.assertIn(
+        self.assertNotIn(
             "RCP-SIMULATION-PROMOTION-003",
             machine_node["open_receipts"],
         )
         self.assertEqual(
-            manifest["release_coordinates"]["open_promotion_receipt_id"],
+            manifest["release_coordinates"]["promotion_receipt_id"],
             "RCP-SIMULATION-PROMOTION-003",
         )
         self.assertEqual(
+            manifest["release_coordinates"]["coordinate_status"],
+            "release_observed",
+        )
+        self.assertEqual(
             horizon["current_item_ids"],
-            ["HORIZON-SIMULATION-PROMOTION-003"],
+            ["HORIZON-COMPARATIVE-ADMISSION"],
         )
         promotion = next(
             item
             for item in horizon["work_items"]
             if item["item_id"] == "HORIZON-SIMULATION-PROMOTION-003"
         )
-        self.assertEqual(promotion["state"], "settling")
+        self.assertEqual(promotion["state"], "complete")
+        comparative = next(
+            item
+            for item in horizon["work_items"]
+            if item["item_id"] == "HORIZON-COMPARATIVE-ADMISSION"
+        )
+        self.assertEqual(comparative["state"], "active")
 
     def test_release_closure_bundle_is_reproduced_from_declared_inputs(self) -> None:
         retained = json.loads(
@@ -1016,6 +1026,22 @@ class SimulationTests(unittest.TestCase):
         )
         self.assertEqual(lock["simulation"]["release"], "forecast-2028-FR-v1")
         self.assertEqual(
+            lock["simulation"]["tag_object_oid"],
+            "73fc89690b6cc9df7a99ea495e580e7f4e2caedc",
+        )
+        self.assertEqual(
+            lock["simulation"]["commit"],
+            "37c3861b5411db8e772feedf41e4abf1fb7829bc",
+        )
+        self.assertEqual(
+            lock["simulation"]["digest"],
+            "git-tree-sha1:595ae59f25f522732577c5f8e00709f023464a6d",
+        )
+        self.assertEqual(
+            lock["simulation"]["archive_digest"],
+            "sha256:c6a062a6efb6786c53dc9e7298a9dd881fcc2301d807db5cecf84663c98438e2",
+        )
+        self.assertEqual(
             lock["simulation"]["canonical_closure_digest"],
             digest(result["governance_closure"]),
         )
@@ -1057,7 +1083,7 @@ class SimulationTests(unittest.TestCase):
         )
         self.assertEqual(
             lock["simulation"]["coordinate_status"],
-            "pending_release_commit",
+            "release_observed",
         )
 
 

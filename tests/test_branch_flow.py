@@ -205,9 +205,11 @@ class BranchFlowTests(unittest.TestCase):
             "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
             workflow,
         )
+        self.assertIn("fetch-depth: 0", workflow)
         self.assertEqual(1, workflow.count('python-version: "3.12"'))
         self.assertIn("python -m unittest discover -s tests -v", workflow)
         self.assertIn("python tools/validate_repository.py", workflow)
+        self.assertIn("python tools/verify_release_coordinate.py", workflow)
         self.assertEqual({"repository-validation"}, set(runner_job_blocks(workflow)))
 
     def test_release_manifest_records_bounded_automation_source(self) -> None:
@@ -228,6 +230,11 @@ class BranchFlowTests(unittest.TestCase):
             automation["pull_request_actions"],
         )
         self.assertTrue(automation["pull_request_concurrency_cancellation"])
+        self.assertEqual(
+            "tools/verify_release_coordinate.py",
+            automation["release_coordinate_verifier"],
+        )
+        self.assertEqual(0, automation["release_coordinate_fetch_depth"])
         self.assertEqual("develop", automation["dependabot_target"])
         self.assertEqual(
             {"minimum": 100, "maximum": 300},
@@ -241,9 +248,11 @@ class BranchFlowTests(unittest.TestCase):
             "/.github/dependabot.yml",
             "/tools/check_branch_flow.py",
             "/tools/check_bounded_automation.py",
+            "/tools/verify_release_coordinate.py",
             "/tools/check_artifacts.py",
             "/tests/test_branch_flow.py",
             "/tests/test_bounded_automation.py",
+            "/tests/test_release_coordinate.py",
             "/machine-node.json",
             "/first-receipt.json",
             "/COORDINATION-HORIZON.json",
@@ -267,6 +276,7 @@ class BranchFlowTests(unittest.TestCase):
         self.assertNotIn("ubuntu-latest", workflow)
         self.assertGreaterEqual(workflow.count("runs-on: ubuntu-24.04"), 2)
         self.assertIn("fail-fast: false", workflow)
+        self.assertEqual(1, workflow.count("fetch-depth: 0"))
 
 
 if __name__ == "__main__":

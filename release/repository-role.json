@@ -44,7 +44,7 @@
     "schema_version": "1.0.0",
     "schema_file_sha256": "sha256:976d68d19b884e3e89403e5f23de37e34c0b6469aefa93cd838234ac6fa001e6",
     "receipt_path": "receipts/promotion-receipt.json",
-    "receipt_canonical_json_digest": "sha256:aba45d171ae9f8fb21107e0e5ce730be2043b2a5cb6512c603a34deb3f90c15e"
+    "receipt_canonical_json_digest": "sha256:a9c24ded241d9ebe9a19a0c137f164ee3eee94cc5eb1501dce7776d95290ecf5"
   },
   "authority_posture": "definitive_within_selected_future_reality",
   "first_receipt_contract": {
@@ -131,14 +131,20 @@
     "dependabot_open_pull_requests_per_ecosystem": 2,
     "dependabot_grouped_update_types": ["minor", "patch"],
     "monthly_budget_minutes": {"minimum": 100, "maximum": 300},
-    "settings_state": "source_accepted_contexts_observed_activation_pending"
+    "release_coordinate_verifier": "tools/verify_release_coordinate.py",
+    "release_coordinate_fetch_depth": 0,
+    "settings_state": "pull_request_proof_active_with_release_coordinate_verification"
   },
   "release_coordinates": {
     "seed_governance_commit": "716d4581d723a5c1b56f16efdbcd25790549ae33",
     "seed_program_specification_commit": "fc7707134b58ed12ad349bf649d2af1c3689bd01",
-    "candidate_coordinate_status": "pending_release_promotion",
-    "candidate_commit": "0000000000000000000000000000000000000000",
-    "candidate_tree_digest": "git-tree-sha1:0000000000000000000000000000000000000000",
-    "open_promotion_receipt_id": "RCP-SIMULATION-PROMOTION-003"
+    "coordinate_status": "release_observed",
+    "reviewed_candidate_commit": "91bfdba0fd4bc78a0d5d5e25f192ad0d18774bcf",
+    "reviewed_candidate_tree_digest": "git-tree-sha1:595ae59f25f522732577c5f8e00709f023464a6d",
+    "accepted_commit": "37c3861b5411db8e772feedf41e4abf1fb7829bc",
+    "accepted_tree_digest": "git-tree-sha1:595ae59f25f522732577c5f8e00709f023464a6d",
+    "tag_object_oid": "73fc89690b6cc9df7a99ea495e580e7f4e2caedc",
+    "archive_digest": "sha256:c6a062a6efb6786c53dc9e7298a9dd881fcc2301d807db5cecf84663c98438e2",
+    "promotion_receipt_id": "RCP-SIMULATION-PROMOTION-003"
   }
 }
