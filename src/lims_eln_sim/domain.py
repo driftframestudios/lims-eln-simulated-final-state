@@ -64,8 +64,18 @@ class Specimen:
     ) -> None:
         if target not in ALLOWED_TRANSITIONS.get(self.status, set()):
             raise DomainRuleError(f"transition {self.status!r} -> {target!r} requires a released rule")
+        custody_location: str | None = None
+        if target == "in_custody":
+            location = detail.get("location")
+            if not isinstance(location, str) or not location.strip():
+                raise DomainRuleError(
+                    "transition to 'in_custody' requires a concrete location"
+                )
+            custody_location = location
         self.status = target
         self.revision += 1
+        if custody_location is not None:
+            self.custody_location = custody_location
         self.audit.append(
             AuditEvent(
                 event_id=f"evt-{self.specimen_id}-{self.revision:03d}",

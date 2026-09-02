@@ -39,11 +39,15 @@ from lims_eln_sim.configuration import (
     SyntheticAwsProvider,
     resolve_runtime_configuration,
 )
+from lims_eln_sim.contract_v1 import (
+    GOLDEN_SPECIMEN_SCENARIO_DIGEST,
+    canonical_digest as contract_digest,
+)
 from lims_eln_sim.database_oracle import (
     DatabaseOracleError,
     validate_database_oracle,
 )
-from lims_eln_sim.domain import Specimen, digest, parse_instant
+from lims_eln_sim.domain import DomainRuleError, Specimen, digest, parse_instant
 from lims_eln_sim.migration import MigrationHarness, validate_representative_corpus
 from lims_eln_sim.open_receipts import ReceiptCriteriaError, close_open_receipts
 from lims_eln_sim.safety import (
@@ -83,6 +87,7 @@ class SimulationTests(unittest.TestCase):
             fixture or self.fixture,
             intended_use_profile=self.intended_use_profile,
             migration_corpus=self.migration_corpus,
+            database_oracle=self.database_oracle,
             redaction_key=self.redaction_key,
         )
 
@@ -153,7 +158,9 @@ class SimulationTests(unittest.TestCase):
             changed_observation = json.loads(
                 (first_path / "observation-envelope.json").read_text()
             )
-            changed_observation["result"]["specimen"]["status"] = "changed"
+            changed_observation["result"]["projection"]["lifecycle"][
+                "state"
+            ] = "changed"
             (first_path / "observation-envelope.json").write_text(
                 json.dumps(changed_observation, sort_keys=True) + "\n",
                 encoding="utf-8",
@@ -567,6 +574,46 @@ class SimulationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "explicit timezone"):
             parse_instant("2028-06-30T14:00:00")
 
+    def test_custody_transition_requires_location_before_state_changes(self) -> None:
+        specimen = Specimen("SPM-SYN-CUSTODY", "TENANT-SYN-001", "source-sim")
+        specimen.transition(
+            "accessioned",
+            "simulated-operator",
+            {"source": "selected-future"},
+            "2028-06-30T14:00:00Z",
+        )
+
+        with self.assertRaisesRegex(DomainRuleError, "concrete location"):
+            specimen.transition(
+                "in_custody",
+                "simulated-operator",
+                {},
+                "2028-06-30T14:00:01Z",
+            )
+
+        self.assertEqual(specimen.status, "accessioned")
+        self.assertEqual(specimen.revision, 1)
+        self.assertIsNone(specimen.custody_location)
+        self.assertEqual(len(specimen.audit), 1)
+
+    def test_shared_projection_rejects_executed_custody_drift(self) -> None:
+        original_transition = Specimen.transition
+
+        def transition_with_drift(
+            specimen: Specimen,
+            target: str,
+            actor: str,
+            detail: dict,
+            occurred_at: str | datetime,
+        ) -> None:
+            original_transition(specimen, target, actor, detail, occurred_at)
+            if target == "in_custody":
+                specimen.custody_location = "SYN-LAB-A/DRIFTED"
+
+        with mock.patch.object(Specimen, "transition", new=transition_with_drift):
+            with self.assertRaisesRegex(ValueError, "custody_location"):
+                self.simulate()
+
     def test_database_oracle_binds_contract_manifest_and_release_receipts(self) -> None:
         coordinates = validate_database_oracle(self.database_oracle)
         role = json.loads((ROOT / "release" / "repository-role.json").read_text())
@@ -587,8 +634,112 @@ class SimulationTests(unittest.TestCase):
         )
         self.assertEqual(
             role["database_oracle"]["canonical_json_digest"],
-            digest(self.database_oracle),
+            contract_digest(self.database_oracle),
         )
+
+    def test_shared_projection_is_scenario_derived_and_oracle_traceable(self) -> None:
+        result = self.simulate()
+        observation = result["observation"]
+        projection = observation["result"]["projection"]
+        scenario = json.loads(
+            (
+                ROOT
+                / "src"
+                / "lims_eln_sim"
+                / "contract_resources"
+                / "golden-specimen.v1.json"
+            ).read_text()
+        )
+        coordinates = validate_database_oracle(self.database_oracle)
+
+        self.assertEqual(observation["evidence_mode"], "simulated")
+        self.assertEqual(observation["scenario_id"], scenario["scenario_id"])
+        self.assertEqual(
+            observation["scenario_version"], scenario["scenario_version"]
+        )
+        self.assertEqual(
+            observation["scenario_digest"], GOLDEN_SPECIMEN_SCENARIO_DIGEST
+        )
+        self.assertEqual(
+            projection,
+            {
+                "projection_id": "urn:driftframe:lims-eln:golden-specimen-result",
+                "projection_version": "1.0.0",
+                "comparison_compatibility": "exact-version",
+                "tenant_id": scenario["specimen"]["tenant_id"],
+                "specimen_id": scenario["specimen"]["specimen_id"],
+                "lifecycle": {
+                    "state": scenario["expected_state"]["lifecycle_state"],
+                    "aggregate_version": scenario["expected_state"][
+                        "aggregate_version"
+                    ],
+                },
+                "custody": {
+                    "current_location": scenario["expected_state"][
+                        "custody_location"
+                    ],
+                },
+                "measurement": scenario["expected_state"]["result"],
+                "review_resolution": {
+                    "review_id": scenario["commands"][-2]["payload"]["review_id"],
+                    "decision": "accepted",
+                    "resolved_at": scenario["commands"][-1]["occurred_at"],
+                },
+                "release": {
+                    "approval_receipt_id": scenario["commands"][-1]["payload"][
+                        "approval_receipt_id"
+                    ],
+                    "released_at": scenario["commands"][-1]["occurred_at"],
+                },
+            },
+        )
+        self.assertEqual(
+            contract_digest(projection),
+            "sha256:cead042eaf3ca8f72b9c30c41d9acb0bd9255027448f3b28e3451305bed1aef1",
+        )
+        self.assertEqual(
+            observation["result"]["producer_detail"]["database_oracle"],
+            {
+                "oracle_id": self.database_oracle["oracle_id"],
+                "oracle_version": self.database_oracle["oracle_version"],
+                "canonical_json_digest": contract_digest(self.database_oracle),
+                "release_coordinates": coordinates.as_dict(),
+            },
+        )
+        self.assertEqual(
+            observation["source"]["configuration_digest"],
+            contract_digest(
+                observation["result"]["producer_detail"]["configuration"]
+            ),
+        )
+        self.assertEqual(
+            observation["provenance"]["raw_artifact_digest"],
+            contract_digest(observation["result"]),
+        )
+        changed_local_detail = deepcopy(observation["result"])
+        changed_local_detail["producer_detail"]["simulation"]["execution"][
+            "trace_id"
+        ] = "sim-trace-local-iteration"
+        self.assertEqual(
+            contract_digest(changed_local_detail["projection"]),
+            contract_digest(projection),
+        )
+        self.assertNotEqual(
+            contract_digest(changed_local_detail),
+            observation["provenance"]["raw_artifact_digest"],
+        )
+
+    def test_simulation_rejects_database_oracle_coordinate_drift(self) -> None:
+        drifted = deepcopy(self.database_oracle)
+        drifted["coordinates"]["release_receipt_digest"] = "sha256:" + "f" * 64
+        with self.assertRaisesRegex(DatabaseOracleError, "canonical nested"):
+            run(
+                self.fixture,
+                intended_use_profile=self.intended_use_profile,
+                migration_corpus=self.migration_corpus,
+                database_oracle=drifted,
+                redaction_key=self.redaction_key,
+            )
 
     def test_database_oracle_enforces_native_primitives_and_exact_json_types(
         self,
