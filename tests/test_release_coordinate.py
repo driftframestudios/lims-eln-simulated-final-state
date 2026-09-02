@@ -278,7 +278,45 @@ class ReleaseCoordinateTests(unittest.TestCase):
 
         with self.assertRaisesRegex(
             ReleaseCoordinateError,
-            "expected signing-key fingerprint",
+            "exactly the expected signing-key fingerprint",
+        ):
+            verify_release_coordinate(
+                self.repository.root,
+                receipt,
+                expected_signing_fingerprint=(
+                    self.repository.signing_fingerprint
+                ),
+            )
+
+    def test_trust_carrier_rejects_an_additional_signing_key(self) -> None:
+        receipt = self.repository.observed_receipt()
+        other_private_key = self.repository.root / "other-allowed-signing-key"
+        subprocess.run(
+            [
+                "ssh-keygen",
+                "-q",
+                "-t",
+                "ed25519",
+                "-N",
+                "",
+                "-f",
+                str(other_private_key),
+            ],
+            check=True,
+            capture_output=True,
+        )
+        key_parts = (
+            self.repository.root / "other-allowed-signing-key.pub"
+        ).read_text(encoding="utf-8").split()
+        with self.repository.trusted_signers.open("a", encoding="utf-8") as signers:
+            signers.write(
+                "alternate@example.invalid namespaces=\"git\" "
+                f"{key_parts[0]} {key_parts[1]}\n"
+            )
+
+        with self.assertRaisesRegex(
+            ReleaseCoordinateError,
+            "exactly the expected signing-key fingerprint",
         ):
             verify_release_coordinate(
                 self.repository.root,

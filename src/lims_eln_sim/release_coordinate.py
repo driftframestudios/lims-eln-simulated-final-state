@@ -375,9 +375,9 @@ def _trusted_signer_path(
             "trusted release signers scope each public key to the Git namespace"
         )
     fingerprints = {_ssh_fingerprint(line) for line in active_lines}
-    if expected_fingerprint not in fingerprints:
+    if fingerprints != {expected_fingerprint}:
         raise ReleaseCoordinateError(
-            "trusted release signers include the expected signing-key fingerprint: "
+            "trusted release signers carry exactly the expected signing-key fingerprint: "
             f"{expected_fingerprint}"
         )
     return resolved
