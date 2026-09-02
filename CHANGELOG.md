@@ -2,6 +2,15 @@
 
 ## 0.3.1
 
+- Bind the accepted Program 0.3.1 package as an authenticated full-commit Git
+  requirement and retain its reviewed source tree, scoped source digest, and
+  Golden Specimen acceptance lineage alongside the standalone snapshots.
+- Pin the accepted Governance 2.1.0 and Enterprise Implementation 0.3.1 source
+  coordinates, then route this repository's immutable release to Comparative
+  Evidence as its next receiver.
+- Record the signed release tag, accepted commit and tree, reproducible archive,
+  hosted checks, and local verification in the repository-owned promotion receipt;
+  verify the resulting Git coordinate through an executable local boundary.
 - Emit the shared Golden Specimen result from executed selected-future state,
   require its final-state database oracle as an explicit input, and retain the
   content-addressed oracle coordinate as producer-owned comparison context.

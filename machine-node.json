@@ -4,7 +4,7 @@
   "title": "LIMS/ELN Simulated Final State",
   "purpose": "Orient collaborators to the executable selected future, bounded-caller control plane, four simulated substantive receipt closures, comparison boundary, and retained observed-evidence path.",
   "control_plane_profile": "0.3.0",
-  "schema_release": "2.0.1",
+  "schema_release": "2.1.0",
   "repository_role": "simulated_final_state",
   "authority": {
     "mode": "orientation_only",
@@ -15,7 +15,7 @@
       "accountable human decision systems for observed acceptance"
     ]
   },
-  "lifecycle_state": "settling",
+  "lifecycle_state": "active",
   "coordination_horizon_id": "COORD-HORIZON-SIMULATION-2026-Q3",
   "contracts": [
     {
@@ -37,17 +37,17 @@
   "campaigns": [
     {
       "campaign_id": "LIMS-ELN-OPEN-RECEIPTS",
-      "marking_schema_version": "2.0.1",
+      "marking_schema_version": "2.1.0",
       "status": "active"
     },
     {
       "campaign_id": "COMPARATIVE-LITERACY-COLLABORATION",
-      "marking_schema_version": "2.0.1",
+      "marking_schema_version": "2.1.0",
       "status": "active"
     },
     {
       "campaign_id": "SITE-READING-SYSTEM",
-      "marking_schema_version": "2.0.1",
+      "marking_schema_version": "2.1.0",
       "status": "active"
     }
   ],
@@ -57,13 +57,12 @@
     "digest": "sha256:35b3d9bcadea3ab95b9cf6f3bb26fd95049147f7fcc771815ff71060fae0937a"
   },
   "current_provenance": {
-    "release": "candidate-forecast-2028-FR-v1",
-    "commit": "0000000000000000000000000000000000000000",
-    "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    "release": "forecast-2028-FR-v1",
+    "commit": "37c3861b5411db8e772feedf41e4abf1fb7829bc",
+    "digest": "sha256:c6a062a6efb6786c53dc9e7298a9dd881fcc2301d807db5cecf84663c98438e2"
   },
   "first_receipt_contract_id": "FIRST-RCP-SIMULATION-001",
   "open_receipts": [
-    "RCP-SIMULATION-PROMOTION-003",
     "RECEIPT-OBSERVED-VENDORS-001",
     "RECEIPT-OBSERVED-MIGRATION-RESTORE-001",
     "RECEIPT-OBSERVED-SECURITY-OBSERVABILITY-001",
@@ -109,9 +108,9 @@
     }
   ],
   "metadata": {
-    "schema_version": "2.0.1",
+    "schema_version": "2.1.0",
     "created_at": "2026-07-28T18:45:00Z",
-    "updated_at": "2026-07-28T20:00:00Z",
+    "updated_at": "2026-09-02T04:33:11Z",
     "owner": {
       "actor_id": "OWNER-SIMULATION-NODE",
       "display_name": "Simulation stewardship role",

@@ -43,6 +43,7 @@ EXPECTED_WORKFLOW_LINES = (
     f"        uses: actions/checkout@{CHECKOUT_REVISION}",
     "        with:",
     "          persist-credentials: false",
+    "          fetch-depth: 0",
     "      - name: Select Python",
     f"        uses: actions/setup-python@{SETUP_PYTHON_REVISION}",
     "        with:",
@@ -51,6 +52,8 @@ EXPECTED_WORKFLOW_LINES = (
     "        run: python -m unittest discover -s tests -v",
     "      - name: Validate repository evidence contracts",
     "        run: python tools/validate_repository.py",
+    "      - name: Verify signed release coordinate",
+    "        run: python tools/verify_release_coordinate.py",
 )
 
 EXPECTED_DEPENDABOT_LINES = (
@@ -83,6 +86,8 @@ EXPECTED_AUTOMATION_CONTROLS = {
         "actions/setup-python": SETUP_PYTHON_REVISION,
     },
     "pull_request_concurrency_cancellation": True,
+    "release_coordinate_verifier": "tools/verify_release_coordinate.py",
+    "release_coordinate_fetch_depth": 0,
     "manual_full_proof_workflow": ".github/workflows/verify.yml",
     "dependabot_configuration": ".github/dependabot.yml",
     "dependabot_target": "develop",
@@ -90,7 +95,7 @@ EXPECTED_AUTOMATION_CONTROLS = {
     "dependabot_open_pull_requests_per_ecosystem": 2,
     "dependabot_grouped_update_types": ["minor", "patch"],
     "monthly_budget_minutes": {"minimum": 100, "maximum": 300},
-    "settings_state": "pending_source_acceptance_and_observed_check_name",
+    "settings_state": "pull_request_proof_active_with_release_coordinate_verification",
 }
 
 _SECRET_EXPRESSION = re.compile(

@@ -79,21 +79,23 @@ release slice. Each run emits `scenario-execution.json` with source command, act
 time, payload digest, and projected legacy state, plus `observation-envelope.json`
 with the shared `ObservationEnvelope` shape and canonical contract digest.
 
-The repository stays runnable while the sibling distribution remains private. It
-packages byte-identical scenario and schema snapshots with their raw and canonical
-digests. A focused conformance command compares those snapshots and emitted values
-with the authoritative Pydantic models whenever the private package or sibling source
-is available:
+The repository stays runnable without fetching its sibling package. It packages
+byte-identical scenario and schema snapshots with their raw and canonical digests.
+The accepted Program 0.3.1 package is also available to authenticated readers through
+one full-commit Git requirement, pinned at
+`4d06eeb7f96910311fbcb7f51547c978b6a07290`. A focused conformance command compares
+the snapshots and emitted values with the authoritative Pydantic models whenever the
+installed package or a sibling source checkout is available:
 
 ```bash
 python tools/check_contract_conformance.py \
   --contract-source ../lims-eln-program-specification/src
 ```
 
-Once the private distribution is available to Python 3.12+ installers, the optional
-`contract-conformance` extra becomes the direct version-pinned path. The snapshot
-remains a bounded fallback for standalone forecast execution on the repository's
-current Python 3.11+ runtime.
+In an authenticated Python 3.12+ environment, the optional `contract-conformance`
+extra installs that exact source commit. The snapshot remains the standalone forecast
+path on the repository's current Python 3.11+ runtime; a later reviewed full commit
+can replace the pin without changing the shared projection identity.
 
 ## Run it
 
@@ -113,7 +115,7 @@ The command validates the synthetic-data contract and writes a deterministic
 manifest, security exercise, bounded-caller evidence, telemetry summary, acceptance
 decisions, and a governance-2.0-conformant `simulated-receipt-closure.json`. It also
 writes a 2.0.1 closure bundle whose source-result digest allows an independent
-comparator to reproduce the aggregate artifact. The byte-identical promoted candidate
+comparator to reproduce the aggregate artifact. The tagged selected-future release
 is retained at `release/future-reality-2028-06-30-v1.json`; the aggregate validation
 gate regenerates and compares it after the complete Python test matrix. Generated
 build output remains a transient workflow artifact.
@@ -138,7 +140,7 @@ parity without modeling a second schema-migration runner.
 ## Coordination Horizon
 
 [`COORDINATION-HORIZON.json`](COORDINATION-HORIZON.json) describes the current focus,
-approaching promotion candidates, retained possibilities, and re-entry path without
+receiving work, retained possibilities, and re-entry path without
 binding the collaboration to a particular planning vocabulary.
 
 [`machine-node.json`](machine-node.json) and [`first-receipt.json`](first-receipt.json)
@@ -146,8 +148,20 @@ provide an orientation-only re-entry surface with contract digests, evidence pos
 source permissions, invalidation conditions, and the independent observed-comparison
 path.
 
-[`constellation.lock.json`](constellation.lock.json) records the 0.3 candidate
-coordinates with explicit promotion placeholders and preserved seed lineage.
+The Machine Node and Coordination Horizon validate directly against the accepted
+Governance 2.1.0 release. The First Receipt adds repository-owned selected-future
+authority fields beyond the shared orientation schema; the local release-boundary
+checks validate those fields and keep their simulated meaning explicit.
+
+[`receipts/promotion-receipt.json`](receipts/promotion-receipt.json) records the
+observed signed release event, accepted source objects, reproducible archive,
+hosted checks, and local verification while preserving simulated forecast authority.
+`python tools/verify_release_coordinate.py` verifies the annotated tag, accepted
+history, source tree, archive bytes, receipt carrier, and repository-trusted signer.
+
+[`constellation.lock.json`](constellation.lock.json) records the observed Simulation
+coordinate and preserved seed lineage while Comparative Evidence remains the next
+receiver.
 [`ledgers/assumptions.json`](ledgers/assumptions.json) resolves every assumption
 identifier cited by the selected-future closure and names its recalculation trigger.
 

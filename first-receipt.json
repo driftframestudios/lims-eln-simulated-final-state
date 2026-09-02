@@ -1,7 +1,7 @@
 {
   "first_receipt_id": "FIRST-RCP-SIMULATION-001",
   "machine_node_id": "NODE-LIMS-ELN-SIMULATION",
-  "as_of": "2026-07-28T18:45:00Z",
+  "as_of": "2026-09-02T04:33:11Z",
   "orientation_purpose": "Give a human or AI collaborator the minimum complete selected-future state, evidence posture, authority boundary, invalidation conditions, and safe handoff needed to reproduce or compare this simulation.",
   "selected_future": {
     "future_reality_id": "FUTURE-REALITY-LIMS-2028-001",
@@ -59,9 +59,8 @@
     }
   ],
   "coordination_horizon_id": "COORD-HORIZON-SIMULATION-2026-Q3",
-  "current_horizon_summary": "The selected-future closure is canonical and reproducible; candidate release provenance remains settling until protected promotion supplies its commit and release digest.",
+  "current_horizon_summary": "The signed release coordinate and selected-future closure are reproducible; Comparative Evidence is the current receiver.",
   "open_receipts": [
-    "RCP-SIMULATION-PROMOTION-003",
     "RECEIPT-OBSERVED-VENDORS-001",
     "RECEIPT-OBSERVED-MIGRATION-RESTORE-001",
     "RECEIPT-OBSERVED-SECURITY-OBSERVABILITY-001",
@@ -99,19 +98,18 @@
   "handoff": {
     "recipient_role": "comparative evidence stewardship",
     "action_ids": [
-      "RCP-SIMULATION-PROMOTION-003",
       "RECEIPT-OBSERVED-VENDORS-001",
       "RECEIPT-OBSERVED-MIGRATION-RESTORE-001",
       "RECEIPT-OBSERVED-SECURITY-OBSERVABILITY-001",
       "RECEIPT-OBSERVED-ACCOUNTABLE-ACCEPTANCE-001"
     ],
-    "next_safe_action": "Regenerate the canonical closure, confirm its digest, admit the exact bundle through the independent comparator, promote the candidate through the protected release path, and close RCP-SIMULATION-PROMOTION-003 against that immutable coordinate.",
-    "success_evidence": "Governance schema validation passes, comparator admission preserves all four family digests with immutable replay, promoted provenance replaces the explicit candidate placeholders, and the observed-successor receipts remain independently available."
+    "next_safe_action": "Transmit the signed tag object, accepted commit and tree, reproducible archive digest, canonical closure digest, retained bundle digest, and database-oracle digest to the independent comparator.",
+    "success_evidence": "The comparator reproduces the selected-future artifacts from the signed coordinate while the four environment-observation receipts retain their independent, unexercised status."
   },
   "metadata": {
-    "schema_version": "2.0.1",
+    "schema_version": "2.1.0",
     "created_at": "2026-07-28T18:45:00Z",
-    "updated_at": "2026-07-28T20:00:00Z",
+    "updated_at": "2026-09-02T04:33:11Z",
     "owner": {
       "actor_id": "OWNER-SIMULATION-RECEIPT",
       "display_name": "Simulation stewardship role",

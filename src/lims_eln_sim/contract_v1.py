@@ -15,6 +15,20 @@ from typing import Any
 
 CONTRACT_VERSION = "1.0.0"
 CONTRACT_DISTRIBUTION_VERSION = "0.3.1"
+CONTRACT_DISTRIBUTION_STATE = "accepted_full_commit_vcs_coordinate"
+CONTRACT_SOURCE_COMMIT = "4d06eeb7f96910311fbcb7f51547c978b6a07290"
+CONTRACT_SOURCE_TREE = "887e2c12a699105994097e4e9094270453de16ba"
+CONTRACT_ACCEPTANCE_LINEAGE_COMMIT = (
+    "c155551f5ac2c203fd9d08190d7020bba0cf71f8"
+)
+CONTRACT_SOURCE_IDENTITY_DIGEST = (
+    "sha256:e4d7ef6aa1036b69395e9de3ab0064297dc80e5f697ab60de699a355e45f7674"
+)
+CONTRACT_REQUIREMENT = (
+    "lims-eln-program-specification @ git+https://github.com/"
+    "driftframestudios/lims-eln-program-specification.git@"
+    + CONTRACT_SOURCE_COMMIT
+)
 GOLDEN_SCENARIO_RESOURCE = "golden-specimen.v1.json"
 OBSERVATION_SCHEMA_RESOURCE = "observation-envelope.v1.schema.json"
 GOLDEN_RESULT_PROJECTION_SCHEMA_RESOURCE = (
@@ -143,12 +157,25 @@ def load_contract_binding() -> dict[str, Any]:
             "contract binding uses version 1.0.0; restore the released binding snapshot"
         )
     distribution = document.get("distribution")
-    if not isinstance(distribution, dict) or distribution.get("version") != (
-        CONTRACT_DISTRIBUTION_VERSION
-    ):
+    expected_distribution = {
+        "name": "lims-eln-program-specification",
+        "version": CONTRACT_DISTRIBUTION_VERSION,
+        "python_package": "lims_eln_contracts",
+        "state": CONTRACT_DISTRIBUTION_STATE,
+        "source_commit": CONTRACT_SOURCE_COMMIT,
+        "source_tree": CONTRACT_SOURCE_TREE,
+        "acceptance_lineage_commit": CONTRACT_ACCEPTANCE_LINEAGE_COMMIT,
+        "source_identity": {
+            "scope": ["pyproject.toml", "src/lims_eln_contracts"],
+            "algorithm": "path-length-bytes-sha256-v1",
+            "digest": CONTRACT_SOURCE_IDENTITY_DIGEST,
+        },
+        "requirement": CONTRACT_REQUIREMENT,
+    }
+    if distribution != expected_distribution:
         raise ContractBoundaryError(
-            "contract binding names distribution version "
-            f"{CONTRACT_DISTRIBUTION_VERSION}; restore that source boundary"
+            "contract binding names the accepted full-commit Program source; "
+            "restore that distribution boundary"
         )
     _verify_local_resource(document, "golden_scenario", GOLDEN_SCENARIO_RESOURCE)
     _verify_local_resource(
@@ -229,6 +256,16 @@ def contract_reference() -> dict[str, Any]:
     return {
         "contract_version": binding["contract_version"],
         "distribution_version": binding["distribution"]["version"],
+        "distribution_requirement": binding["distribution"]["requirement"],
+        "distribution_state": binding["distribution"]["state"],
+        "source_commit": binding["distribution"]["source_commit"],
+        "source_tree": binding["distribution"]["source_tree"],
+        "source_identity_digest": binding["distribution"]["source_identity"][
+            "digest"
+        ],
+        "acceptance_lineage_commit": binding["distribution"][
+            "acceptance_lineage_commit"
+        ],
         "golden_scenario_document_digest": binding["resources"]["golden_scenario"][
             "canonical_digest"
         ],
