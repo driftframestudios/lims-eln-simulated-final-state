@@ -159,9 +159,10 @@ hosted checks, and local verification while preserving simulated forecast author
 `python tools/verify_release_coordinate.py` verifies the annotated tag, accepted
 history, source tree, archive bytes, receipt carrier, and repository-trusted signer.
 
-[`constellation.lock.json`](constellation.lock.json) records the observed Simulation
-coordinate and preserved seed lineage while Comparative Evidence remains the next
-receiver.
+[`constellation.lock.json`](constellation.lock.json) records distinct observed
+Simulation and Comparative coordinates for the same canonical selected-future
+closure, together with preserved seed lineage. Evidence-led extensions remain
+available when a documented material benefit earns their qualification cost.
 [`ledgers/assumptions.json`](ledgers/assumptions.json) resolves every assumption
 identifier cited by the selected-future closure and names its recalculation trigger.
 

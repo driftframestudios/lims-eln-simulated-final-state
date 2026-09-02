@@ -1,7 +1,7 @@
 {
   "first_receipt_id": "FIRST-RCP-SIMULATION-001",
   "machine_node_id": "NODE-LIMS-ELN-SIMULATION",
-  "as_of": "2026-09-02T04:33:11Z",
+  "as_of": "2026-09-02T16:22:37Z",
   "orientation_purpose": "Give a human or AI collaborator the minimum complete selected-future state, evidence posture, authority boundary, invalidation conditions, and safe handoff needed to reproduce or compare this simulation.",
   "selected_future": {
     "future_reality_id": "FUTURE-REALITY-LIMS-2028-001",
@@ -59,7 +59,7 @@
     }
   ],
   "coordination_horizon_id": "COORD-HORIZON-SIMULATION-2026-Q3",
-  "current_horizon_summary": "The signed release coordinate and selected-future closure are reproducible; Comparative Evidence is the current receiver.",
+  "current_horizon_summary": "The signed Simulation and Comparison coordinates preserve one canonical selected-future closure. Evidence-led extensions remain visible and wait for documented material benefit.",
   "open_receipts": [
     "RECEIPT-OBSERVED-VENDORS-001",
     "RECEIPT-OBSERVED-MIGRATION-RESTORE-001",
@@ -103,13 +103,13 @@
       "RECEIPT-OBSERVED-SECURITY-OBSERVABILITY-001",
       "RECEIPT-OBSERVED-ACCOUNTABLE-ACCEPTANCE-001"
     ],
-    "next_safe_action": "Transmit the signed tag object, accepted commit and tree, reproducible archive digest, canonical closure digest, retained bundle digest, and database-oracle digest to the independent comparator.",
-    "success_evidence": "The comparator reproduces the selected-future artifacts from the signed coordinate while the four environment-observation receipts retain their independent, unexercised status."
+    "next_safe_action": "When accountable observed evidence satisfies one named receipt, transmit that bounded evidence with the accepted Simulation and Comparison coordinates to the independent comparator.",
+    "success_evidence": "The comparator admits the observed evidence against the accepted coordinates while the selected-future closure and the remaining environment-observation receipts retain their declared state."
   },
   "metadata": {
     "schema_version": "2.1.0",
     "created_at": "2026-07-28T18:45:00Z",
-    "updated_at": "2026-09-02T04:33:11Z",
+    "updated_at": "2026-09-02T16:22:37Z",
     "owner": {
       "actor_id": "OWNER-SIMULATION-RECEIPT",
       "display_name": "Simulation stewardship role",
