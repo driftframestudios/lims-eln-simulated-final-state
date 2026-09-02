@@ -39,8 +39,8 @@ version-update pull requests back to `develop`.
 
 ## Recovery
 
-Local forecast tests, `python tools/validate_repository.py`, and
-`python tools/verify_release_coordinate.py` remain the standing source-owned
+Local forecast tests, `python3 tools/validate_repository.py`, and
+`python3 tools/verify_release_coordinate.py` remain the standing source-owned
 evidence. The first two checks operate from ordinary source; the release
 coordinate check uses a full Git checkout containing the signed tag. Setting
 `ENABLE_GITHUB_ACTIONS=false` rests the confirmed full proof. Repository

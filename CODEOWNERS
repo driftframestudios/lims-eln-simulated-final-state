@@ -44,4 +44,6 @@
 
 # Roles: solution-architecture and platform-engineering
 /constellation.lock.json @driftframestudios
+/AGENTS.md @driftframestudios
+/.agents/ @driftframestudios
 /CODEOWNERS @driftframestudios
