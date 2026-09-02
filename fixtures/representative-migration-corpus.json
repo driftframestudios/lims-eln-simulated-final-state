@@ -1,16 +1,71 @@
 {
-  "fixture_class": "synthetic",
+  "fixture_class": "representative_synthetic",
+  "fixture_version": "1.0.0",
   "profile": {
     "records": 4,
-    "lineage_depth": [1, 2, 4],
+    "lineage_depth": [2, 3, 4, 5],
     "artifact_sizes_bytes": [64, 1024, 1048576],
     "exception_classes": ["duplicate-replay", "changed-content", "stale-revision", "missing-artifact"]
   },
+  "artifacts": [
+    {"artifact_id": "ART-SYN-0001", "size_bytes": 64, "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"},
+    {"artifact_id": "ART-SYN-0002", "size_bytes": 1024, "digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"},
+    {"artifact_id": "ART-SYN-0003", "size_bytes": 1048576, "digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"}
+  ],
   "records": [
-    {"specimen_id": "SPM-SYN-0001", "tenant_id": "TENANT-SYN-GENOMICS", "status": "released", "revision": 5},
-    {"specimen_id": "SPM-SYN-0002", "tenant_id": "TENANT-SYN-GENOMICS", "status": "reviewed", "revision": 4},
-    {"specimen_id": "SPM-SYN-0003", "tenant_id": "TENANT-SYN-GENOMICS", "status": "instrument_complete", "revision": 3},
-    {"specimen_id": "SPM-SYN-0004", "tenant_id": "TENANT-SYN-GENOMICS", "status": "in_custody", "revision": 2}
+    {
+      "specimen_id": "SPM-SYN-0001",
+      "tenant_id": "TENANT-SYN-GENOMICS",
+      "status": "released",
+      "revision": 5,
+      "result": {"unit": "copies", "quality_flag": "pass", "value": 1250},
+      "artifact_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "audit": [
+        {"sequence": 1, "event": "accessioned"},
+        {"sequence": 2, "event": "in_custody"},
+        {"sequence": 3, "event": "instrument_complete"},
+        {"sequence": 4, "event": "reviewed"},
+        {"sequence": 5, "event": "released"}
+      ]
+    },
+    {
+      "specimen_id": "SPM-SYN-0002",
+      "tenant_id": "TENANT-SYN-GENOMICS",
+      "status": "reviewed",
+      "revision": 4,
+      "result": {"unit": "copies", "quality_flag": "review", "value": 960},
+      "artifact_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "audit": [
+        {"sequence": 1, "event": "accessioned"},
+        {"sequence": 2, "event": "in_custody"},
+        {"sequence": 3, "event": "instrument_complete"},
+        {"sequence": 4, "event": "reviewed"}
+      ]
+    },
+    {
+      "specimen_id": "SPM-SYN-0003",
+      "tenant_id": "TENANT-SYN-GENOMICS",
+      "status": "instrument_complete",
+      "revision": 3,
+      "result": {"unit": "copies", "quality_flag": "pending-review", "value": 710},
+      "artifact_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "audit": [
+        {"sequence": 1, "event": "accessioned"},
+        {"sequence": 2, "event": "in_custody"},
+        {"sequence": 3, "event": "instrument_complete"}
+      ]
+    },
+    {
+      "specimen_id": "SPM-SYN-0004",
+      "tenant_id": "TENANT-SYN-GENOMICS",
+      "status": "in_custody",
+      "revision": 2,
+      "result": {"unit": "copies", "quality_flag": "pending-instrument", "value": null},
+      "artifact_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "audit": [
+        {"sequence": 1, "event": "accessioned"},
+        {"sequence": 2, "event": "in_custody"}
+      ]
+    }
   ]
 }
-

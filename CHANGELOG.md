@@ -1,10 +1,64 @@
 # Changelog
 
+## 0.3.1
+
+- Bind the accepted Program 0.3.1 package as an authenticated full-commit Git
+  requirement and retain its reviewed source tree, scoped source digest, and
+  Golden Specimen acceptance lineage alongside the standalone snapshots.
+- Pin the accepted Governance 2.1.0 and Enterprise Implementation 0.3.1 source
+  coordinates, then route this repository's immutable release to Comparative
+  Evidence as its next receiver.
+- Add a repository-owned promotion receipt whose candidate state stays open until
+  the signed tag, accepted commit and tree, reproducible archive, hosted checks,
+  and local verification have been observed.
+- Emit the shared Golden Specimen result from executed selected-future state,
+  require its final-state database oracle as an explicit input, and retain the
+  content-addressed oracle coordinate as producer-owned comparison context.
+- Bind the exact shared projection schema and validate the comparison envelope
+  through matching standalone and Program-package boundaries.
+- Add one read-only, cancellable Python 3.12 pull-request proof and a monthly,
+  bounded GitHub Actions dependency-update stream into `develop`; retain the
+  three-version forecast bundle as a confirmed manual proof. Validate the
+  hosted controls through a restricted semantic checker and material mutation
+  probes.
+- Share one finite-number, unique-key JSON parser across repository ingress and
+  generated-artifact verification, including exponent-overflow rejection.
+- Bind assumptions, selected-future identity, evidence posture, authorization
+  effect, detailed receipts, and the first-receipt structured recipient and
+  action identifiers to the executable forecast and governance closure through
+  mutation checks.
+- Require final-path no-follow support for artifact reads, document the retained
+  parent-directory boundary, and add repository and package attribution carriers.
+- Verify two isolated simulation runs produce the same strict-JSON artifact paths
+  and bytes, and bind the manifest to the assumption ledger, observation, and
+  scenario execution.
+- Assign the simulated program-owned PostgreSQL schema history to Flyway Community
+  13.0.0 while retaining vendor upgrades and scientific data reconciliation as
+  separate responsibility surfaces.
+- Add a canonical final-state database oracle with native PostgreSQL temporal,
+  boolean, integer, identifier, and exact-decimal primitives.
+- Bind an expand/backfill/validate/cutover/contract manifest to typed migration and
+  release receipts with reconciliation, recovery, and five acceptance projections.
+- Distinguish recomputed canonical record digests from declared selected-future
+  leaf digests whose shape and cross-reference consistency are validated.
+- Require exact JSON primitive types, canonical SHA-256 coordinates, contiguous
+  audit lineage, and timezone-aware domain instants.
+- Evaluate each simulated receipt family from executable evidence criteria.
+- Exercise the declared representative migration corpus and its failure twins.
+- Canonicalize UTC event timestamps across `Z` and `+00:00` inputs.
+- Require the intended-use profile and representative corpus at simulation ingress.
+- Retain a reproducible 2.0.1 closure bundle that binds its source result, governance
+  closure, detailed receipts, and aggregate artifact.
+- Add one stable aggregate validation gate for regeneration, release-manifest
+  integrity, JSON integrity, and repository credential-shape safety.
+- Migrate orientation and constellation bindings to governance 2.0.1 and make the
+  stable aggregate explicitly require a successful proof matrix.
+
 ## 0.3.0
 
 - Selected `future-reality-2028-06-30-v1` as a self-contained simulation baseline.
 - Closed all four substantive receipt families inside the selected future.
-- Added a typed bounded-caller control plane and adversarial boundary scenarios.
+- Added a typed bounded-caller control plane and failure-twin boundary scenarios.
 - Added a generic Coordination Horizon and first-receipt contract.
 - Advanced the simulated receipt schema to 2.0.0.
 - Added monthly, grouped minor and patch maintenance for immutable GitHub Action

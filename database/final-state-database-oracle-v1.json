@@ -1,0 +1,378 @@
+{
+  "oracle_version": "1.0.0",
+  "oracle_id": "ORACLE-DATABASE-FINAL-STATE-001",
+  "evidence_mode": "simulated",
+  "authority": "simulation_only",
+  "actual_acceptance_required": true,
+  "data_contract": {
+    "data_contract_id": "CONTRACT-LABORATORY-CORE-001",
+    "version": "1.0.0",
+    "status": "approved_in_selected_future",
+    "purpose": "Preserve laboratory identity, scientific values, lineage, and lifecycle time with native PostgreSQL primitives.",
+    "database": {
+      "engine_family": "postgresql",
+      "engine_version": "17.5",
+      "collation": "C.UTF-8",
+      "database_timezone": "UTC",
+      "settings_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "migration_history_table": "public.flyway_schema_history"
+    },
+    "entities": [
+      {
+        "entity_id": "ENTITY-SPECIMEN",
+        "table_name": "laboratory_specimen",
+        "purpose": "Govern one tenant-scoped laboratory specimen through its released lifecycle.",
+        "fields": [
+          {
+            "field_id": "SPECIMEN-ID",
+            "column_name": "specimen_id",
+            "semantic_type": "identifier",
+            "physical_type": "uuid",
+            "nullable": false
+          },
+          {
+            "field_id": "TENANT-ID",
+            "column_name": "tenant_id",
+            "semantic_type": "identifier",
+            "physical_type": "uuid",
+            "nullable": false
+          },
+          {
+            "field_id": "ACCESSION-CODE",
+            "column_name": "accession_code",
+            "semantic_type": "text",
+            "physical_type": "text",
+            "nullable": false
+          },
+          {
+            "field_id": "COLLECTED-ON",
+            "column_name": "collected_on",
+            "semantic_type": "civil_date",
+            "physical_type": "date",
+            "nullable": false,
+            "temporal_semantics": "civil_date"
+          },
+          {
+            "field_id": "RECEIVED-AT",
+            "column_name": "received_at",
+            "semantic_type": "instant",
+            "physical_type": "timestamptz",
+            "nullable": false,
+            "temporal_semantics": "absolute_instant"
+          },
+          {
+            "field_id": "UPDATED-AT",
+            "column_name": "updated_at",
+            "semantic_type": "instant",
+            "physical_type": "timestamptz",
+            "nullable": false,
+            "temporal_semantics": "absolute_instant"
+          },
+          {
+            "field_id": "IS-RELEASED",
+            "column_name": "is_released",
+            "semantic_type": "boolean",
+            "physical_type": "boolean",
+            "nullable": false
+          },
+          {
+            "field_id": "REVISION",
+            "column_name": "revision",
+            "semantic_type": "integer",
+            "physical_type": "bigint",
+            "nullable": false
+          }
+        ],
+        "primary_key_field_ids": [
+          "SPECIMEN-ID"
+        ]
+      },
+      {
+        "entity_id": "ENTITY-RESULT",
+        "table_name": "laboratory_result",
+        "purpose": "Preserve one measured result with exact value, unit, and observation time.",
+        "fields": [
+          {
+            "field_id": "RESULT-ID",
+            "column_name": "result_id",
+            "semantic_type": "identifier",
+            "physical_type": "uuid",
+            "nullable": false
+          },
+          {
+            "field_id": "SPECIMEN-ID",
+            "column_name": "specimen_id",
+            "semantic_type": "identifier",
+            "physical_type": "uuid",
+            "nullable": false
+          },
+          {
+            "field_id": "ANALYTE-CODE",
+            "column_name": "analyte_code",
+            "semantic_type": "text",
+            "physical_type": "text",
+            "nullable": false
+          },
+          {
+            "field_id": "NUMERIC-VALUE",
+            "column_name": "numeric_value",
+            "semantic_type": "exact_decimal",
+            "physical_type": "numeric(18,6)",
+            "nullable": false,
+            "precision": 18,
+            "scale": 6,
+            "unit": "declared_per_result"
+          },
+          {
+            "field_id": "OBSERVED-AT",
+            "column_name": "observed_at",
+            "semantic_type": "instant",
+            "physical_type": "timestamptz",
+            "nullable": false,
+            "temporal_semantics": "absolute_instant"
+          }
+        ],
+        "primary_key_field_ids": [
+          "RESULT-ID"
+        ]
+      }
+    ],
+    "invariants": [
+      "Each specimen identity is stable and tenant-scoped.",
+      "Every instant is stored as a timezone-aware PostgreSQL timestamptz value.",
+      "Every laboratory civil date is stored as a PostgreSQL date value.",
+      "Every scientific decimal preserves declared precision, scale, and unit.",
+      "Every mutable aggregate advances through a monotonic bigint revision.",
+      "Every release decision remains traceable through append-oriented evidence."
+    ]
+  },
+  "migration_manifest": {
+    "migration_manifest_id": "MANIFEST-DATABASE-MIGRATION-001",
+    "version": "1.0.0",
+    "data_contract": {
+      "id": "CONTRACT-LABORATORY-CORE-001",
+      "version": "1.0.0",
+      "digest": "sha256:8c50463132809dbcf4bcfee1a1fda94d3c74de532387c13fc68f09603f5f1684"
+    },
+    "tool": {
+      "name": "Flyway Community",
+      "version": "13.0.0",
+      "implementation_digest": "sha256:f3c8433401abf859ef9022584c8e6111684363ec490f737e749e9a4705ea32d0"
+    },
+    "script_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+    "source_schema_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+    "target_schema_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+    "phases": [
+      {
+        "phase_id": "PHASE-EXPAND-001",
+        "phase_type": "expand",
+        "sequence": 1,
+        "lock_budget_milliseconds": 500,
+        "statement_budget_milliseconds": 5000,
+        "checkpoint_strategy": "Create compatible native columns and supporting constraints in validation-ready form."
+      },
+      {
+        "phase_id": "PHASE-BACKFILL-002",
+        "phase_type": "backfill",
+        "sequence": 2,
+        "lock_budget_milliseconds": 250,
+        "statement_budget_milliseconds": 30000,
+        "checkpoint_strategy": "Advance restartable keyset batches with source and target checksums."
+      },
+      {
+        "phase_id": "PHASE-VALIDATE-003",
+        "phase_type": "validate",
+        "sequence": 3,
+        "lock_budget_milliseconds": 500,
+        "statement_budget_milliseconds": 30000,
+        "checkpoint_strategy": "Validate constraints, temporal semantics, counts, and content digests."
+      },
+      {
+        "phase_id": "PHASE-CUTOVER-004",
+        "phase_type": "cutover",
+        "sequence": 4,
+        "lock_budget_milliseconds": 1000,
+        "statement_budget_milliseconds": 10000,
+        "checkpoint_strategy": "Move reads and writes through a measured compatibility window."
+      },
+      {
+        "phase_id": "PHASE-CONTRACT-005",
+        "phase_type": "contract",
+        "sequence": 5,
+        "lock_budget_milliseconds": 500,
+        "statement_budget_milliseconds": 10000,
+        "checkpoint_strategy": "Retire legacy representations after retained evidence satisfies release gates."
+      }
+    ],
+    "compatibility_window": {
+      "supported_application_releases": [
+        "0.3.0",
+        "0.3.1"
+      ],
+      "minimum_observation_seconds": 3600
+    },
+    "recovery": {
+      "strategy": "roll_forward_preferred",
+      "rollback_boundary_phase_id": "PHASE-CUTOVER-004",
+      "backup_receipt_id": "RECEIPT-BACKUP-SIM-001",
+      "restore_receipt_id": "RECEIPT-RESTORE-SIM-001"
+    }
+  },
+  "migration_receipt": {
+    "migration_receipt_id": "RECEIPT-DATABASE-MIGRATION-SIM-001",
+    "evidence_mode": "simulated",
+    "assurance_stage": "qualified",
+    "authority": "simulation_only",
+    "actual_acceptance_required": true,
+    "outcome": "passed",
+    "data_contract": {
+      "id": "CONTRACT-LABORATORY-CORE-001",
+      "version": "1.0.0",
+      "digest": "sha256:8c50463132809dbcf4bcfee1a1fda94d3c74de532387c13fc68f09603f5f1684"
+    },
+    "migration_manifest": {
+      "id": "MANIFEST-DATABASE-MIGRATION-001",
+      "version": "1.0.0",
+      "digest": "sha256:e77fc009d4c7c5da2adc670ba54b699b21f2a2edce5e8c5841c2ff33ea914098"
+    },
+    "script_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+    "source_schema_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+    "target_schema_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+    "environment": {
+      "environment_id": "ENVIRONMENT-QUALIFIED-SIM-001",
+      "engine_family": "postgresql",
+      "engine_version": "17.5",
+      "database_timezone": "UTC",
+      "settings_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "phase_results": [
+      {
+        "phase_id": "PHASE-EXPAND-001",
+        "sequence": 1,
+        "outcome": "passed",
+        "checkpoint_digest": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+      },
+      {
+        "phase_id": "PHASE-BACKFILL-002",
+        "sequence": 2,
+        "outcome": "passed",
+        "checkpoint_digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777"
+      },
+      {
+        "phase_id": "PHASE-VALIDATE-003",
+        "sequence": 3,
+        "outcome": "passed",
+        "checkpoint_digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888"
+      },
+      {
+        "phase_id": "PHASE-CUTOVER-004",
+        "sequence": 4,
+        "outcome": "passed",
+        "checkpoint_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999"
+      },
+      {
+        "phase_id": "PHASE-CONTRACT-005",
+        "sequence": 5,
+        "outcome": "passed",
+        "checkpoint_digest": "sha256:abababababababababababababababababababababababababababababababab"
+      }
+    ],
+    "reconciliation": {
+      "expected_record_count": 48216,
+      "observed_record_count": 48216,
+      "expected_checksum": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+      "observed_checksum": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+      "temporal_invariant_count": 48216,
+      "temporal_invariant_passed": true,
+      "maximum_lock_held_milliseconds": 414
+    },
+    "recovery": {
+      "backup_receipt_id": "RECEIPT-BACKUP-SIM-001",
+      "restore_receipt_id": "RECEIPT-RESTORE-SIM-001",
+      "rto_seconds": 600,
+      "rpo_seconds": 60,
+      "disposition": "roll_forward_verified"
+    },
+    "performed_at": "2028-06-30T14:25:00.000Z"
+  },
+  "release_receipt": {
+    "release_receipt_id": "RECEIPT-DATABASE-RELEASE-SIM-001",
+    "database_release": "database-final-state-v1",
+    "release_state": "closed_in_simulation",
+    "evidence_mode": "simulated",
+    "assurance_stage": "qualified",
+    "authority": "simulation_only",
+    "actual_acceptance_required": true,
+    "production_authorization_effect": "none",
+    "data_contract": {
+      "id": "CONTRACT-LABORATORY-CORE-001",
+      "version": "1.0.0",
+      "digest": "sha256:8c50463132809dbcf4bcfee1a1fda94d3c74de532387c13fc68f09603f5f1684"
+    },
+    "migration_manifest": {
+      "id": "MANIFEST-DATABASE-MIGRATION-001",
+      "version": "1.0.0",
+      "digest": "sha256:e77fc009d4c7c5da2adc670ba54b699b21f2a2edce5e8c5841c2ff33ea914098"
+    },
+    "migration_receipt": {
+      "migration_receipt_id": "RECEIPT-DATABASE-MIGRATION-SIM-001",
+      "digest": "sha256:bb48765cc0cabf23fa9d78e365f751cc005c441471370c862c2cc4442a840c24"
+    },
+    "schema_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+    "acceptance_bindings": [
+      {
+        "acceptance_id": "ACCEPTANCE-SCIENTIFIC-SIM-001",
+        "acceptance_type": "scientific",
+        "status": "projected",
+        "evidence_mode": "simulated",
+        "decision_digest": "sha256:1212121212121212121212121212121212121212121212121212121212121212"
+      },
+      {
+        "acceptance_id": "ACCEPTANCE-QUALITY-SIM-001",
+        "acceptance_type": "quality",
+        "status": "projected",
+        "evidence_mode": "simulated",
+        "decision_digest": "sha256:2323232323232323232323232323232323232323232323232323232323232323"
+      },
+      {
+        "acceptance_id": "ACCEPTANCE-REGULATORY-SIM-001",
+        "acceptance_type": "regulatory",
+        "status": "projected",
+        "evidence_mode": "simulated",
+        "decision_digest": "sha256:3434343434343434343434343434343434343434343434343434343434343434"
+      },
+      {
+        "acceptance_id": "ACCEPTANCE-SECURITY-PRIVACY-SIM-001",
+        "acceptance_type": "security_privacy",
+        "status": "projected",
+        "evidence_mode": "simulated",
+        "decision_digest": "sha256:4545454545454545454545454545454545454545454545454545454545454545"
+      },
+      {
+        "acceptance_id": "ACCEPTANCE-OPERATIONS-SIM-001",
+        "acceptance_type": "operations",
+        "status": "projected",
+        "evidence_mode": "simulated",
+        "decision_digest": "sha256:5656565656565656565656565656565656565656565656565656565656565656"
+      }
+    ],
+    "evidence_bundle_digest": "sha256:261babc19db369cbb290e76d3655a33b922fbf89b847a62a564952d003467907",
+    "performed_at": "2028-06-30T14:30:00.000Z"
+  },
+  "coordinates": {
+    "oracle_id": "ORACLE-DATABASE-FINAL-STATE-001",
+    "oracle_version": "1.0.0",
+    "database_release": "database-final-state-v1",
+    "data_contract_id": "CONTRACT-LABORATORY-CORE-001",
+    "data_contract_version": "1.0.0",
+    "data_contract_digest": "sha256:8c50463132809dbcf4bcfee1a1fda94d3c74de532387c13fc68f09603f5f1684",
+    "migration_manifest_id": "MANIFEST-DATABASE-MIGRATION-001",
+    "migration_manifest_version": "1.0.0",
+    "migration_manifest_digest": "sha256:e77fc009d4c7c5da2adc670ba54b699b21f2a2edce5e8c5841c2ff33ea914098",
+    "migration_receipt_id": "RECEIPT-DATABASE-MIGRATION-SIM-001",
+    "migration_receipt_digest": "sha256:bb48765cc0cabf23fa9d78e365f751cc005c441471370c862c2cc4442a840c24",
+    "release_receipt_id": "RECEIPT-DATABASE-RELEASE-SIM-001",
+    "release_receipt_digest": "sha256:2a5ae9db07b7f36bf82878e36d38e795ec81773cf551e22408c947b038d13346",
+    "schema_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+  }
+}

@@ -4,10 +4,18 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lims-eln-simulated-final-state"
-version = "0.3.0"
+version = "0.3.1"
 description = "Executable counterfactual for comparative LIMS/ELN collaboration"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+authors = [{name = "Driftframe Studios, Limited Liability Company"}]
 requires-python = ">=3.11"
 dependencies = []
+
+[project.optional-dependencies]
+contract-conformance = [
+  "lims-eln-program-specification @ git+https://github.com/driftframestudios/lims-eln-program-specification.git@4d06eeb7f96910311fbcb7f51547c978b6a07290",
+]
 
 [project.scripts]
 lims-eln-simulate = "lims_eln_sim.cli:main"
@@ -17,3 +25,6 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+lims_eln_sim = ["contract_resources/*.json"]

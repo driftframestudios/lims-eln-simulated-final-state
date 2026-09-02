@@ -1,17 +1,31 @@
 {
   "first_receipt_id": "FIRST-RCP-SIMULATION-001",
   "machine_node_id": "NODE-LIMS-ELN-SIMULATION",
-  "as_of": "2026-07-28T18:45:00Z",
+  "as_of": "2026-09-02T03:42:03Z",
   "orientation_purpose": "Give a human or AI collaborator the minimum complete selected-future state, evidence posture, authority boundary, invalidation conditions, and safe handoff needed to reproduce or compare this simulation.",
+  "selected_future": {
+    "future_reality_id": "FUTURE-REALITY-LIMS-2028-001",
+    "future_reality_version": "future-reality-2028-06-30-v1",
+    "forecast_release": "forecast-2028-FR-v1",
+    "assumption_ids": [
+      "ASSUMPTION-VENDOR-BANDS-2028",
+      "ASSUMPTION-REPRESENTATIVE-CORPUS-2028",
+      "ASSUMPTION-MODELED-AUTHORITY-2028"
+    ]
+  },
   "authority_posture": {
     "mode": "orientation_only",
+    "simulation_authority": "definitive_within_selected_future_reality",
+    "accountable_observation_required": false,
+    "environment_observed_closure": "separate_unasserted_state",
+    "production_authorization_effect": "none",
     "statement": "This receipt orients collaborators. It grants no production authority, and environment-observed closure remains a separate unasserted evidence state."
   },
   "contract_state": [
     {
       "contract_id": "SIMULATED-SUBSTANTIVE-CLOSURE-2028-V1",
       "version": "2.0.0",
-      "digest": "sha256:6194029aae98f2d70f3a115eed7c0f6b191667f849c89cd548b0e575192e2af9"
+      "digest": "sha256:33bcc14da24309b7716728b3f0204008e8f7ebf58de75f9e40a5986b421f06b5"
     },
     {
       "contract_id": "SIMULATION-BOUNDED-CALLER-001",
@@ -21,7 +35,7 @@
     {
       "contract_id": "SIMULATED-FAMILY-RECEIPTS-2028-V1",
       "version": "2.0.0",
-      "digest": "sha256:bc0c2605a5bdbf4a888919212eaa340b5e5ffebfa8838cc827aa503454b340c0"
+      "digest": "sha256:f08c198a9ad859e3785a2e61d385dc2f49b529964abfa897acfb5c9a267a4460"
     }
   ],
   "evidence_posture": [
@@ -84,13 +98,20 @@
   ],
   "handoff": {
     "recipient_role": "comparative evidence stewardship",
-    "next_safe_action": "Regenerate the canonical closure, confirm its digest, admit the exact bundle through the independent comparator, promote the candidate through the protected release path, and close RCP-SIMULATION-PROMOTION-003 against that immutable coordinate.",
-    "success_evidence": "Governance schema validation passes, comparator admission preserves all four family digests with immutable replay, promoted provenance replaces the explicit candidate placeholders, and the observed-successor receipts remain independently available."
+    "action_ids": [
+      "RCP-SIMULATION-PROMOTION-003",
+      "RECEIPT-OBSERVED-VENDORS-001",
+      "RECEIPT-OBSERVED-MIGRATION-RESTORE-001",
+      "RECEIPT-OBSERVED-SECURITY-OBSERVABILITY-001",
+      "RECEIPT-OBSERVED-ACCOUNTABLE-ACCEPTANCE-001"
+    ],
+    "next_safe_action": "Regenerate the canonical closure, confirm its digest, promote the candidate through the protected release path, close RCP-SIMULATION-PROMOTION-003 against that immutable coordinate, and hand the release to the independent comparator.",
+    "success_evidence": "Governance schema validation passes, promoted provenance replaces the explicit candidate placeholders, the comparator receives every release and closure digest for immutable replay, and the observed-successor receipts remain independently available."
   },
   "metadata": {
-    "schema_version": "2.0.0",
+    "schema_version": "2.1.0",
     "created_at": "2026-07-28T18:45:00Z",
-    "updated_at": "2026-07-28T20:00:00Z",
+    "updated_at": "2026-09-02T03:42:03Z",
     "owner": {
       "actor_id": "OWNER-SIMULATION-RECEIPT",
       "display_name": "Simulation stewardship role",

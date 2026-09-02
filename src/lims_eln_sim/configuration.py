@@ -87,7 +87,7 @@ class AwsRuntimeReference:
             raise ConfigurationBoundary("runtime configuration references require unique identities")
         if self.secret_stage not in {"AWSCURRENT", "AWSPREVIOUS"}:
             raise ConfigurationBoundary("secret_stage requires an AWS rotation stage")
-        if not isinstance(self.cache_ttl_seconds, int) or not 30 <= self.cache_ttl_seconds <= 900:
+        if type(self.cache_ttl_seconds) is not int or not 30 <= self.cache_ttl_seconds <= 900:
             raise ConfigurationBoundary("cache_ttl_seconds requires a bounded 30-900 second policy")
 
 

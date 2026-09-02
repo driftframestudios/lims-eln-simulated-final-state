@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import json
 from typing import Any
@@ -12,9 +13,22 @@ from .configuration import (
     SyntheticAwsProvider,
     resolve_runtime_configuration,
 )
+from .contract_v1 import (
+    GOLDEN_SPECIMEN_RESULT_COMPATIBILITY,
+    GOLDEN_SPECIMEN_RESULT_PROJECTION_ID,
+    GOLDEN_SPECIMEN_RESULT_PROJECTION_VERSION,
+    GOLDEN_SPECIMEN_SCENARIO_DIGEST,
+    GOLDEN_SPECIMEN_SCENARIO_ID,
+    GOLDEN_SPECIMEN_SCENARIO_VERSION,
+    canonical_digest as contract_digest,
+    contract_reference,
+    load_golden_specimen_scenario,
+    validate_golden_specimen_observation,
+)
+from .database_oracle import validate_database_oracle
 from .closure_manifest import build_governance_closure
 from .domain import Specimen, digest
-from .migration import MigrationHarness
+from .migration import MigrationHarness, validate_representative_corpus
 from .open_receipts import FUTURE_REALITY_VERSION, close_open_receipts
 from .safety import validate_synthetic_fixture
 from .vendors import (
@@ -35,27 +49,34 @@ FORECAST_METADATA = {
     "future_reality_version": FUTURE_REALITY_VERSION,
     "forecast_release": "forecast-2028-FR-v1",
 }
+FORECAST_RECOVERY_MARGIN_SECONDS = 30
 
 
-def run(fixture: dict[str, Any], *, redaction_key: bytes) -> dict[str, Any]:
+def run(
+    fixture: dict[str, Any],
+    *,
+    intended_use_profile: dict[str, Any],
+    migration_corpus: dict[str, Any],
+    database_oracle: dict[str, Any],
+    redaction_key: bytes,
+    scenario: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     validate_synthetic_fixture(fixture)
+    _validate_intended_use_profile(intended_use_profile)
+    database_coordinates = validate_database_oracle(database_oracle)
+    scenario = load_golden_specimen_scenario() if scenario is None else scenario
+    _validate_fixture_against_scenario(fixture, scenario)
     clock = fixture["clock"]
     specimen = Specimen(
         specimen_id=fixture["specimen_id"],
         tenant_id=fixture["tenant_id"],
         source_alias=fixture["source_alias"],
     )
-    transitions = [
-        ("accessioned", "accessioner", {"alias": specimen.source_alias}),
-        ("in_custody", "courier", {"location": "receiving-freezer-2"}),
-        ("instrument_complete", "instrument-gateway", {"run_id": fixture["run_id"]}),
-        ("reviewed", "scientist", {"interpretation": fixture["interpretation"]}),
-        ("released", "pathologist", {"release_reason": "review-complete"}),
-    ]
+    transitions = _scenario_transitions(scenario, fixture, specimen)
     specimen.result = fixture["result"]
     specimen.artifact_digest = digest(fixture["artifact"])
     for offset, (status, actor, detail) in enumerate(transitions):
-        specimen.transition(status, actor, detail, f"{clock[:-1]}.{offset:03d}Z")
+        specimen.transition(status, actor, detail, _event_time(clock, offset))
 
     principal = Principal("svc-projection", fixture["tenant_id"], ("vendor_writer",))
     authorization = authorize(principal, specimen.tenant_id, "vendor_writer")
@@ -87,10 +108,11 @@ def run(fixture: dict[str, Any], *, redaction_key: bytes) -> dict[str, Any]:
     validation = labkey.validate_rows(rows)
     labkey_record = labkey.write("req-labkey-0001", specimen.specimen_id, specimen.view())
 
+    representative_records = validate_representative_corpus(migration_corpus)
     migration = MigrationHarness()
-    migrated, migration_report = migration.migrate([specimen.view()])
+    migrated, migration_report = migration.migrate(representative_records)
     _, migration_failure_report = migration.migrate(
-        [specimen.view()],
+        representative_records,
         failure_twin="changed-scientific-result",
     )
     restore_report = migration.restore(
@@ -136,6 +158,21 @@ def run(fixture: dict[str, Any], *, redaction_key: bytes) -> dict[str, Any]:
             "labkey": {"validation": validation, "record": _vendor_manifest(labkey_record)},
         },
         "migration": asdict(migration_report),
+        "migration_corpus": {
+            "fixture_digest": digest(migration_corpus),
+            "record_count": len(representative_records),
+            "artifact_count": len(migration_corpus["artifacts"]),
+            "exception_classes": list(
+                migration_corpus["profile"]["exception_classes"]
+            ),
+        },
+        "intended_use_profile": json.loads(
+            json.dumps(
+                intended_use_profile,
+                sort_keys=True,
+                allow_nan=False,
+            )
+        ),
         "restore": restore_report,
         "data_exit": exit_report,
         "failure_twins": {
@@ -159,12 +196,25 @@ def run(fixture: dict[str, Any], *, redaction_key: bytes) -> dict[str, Any]:
         },
         "telemetry": metrics.summary(),
     }
+    observation = _build_observation(
+        core,
+        fixture,
+        scenario,
+        database_oracle,
+        database_coordinates.as_dict(),
+    )
+    scenario_execution = _scenario_execution_projection(scenario, transitions)
     receipt_closures = close_open_receipts(core, bounded_caller)
     governance_closure = build_governance_closure(core, receipt_closures)
     return {
         **FORECAST_METADATA,
         "simulation_id": "SIM-FINAL-STATE-001",
         "content_digest": digest(core),
+        "contract_binding": contract_reference(),
+        "observation": observation,
+        "observation_digest": contract_digest(observation),
+        "scenario_execution": scenario_execution,
+        "scenario_execution_digest": contract_digest(scenario_execution),
         "result": core,
         "acceptance_drafts": acceptance_drafts(core),
         "receipts": receipt_closures,
@@ -200,10 +250,26 @@ def simulated_receipts(core: dict[str, Any]) -> list[dict[str, Any]]:
     return close_open_receipts(core, core.get("bounded_caller") or simulate_control_plane())
 
 
+def closure_bundle(simulation: dict[str, Any]) -> dict[str, Any]:
+    """Return the independently reproducible selected-future closure boundary."""
+
+    governance_closure = simulation["governance_closure"]
+    return {
+        "bundle_version": "2.0.1",
+        "future_reality_version": simulation["future_reality_version"],
+        "governance_closure_digest": digest(governance_closure),
+        "governance_closure": governance_closure,
+        "detailed_receipts": simulation["receipts"],
+        "source_result_digest": simulation["content_digest"],
+    }
+
+
 def write_bundle(bundle: dict[str, Any], output: Path) -> None:
     output.mkdir(parents=True, exist_ok=True)
     documents = {
         "result.json": bundle,
+        "observation-envelope.json": bundle["observation"],
+        "scenario-execution.json": bundle["scenario_execution"],
         "migration-report.json": bundle["result"]["migration"],
         "restore-report.json": bundle["result"]["restore"],
         "security-exercise.json": bundle["result"]["security_exercise"],
@@ -212,6 +278,7 @@ def write_bundle(bundle: dict[str, Any], output: Path) -> None:
         "acceptance-drafts.json": bundle["acceptance_drafts"],
         "simulated-receipts.json": bundle["receipts"],
         "simulated-receipt-closure.json": bundle["governance_closure"],
+        "future-reality-closure-bundle.json": closure_bundle(bundle),
         "receipt-closure-summary.json": bundle["receipt_closure_summary"],
     }
     for name, value in documents.items():
@@ -228,4 +295,292 @@ def _vendor_manifest(record: dict[str, Any]) -> dict[str, Any]:
         "external_id": record["external_id"],
         "content_digest": record["content_digest"],
         "projection": "identity, vendor version, and content digest",
+    }
+
+
+def _event_time(clock: str, offset: int) -> str:
+    normalized = clock[:-1] + "+00:00" if clock.endswith("Z") else clock
+    value = datetime.fromisoformat(normalized)
+    if value.tzinfo is None or value.utcoffset() is None:
+        raise ValueError("simulation clock requires an explicit UTC offset")
+    if value.utcoffset() != timedelta(0):
+        raise ValueError("simulation clock requires UTC")
+    event_time = value.astimezone(timezone.utc) + timedelta(milliseconds=offset)
+    return event_time.isoformat(timespec="milliseconds").replace("+00:00", "Z")
+
+
+def _validate_intended_use_profile(profile: dict[str, Any]) -> None:
+    required = {
+        "profile_version",
+        "evidence_mode",
+        "intended_use",
+        "population_cartographies",
+        "record_classes",
+        "applicability_forks",
+        "accountable_determination",
+    }
+    if set(profile) != required:
+        raise ValueError("intended-use profile requires the released field set")
+    if profile["profile_version"] != "1.0.0" or profile["evidence_mode"] != "simulated":
+        raise ValueError(
+            "intended-use profile requires the released simulated 1.0.0 contract"
+        )
+    if not isinstance(profile["intended_use"], str) or not profile["intended_use"].strip():
+        raise ValueError("intended-use profile requires an explicit intended use")
+    required_populations = {"scientists", "pathologists", "quality", "regulatory"}
+    if not required_populations.issubset(set(profile["population_cartographies"])):
+        raise ValueError(
+            "intended-use profile requires scientific, pathology, Quality, and Regulatory populations"
+        )
+
+
+def _validate_fixture_against_scenario(
+    fixture: dict[str, Any],
+    scenario: dict[str, Any],
+) -> None:
+    if contract_digest(scenario) != contract_reference()[
+        "golden_scenario_document_digest"
+    ]:
+        raise ValueError(
+            "golden scenario matches its released contract digest; restore the bound journey"
+        )
+    commands = scenario.get("commands")
+    if not isinstance(commands, list):
+        raise ValueError(
+            "golden scenario carries its released command sequence; restore contract v1"
+        )
+    actions = tuple(command.get("action") for command in commands if isinstance(command, dict))
+    expected_actions = (
+        "register",
+        "accession",
+        "start_processing",
+        "submit_review",
+        "release",
+    )
+    if actions != expected_actions:
+        raise ValueError(
+            "golden scenario commands follow register through release; restore that lifecycle"
+        )
+    specimen = scenario.get("specimen")
+    if not isinstance(specimen, dict):
+        raise ValueError("golden scenario carries one synthetic specimen fixture")
+    aligned_fields = {
+        "tenant_id": specimen.get("tenant_id"),
+        "specimen_id": specimen.get("specimen_id"),
+        "result": scenario.get("expected_state", {}).get("result"),
+        "source_alias": commands[1].get("payload", {}).get("accession_id"),
+        "run_id": scenario.get("instrument_message", {})
+        .get("raw_document", {})
+        .get("run_id"),
+    }
+    differences = sorted(
+        field for field, expected in aligned_fields.items() if fixture.get(field) != expected
+    )
+    if _event_time(fixture["clock"], 0) != _event_time(scenario["clock"], 0):
+        differences.append("clock")
+        differences.sort()
+    if differences:
+        raise ValueError(
+            "simulation fixture aligns with the shared golden scenario; revise fields: "
+            + ", ".join(differences)
+        )
+
+
+def _scenario_transitions(
+    scenario: dict[str, Any],
+    fixture: dict[str, Any],
+    specimen: Specimen,
+) -> list[tuple[str, str, dict[str, Any]]]:
+    projections = {
+        "register": (
+            "accessioned",
+            "accessioner",
+            {"alias": specimen.source_alias},
+        ),
+        "accession": (
+            "in_custody",
+            "courier",
+            {"location": scenario["expected_state"]["custody_location"]},
+        ),
+        "start_processing": (
+            "instrument_complete",
+            "instrument-gateway",
+            {"run_id": fixture["run_id"]},
+        ),
+        "submit_review": (
+            "reviewed",
+            "scientist",
+            {"interpretation": fixture["interpretation"]},
+        ),
+        "release": (
+            "released",
+            "pathologist",
+            {"release_reason": "review-complete"},
+        ),
+    }
+    return [projections[command["action"]] for command in scenario["commands"]]
+
+
+def _build_observation(
+    core: dict[str, Any],
+    fixture: dict[str, Any],
+    scenario: dict[str, Any],
+    database_oracle: dict[str, Any],
+    database_coordinates: dict[str, str],
+) -> dict[str, Any]:
+    specimen = core["specimen"]
+    expected_state = scenario["expected_state"]
+    review_command = scenario["commands"][-2]
+    release_command = scenario["commands"][-1]
+    expected_executed_state = {
+        "tenant_id": scenario["specimen"]["tenant_id"],
+        "specimen_id": scenario["specimen"]["specimen_id"],
+        "status": expected_state["lifecycle_state"],
+        "revision": expected_state["aggregate_version"],
+        "custody_location": expected_state["custody_location"],
+        "result": expected_state["result"],
+    }
+    executed_drift = sorted(
+        field
+        for field, expected in expected_executed_state.items()
+        if specimen.get(field) != expected
+    )
+    if executed_drift:
+        raise ValueError(
+            "executed selected-future state aligns with the released Golden "
+            "Specimen projection; revise fields: " + ", ".join(executed_drift)
+        )
+    forecast_recovery_seconds = min(
+        fixture["recovery_objective_seconds"],
+        fixture["observed_recovery_seconds"] + FORECAST_RECOVERY_MARGIN_SECONDS,
+    )
+    observation_configuration = {
+        "future_reality_version": FUTURE_REALITY_VERSION,
+        "forecast_recovery_seconds": forecast_recovery_seconds,
+        "runtime_configuration_digest": contract_digest(
+            fixture["runtime_configuration"]
+        ),
+    }
+    producer_detail = {
+        "configuration": observation_configuration,
+        "database_oracle": {
+            "oracle_id": database_oracle["oracle_id"],
+            "oracle_version": database_oracle["oracle_version"],
+            "canonical_json_digest": contract_digest(database_oracle),
+            "release_coordinates": database_coordinates,
+        },
+        "simulation": {
+            "specimen": {
+                "status": specimen["status"],
+                "revision": specimen["revision"],
+                "result": {
+                    "unit": specimen["result"]["unit"],
+                    "quality_flag": specimen["result"]["quality_flag"],
+                },
+            },
+            "migration": {
+                "semantic_parity": core["migration"]["semantic_parity"],
+            },
+            "restore": {
+                "clean_environment": core["restore"]["clean_environment"],
+                "observed_recovery_seconds": forecast_recovery_seconds,
+            },
+            "security": {"tenant_boundary": "enforced"},
+            "telemetry": {
+                "vendor_projection_readback": core["telemetry"][
+                    "vendor_projection_readback"
+                ]["ratio"],
+            },
+            "operations": {"manual_steps": 1},
+            "execution": {
+                "completed_at": release_command["occurred_at"],
+                "trace_id": "sim-trace-001",
+            },
+        },
+    }
+    observation_result = {
+        "projection": {
+            "projection_id": GOLDEN_SPECIMEN_RESULT_PROJECTION_ID,
+            "projection_version": GOLDEN_SPECIMEN_RESULT_PROJECTION_VERSION,
+            "comparison_compatibility": GOLDEN_SPECIMEN_RESULT_COMPATIBILITY,
+            "tenant_id": specimen["tenant_id"],
+            "specimen_id": specimen["specimen_id"],
+            "lifecycle": {
+                "state": specimen["status"],
+                "aggregate_version": specimen["revision"],
+            },
+            "custody": {
+                "current_location": specimen["custody_location"],
+            },
+            "measurement": specimen["result"],
+            "review_resolution": {
+                "review_id": review_command["payload"]["review_id"],
+                "decision": "accepted",
+                "resolved_at": release_command["occurred_at"],
+            },
+            "release": {
+                "approval_receipt_id": release_command["payload"][
+                    "approval_receipt_id"
+                ],
+                "released_at": release_command["occurred_at"],
+            },
+        },
+        "producer_detail": producer_detail,
+    }
+    observation = {
+        "envelope_version": "1.0.0",
+        "observation_id": "SIM-OBS-GOLDEN-001",
+        "evidence_mode": "simulated",
+        "assurance_stage": "specified",
+        "scenario_id": GOLDEN_SPECIMEN_SCENARIO_ID,
+        "scenario_version": GOLDEN_SPECIMEN_SCENARIO_VERSION,
+        "scenario_digest": GOLDEN_SPECIMEN_SCENARIO_DIGEST,
+        "source": {
+            "environment_id": "simulated-final-state",
+            "implementation_commit": FORECAST_METADATA["forecast_release"],
+            "configuration_digest": contract_digest(observation_configuration),
+        },
+        "result": observation_result,
+        "provenance": {
+            "raw_artifact_digest": contract_digest(observation_result),
+            "governed_locator": (
+                "simulation://forecast-2028-FR-v1/golden-specimen"
+            ),
+            "performed_by": "simulation-runner",
+            "reviewed_by": "simulation-reviewer",
+        },
+        "approvals": [],
+        "classification": {
+            "data_class": "synthetic",
+            "redaction_status": "generated-identities",
+        },
+    }
+    return validate_golden_specimen_observation(observation)
+
+
+def _scenario_execution_projection(
+    scenario: dict[str, Any],
+    transitions: list[tuple[str, str, dict[str, Any]]],
+) -> dict[str, Any]:
+    return {
+        "scenario_id": scenario["scenario_id"],
+        "scenario_document_digest": contract_digest(scenario),
+        "command_count": len(scenario["commands"]),
+        "commands": [
+            {
+                "command_id": command["command_id"],
+                "action": command["action"],
+                "actor_id": command["actor_id"],
+                "occurred_at": command["occurred_at"],
+                "expected_version": command["expected_version"],
+                "payload_digest": contract_digest(command["payload"]),
+                "projected_state": transition[0],
+                "projected_runtime_role": transition[1],
+            }
+            for command, transition in zip(
+                scenario["commands"],
+                transitions,
+                strict=True,
+            )
+        ],
     }
