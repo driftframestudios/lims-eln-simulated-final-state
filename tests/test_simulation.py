@@ -932,7 +932,7 @@ class SimulationTests(unittest.TestCase):
         )
         self.assertEqual(
             horizon["current_item_ids"],
-            ["HORIZON-COMPARATIVE-ADMISSION"],
+            ["HORIZON-SIMULATION-EXTENSIONS"],
         )
         promotion = next(
             item
@@ -945,7 +945,13 @@ class SimulationTests(unittest.TestCase):
             for item in horizon["work_items"]
             if item["item_id"] == "HORIZON-COMPARATIVE-ADMISSION"
         )
-        self.assertEqual(comparative["state"], "active")
+        self.assertEqual(comparative["state"], "complete")
+        extensions = next(
+            item
+            for item in horizon["work_items"]
+            if item["item_id"] == "HORIZON-SIMULATION-EXTENSIONS"
+        )
+        self.assertEqual(extensions["state"], "waiting")
 
     def test_release_closure_bundle_is_reproduced_from_declared_inputs(self) -> None:
         retained = json.loads(
@@ -1045,7 +1051,27 @@ class SimulationTests(unittest.TestCase):
             lock["simulation"]["canonical_closure_digest"],
             digest(result["governance_closure"]),
         )
-        self.assertEqual(lock["comparison"]["receipt_schema"], "2.0.1")
+        self.assertEqual(
+            lock["comparison"],
+            {
+                "release": "comparison-v0.3.1",
+                "tag_object_oid": (
+                    "4c29f6ca410eb4400c55ad77fc34ada2960d1972"
+                ),
+                "commit": "b5c13689a32739d29437e209816bf0cd6a878976",
+                "digest": (
+                    "git-tree-sha1:10a784b8a677ee6eb524d2860ff5ee7151d6050b"
+                ),
+                "archive_digest": (
+                    "sha256:92c2d57bd9e75c650365db4b481a22a6580b201926ba1c666fcf8cb8c9311a2e"
+                ),
+                "coordinate_status": "release_observed",
+                "canonical_closure_digest": digest(
+                    result["governance_closure"]
+                ),
+                "receipt_schema": "2.0.1",
+            },
+        )
         self.assertEqual(
             lock["implementation"],
             {
