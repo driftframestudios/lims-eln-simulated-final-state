@@ -97,12 +97,49 @@ def main() -> int:
         raise ValueError(
             "promotion receipt schema keeps its exact repository-owned identity"
         )
-    if (
-        manifest["release_coordinates"]["open_promotion_receipt_id"]
-        != promotion_receipt["promotion_receipt_id"]
-    ):
+    if promotion_receipt["promotion_state"] != "release_observed":
         raise ValueError(
-            "release coordinates and the promotion receipt share one open action"
+            "release 0.3.1 carries its observed signed promotion coordinate"
+        )
+    release_subject = promotion_receipt["release_subject"]
+    expected_hosted_contexts = [
+        {
+            "name": "Repository validation",
+            "run_id": "33588934525",
+            "conclusion": "success",
+        },
+        {
+            "name": "branch-shape",
+            "run_id": "33588934514",
+            "conclusion": "success",
+        },
+    ]
+    if release_subject["hosted_check_contexts"] != expected_hosted_contexts:
+        raise ValueError(
+            "promotion receipt names the two accepted PR #26 hosted checks"
+        )
+    expected_release_coordinates = {
+        "seed_governance_commit": "716d4581d723a5c1b56f16efdbcd25790549ae33",
+        "seed_program_specification_commit": (
+            "fc7707134b58ed12ad349bf649d2af1c3689bd01"
+        ),
+        "coordinate_status": "release_observed",
+        "reviewed_candidate_commit": (
+            "91bfdba0fd4bc78a0d5d5e25f192ad0d18774bcf"
+        ),
+        "reviewed_candidate_tree_digest": (
+            "git-tree-sha1:595ae59f25f522732577c5f8e00709f023464a6d"
+        ),
+        "accepted_commit": release_subject["commit_oid"],
+        "accepted_tree_digest": "git-tree-sha1:" + release_subject["tree_oid"],
+        "tag_object_oid": release_subject["tag_object_oid"],
+        "archive_digest": release_subject["archive_digest"],
+        "promotion_receipt_id": promotion_receipt["promotion_receipt_id"],
+    }
+    if manifest["release_coordinates"] != expected_release_coordinates:
+        raise ValueError(
+            "release coordinates differ from the observed promotion receipt "
+            "and reviewed candidate"
         )
     automation_findings = validate_repository_automation(
         ROOT, manifest["automation_controls"]

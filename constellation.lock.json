@@ -1,7 +1,7 @@
 {
   "constellation_version": "0.3.1",
-  "recorded_at": "2026-09-01",
-  "content_identity": "Accepted Program, Governance, and Enterprise coordinates remain distinct from the pending Simulation and Comparative promotions; domain artifacts retain their declared SHA-256 digests.",
+  "recorded_at": "2026-09-02",
+  "content_identity": "Accepted Program, Governance, Enterprise, and Simulation coordinates remain distinct from the pending Comparative promotion; domain artifacts retain their declared SHA-256 digests.",
   "specification": {
     "release": null,
     "package_version": "0.3.1",
@@ -14,9 +14,11 @@
   },
   "simulation": {
     "release": "forecast-2028-FR-v1",
-    "commit": "0000000000000000000000000000000000000000",
-    "digest": "git-tree-sha1:0000000000000000000000000000000000000000",
-    "coordinate_status": "pending_release_commit",
+    "tag_object_oid": "73fc89690b6cc9df7a99ea495e580e7f4e2caedc",
+    "commit": "37c3861b5411db8e772feedf41e4abf1fb7829bc",
+    "digest": "git-tree-sha1:595ae59f25f522732577c5f8e00709f023464a6d",
+    "archive_digest": "sha256:c6a062a6efb6786c53dc9e7298a9dd881fcc2301d807db5cecf84663c98438e2",
+    "coordinate_status": "release_observed",
     "canonical_closure_digest": "sha256:33bcc14da24309b7716728b3f0204008e8f7ebf58de75f9e40a5986b421f06b5"
   },
   "implementation": {

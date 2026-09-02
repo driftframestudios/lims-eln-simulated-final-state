@@ -115,7 +115,7 @@ The command validates the synthetic-data contract and writes a deterministic
 manifest, security exercise, bounded-caller evidence, telemetry summary, acceptance
 decisions, and a governance-2.0-conformant `simulated-receipt-closure.json`. It also
 writes a 2.0.1 closure bundle whose source-result digest allows an independent
-comparator to reproduce the aggregate artifact. The byte-identical promoted candidate
+comparator to reproduce the aggregate artifact. The tagged selected-future release
 is retained at `release/future-reality-2028-06-30-v1.json`; the aggregate validation
 gate regenerates and compares it after the complete Python test matrix. Generated
 build output remains a transient workflow artifact.
@@ -140,7 +140,7 @@ parity without modeling a second schema-migration runner.
 ## Coordination Horizon
 
 [`COORDINATION-HORIZON.json`](COORDINATION-HORIZON.json) describes the current focus,
-approaching promotion candidates, retained possibilities, and re-entry path without
+receiving work, retained possibilities, and re-entry path without
 binding the collaboration to a particular planning vocabulary.
 
 [`machine-node.json`](machine-node.json) and [`first-receipt.json`](first-receipt.json)
@@ -153,12 +153,15 @@ Governance 2.1.0 release. The First Receipt adds repository-owned selected-futur
 authority fields beyond the shared orientation schema; the local release-boundary
 checks validate those fields and keep their simulated meaning explicit.
 
-[`receipts/promotion-receipt.json`](receipts/promotion-receipt.json) keeps the
-release event open until the signed tag, accepted source objects, reproducible
-archive, hosted checks, and local verification have all been observed.
+[`receipts/promotion-receipt.json`](receipts/promotion-receipt.json) records the
+observed signed release event, accepted source objects, reproducible archive,
+hosted checks, and local verification while preserving simulated forecast authority.
+`python tools/verify_release_coordinate.py` verifies the annotated tag, accepted
+history, source tree, archive bytes, receipt carrier, and repository-trusted signer.
 
-[`constellation.lock.json`](constellation.lock.json) records the 0.3 candidate
-coordinates with explicit promotion placeholders and preserved seed lineage.
+[`constellation.lock.json`](constellation.lock.json) records the observed Simulation
+coordinate and preserved seed lineage while Comparative Evidence remains the next
+receiver.
 [`ledgers/assumptions.json`](ledgers/assumptions.json) resolves every assumption
 identifier cited by the selected-future closure and names its recalculation trigger.
 

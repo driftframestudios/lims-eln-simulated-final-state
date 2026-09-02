@@ -15,7 +15,7 @@
       "accountable human decision systems for observed acceptance"
     ]
   },
-  "lifecycle_state": "settling",
+  "lifecycle_state": "active",
   "coordination_horizon_id": "COORD-HORIZON-SIMULATION-2026-Q3",
   "contracts": [
     {
@@ -57,13 +57,12 @@
     "digest": "sha256:35b3d9bcadea3ab95b9cf6f3bb26fd95049147f7fcc771815ff71060fae0937a"
   },
   "current_provenance": {
-    "release": "candidate-forecast-2028-FR-v1",
-    "commit": "0000000000000000000000000000000000000000",
-    "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    "release": "forecast-2028-FR-v1",
+    "commit": "37c3861b5411db8e772feedf41e4abf1fb7829bc",
+    "digest": "sha256:c6a062a6efb6786c53dc9e7298a9dd881fcc2301d807db5cecf84663c98438e2"
   },
   "first_receipt_contract_id": "FIRST-RCP-SIMULATION-001",
   "open_receipts": [
-    "RCP-SIMULATION-PROMOTION-003",
     "RECEIPT-OBSERVED-VENDORS-001",
     "RECEIPT-OBSERVED-MIGRATION-RESTORE-001",
     "RECEIPT-OBSERVED-SECURITY-OBSERVABILITY-001",
@@ -111,7 +110,7 @@
   "metadata": {
     "schema_version": "2.1.0",
     "created_at": "2026-07-28T18:45:00Z",
-    "updated_at": "2026-09-02T03:42:03Z",
+    "updated_at": "2026-09-02T04:33:11Z",
     "owner": {
       "actor_id": "OWNER-SIMULATION-NODE",
       "display_name": "Simulation stewardship role",

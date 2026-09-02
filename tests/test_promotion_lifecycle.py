@@ -23,53 +23,30 @@ from lims_eln_sim.promotion_receipt import (  # noqa: E402
 class PromotionLifecycleTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.candidate = json.loads(
+        cls.observed_receipt = json.loads(
             (ROOT / "receipts" / "promotion-receipt.json").read_text(
                 encoding="utf-8"
             )
         )
 
     def observed(self) -> dict:
-        receipt = deepcopy(self.candidate)
-        receipt["promotion_state"] = "release_observed"
+        return deepcopy(self.observed_receipt)
+
+    def candidate(self) -> dict:
+        receipt = self.observed()
+        receipt["promotion_state"] = "candidate_ready"
         receipt["release_event_evidence"] = {
-            "evidence_mode": "observed",
-            "assurance_stage": "verified",
+            "evidence_mode": "planned",
+            "assurance_stage": "specified",
         }
-        receipt["release_subject"] = {
-            "git_object_format": "sha1",
-            "tag": "forecast-2028-FR-v1",
-            "tag_object_oid": "1" * 40,
-            "commit_oid": "2" * 40,
-            "tree_oid": "3" * 40,
-            "archive_format": "git-tar",
-            "archive_digest": "sha256:" + "4" * 64,
-            "promoted_at": "2026-09-02T04:00:00Z",
-            "tag_signature_verification": "valid",
-            "hosted_check_contexts": [
-                {
-                    "name": "Repository validation",
-                    "run_id": "33590000001",
-                    "conclusion": "success",
-                },
-                {
-                    "name": "branch-shape",
-                    "run_id": "33590000002",
-                    "conclusion": "success",
-                },
-            ],
-            "local_verification_signals": [
-                "complete Python 3.12 regression suite passed",
-                "repository validation reproduced every selected-future artifact",
-            ],
-        }
+        receipt["release_subject"] = None
         return receipt
 
-    def test_candidate_keeps_release_event_open_and_forecast_authority_settled(self) -> None:
-        validate_promotion_receipt(self.candidate)
+    def test_observed_receipt_records_release_event_and_preserves_forecast_authority(self) -> None:
+        validate_promotion_receipt(self.observed_receipt)
         self.assertEqual(
-            self.candidate["release_event_evidence"],
-            {"evidence_mode": "planned", "assurance_stage": "specified"},
+            self.observed_receipt["release_event_evidence"],
+            {"evidence_mode": "observed", "assurance_stage": "verified"},
         )
 
     def test_schema_names_both_states_and_the_complete_observed_subject(self) -> None:
@@ -102,9 +79,9 @@ class PromotionLifecycleTests(unittest.TestCase):
                 "local_verification_signals",
             },
         )
-        self.assertIsNone(self.candidate["release_subject"])
+        self.assertIsNotNone(self.observed_receipt["release_subject"])
         self.assertEqual(
-            self.candidate["forecast_authority"],
+            self.observed_receipt["forecast_authority"],
             {
                 "evidence_mode": "simulated",
                 "assurance_stage": "verified",
@@ -175,14 +152,14 @@ class PromotionLifecycleTests(unittest.TestCase):
         ):
             validate_promotion_receipt(observed)
 
-        candidate_with_subject = deepcopy(self.candidate)
+        candidate_with_subject = self.candidate()
         candidate_with_subject["release_subject"] = self.observed()[
             "release_subject"
         ]
         with self.assertRaisesRegex(PromotionReceiptError, "keeps release_subject null"):
             validate_promotion_receipt(candidate_with_subject)
 
-    def test_release_manifest_binds_schema_and_candidate_receipt(self) -> None:
+    def test_release_manifest_binds_schema_and_observed_receipt(self) -> None:
         manifest = json.loads(
             (ROOT / "release" / "repository-role.json").read_text(encoding="utf-8")
         )
@@ -197,8 +174,12 @@ class PromotionLifecycleTests(unittest.TestCase):
             binding["receipt_canonical_json_digest"], canonical_digest(receipt)
         )
         self.assertEqual(
-            manifest["release_coordinates"]["open_promotion_receipt_id"],
+            manifest["release_coordinates"]["promotion_receipt_id"],
             receipt["promotion_receipt_id"],
+        )
+        self.assertEqual(
+            manifest["release_coordinates"]["coordinate_status"],
+            "release_observed",
         )
 
 
