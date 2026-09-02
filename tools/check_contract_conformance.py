@@ -32,8 +32,9 @@ def main() -> int:
         summary = verify_shared_package()
     except ModuleNotFoundError:
         print(
-            "contract package is available through the private distribution or "
-            "--contract-source; provide one path to run cross-repository conformance"
+            "contract package is available through the authenticated exact-commit "
+            "distribution or --contract-source; provide one route to run "
+            "cross-repository conformance"
         )
         return 2
     print(json.dumps({"status": "conformant", **summary}, indent=2, sort_keys=True))

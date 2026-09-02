@@ -852,7 +852,7 @@ class SimulationTests(unittest.TestCase):
         self.assertEqual(__version__, "0.3.1")
         self.assertEqual(manifest["repository_release"], __version__)
         self.assertEqual(manifest["repository_role"], "simulated_final_state")
-        self.assertEqual(manifest["contract_bindings"]["governance_schema"], "2.0.1")
+        self.assertEqual(manifest["contract_bindings"]["governance_schema"], "2.1.0")
         self.assertEqual(
             manifest["reference_result_digest"],
             result["content_digest"],
@@ -997,6 +997,23 @@ class SimulationTests(unittest.TestCase):
 
         lock = json.loads((ROOT / "constellation.lock.json").read_text())
         self.assertEqual(lock["constellation_version"], "0.3.1")
+        self.assertEqual(
+            lock["specification"],
+            {
+                "release": None,
+                "package_version": "0.3.1",
+                "commit": "4d06eeb7f96910311fbcb7f51547c978b6a07290",
+                "digest": "git-tree-sha1:887e2c12a699105994097e4e9094270453de16ba",
+                "source_identity_digest": (
+                    "sha256:e4d7ef6aa1036b69395e9de3ab0064297dc80e5f697ab60de699a355e45f7674"
+                ),
+                "acceptance_lineage_commit": (
+                    "c155551f5ac2c203fd9d08190d7020bba0cf71f8"
+                ),
+                "coordinate_status": "accepted_package_source",
+                "complete_specification_release": "pending",
+            },
+        )
         self.assertEqual(lock["simulation"]["release"], "forecast-2028-FR-v1")
         self.assertEqual(
             lock["simulation"]["canonical_closure_digest"],
@@ -1004,14 +1021,40 @@ class SimulationTests(unittest.TestCase):
         )
         self.assertEqual(lock["comparison"]["receipt_schema"], "2.0.1")
         self.assertEqual(
-            lock["implementation"]["release"],
-            "implementation-v0.3.1",
+            lock["implementation"],
+            {
+                "release": "v0.3.1",
+                "tag_object_oid": "8b1013ff6a116b64e5d31c2870b574f641ee88f6",
+                "commit": "44a4b8e67ff2e6af232b12daf3692bee8e8f3a3a",
+                "digest": "git-tree-sha1:cc1bb335c0cdd1a37d1b6554480b3afdb9c9f360",
+                "archive_digest": (
+                    "sha256:00da1be41bdf23a21124d600f3788464bfd8f590c819f6a9c74b98671edb2174"
+                ),
+                "observation_carrier_commit": (
+                    "7e17bb9840f2936d7c83d63f36bfdb08b768ecb5"
+                ),
+                "coordinate_status": "release_observed",
+                "source_binding_status": "accepted_program_coordinate",
+            },
         )
         self.assertEqual(
-            lock["governance"]["release"],
-            "governance-v2.0.1",
+            lock["governance"],
+            {
+                "release": "governance-v2.1.0",
+                "profile": "Control Plane Profile 0.3.0",
+                "schema_version": "2.1.0",
+                "tag_object_oid": "1c77396e44b71719ccab138fecd02e525089e39d",
+                "commit": "8469c2a6b2c7f4445523cee262b961ffe3d2523b",
+                "digest": "git-tree-sha1:aed5d57120e15ceabe77d7bba700a43097200b19",
+                "archive_digest": (
+                    "sha256:469ae49fca7d5ad6e1766080b3c39d76c46a840366b217f3839b9d34f2e77d32"
+                ),
+                "observation_carrier_commit": (
+                    "43549173f850607ff73382fabb3d48906ff92f62"
+                ),
+                "coordinate_status": "release_observed",
+            },
         )
-        self.assertEqual(lock["governance"]["schema_version"], "2.0.1")
         self.assertEqual(
             lock["simulation"]["coordinate_status"],
             "pending_release_commit",

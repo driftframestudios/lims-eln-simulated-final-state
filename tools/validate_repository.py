@@ -18,6 +18,12 @@ from lims_eln_sim.contract_v1 import (
 )
 from lims_eln_sim.database_oracle import validate_database_oracle
 from lims_eln_sim.domain import digest
+from lims_eln_sim.promotion_receipt import (
+    SCHEMA_VERSION as PROMOTION_SCHEMA_VERSION,
+    canonical_digest as promotion_digest,
+    file_digest,
+    validate_promotion_receipt,
+)
 from lims_eln_sim.release_boundary import validate_release_alignment
 from lims_eln_sim.safety import synthetic_redaction_key
 from lims_eln_sim.simulation import (
@@ -60,6 +66,44 @@ def _repository_secret_shape_findings() -> list[str]:
 
 def main() -> int:
     manifest = load_json(ROOT / "release/repository-role.json")
+    promotion_binding = manifest["promotion_receipt_contract"]
+    promotion_schema_path = ROOT / promotion_binding["schema_path"]
+    promotion_receipt_path = ROOT / promotion_binding["receipt_path"]
+    promotion_schema = load_json(promotion_schema_path)
+    promotion_receipt = load_json(promotion_receipt_path)
+    validate_promotion_receipt(promotion_receipt)
+    expected_promotion_binding = {
+        "schema_path": "schemas/promotion-receipt.schema.json",
+        "schema_version": PROMOTION_SCHEMA_VERSION,
+        "schema_file_sha256": file_digest(promotion_schema_path),
+        "receipt_path": "receipts/promotion-receipt.json",
+        "receipt_canonical_json_digest": promotion_digest(promotion_receipt),
+    }
+    if promotion_binding != expected_promotion_binding:
+        raise ValueError(
+            "promotion receipt contract differs from its source carriers: "
+            + json.dumps(
+                {
+                    "manifest": promotion_binding,
+                    "derived": expected_promotion_binding,
+                },
+                sort_keys=True,
+            )
+        )
+    if promotion_schema.get("$id") != (
+        "https://schemas.driftframe.org/lims-eln-simulated-final-state/"
+        "v1.0.0/promotion-receipt.schema.json"
+    ):
+        raise ValueError(
+            "promotion receipt schema keeps its exact repository-owned identity"
+        )
+    if (
+        manifest["release_coordinates"]["open_promotion_receipt_id"]
+        != promotion_receipt["promotion_receipt_id"]
+    ):
+        raise ValueError(
+            "release coordinates and the promotion receipt share one open action"
+        )
     automation_findings = validate_repository_automation(
         ROOT, manifest["automation_controls"]
     )
@@ -181,28 +225,95 @@ def main() -> int:
             "emitted": observation_oracle_binding,
             "derived": expected_observation_oracle_binding,
         }
+    released_contract_reference = contract_reference()
+    expected_shared_contract_binding = {
+        "contract_id": "LIMS-ELN-CONTRACT-NUCLEUS",
+        "version": released_contract_reference["contract_version"],
+        "authority": "driftframestudios/lims-eln-program-specification",
+        "distribution": released_contract_reference["distribution_requirement"],
+        "distribution_state": released_contract_reference["distribution_state"],
+        "source_commit": released_contract_reference["source_commit"],
+        "source_tree": released_contract_reference["source_tree"],
+        "source_identity_digest": released_contract_reference[
+            "source_identity_digest"
+        ],
+        "acceptance_lineage_commit": released_contract_reference[
+            "acceptance_lineage_commit"
+        ],
+        "binding_path": (
+            "src/lims_eln_sim/contract_resources/contract-binding.v1.json"
+        ),
+        "golden_scenario_document_digest": released_contract_reference[
+            "golden_scenario_document_digest"
+        ],
+        "golden_scenario_validated_model_digest": released_contract_reference[
+            "golden_scenario_validated_model_digest"
+        ],
+        "observation_schema_document_digest": released_contract_reference[
+            "observation_schema_document_digest"
+        ],
+        "golden_result_projection_schema_document_digest": (
+            released_contract_reference[
+                "golden_result_projection_schema_document_digest"
+            ]
+        ),
+    }
     shared_contract_binding = manifest["external_contract_bindings"][
         "shared_contract_nucleus"
     ]
-    released_contract_reference = contract_reference()
-    expected_contract_digests = {
-        field: released_contract_reference[field]
-        for field in (
-            "golden_scenario_document_digest",
-            "golden_scenario_validated_model_digest",
-            "observation_schema_document_digest",
-            "golden_result_projection_schema_document_digest",
-        )
-    }
-    observed_contract_digests = {
-        field: shared_contract_binding.get(field)
-        for field in expected_contract_digests
-    }
-    if observed_contract_digests != expected_contract_digests:
+    if shared_contract_binding != expected_shared_contract_binding:
         drift["external_contract_bindings.shared_contract_nucleus"] = {
-            "manifest": observed_contract_digests,
-            "derived": expected_contract_digests,
+            "manifest": shared_contract_binding,
+            "derived": expected_shared_contract_binding,
         }
+    constellation = load_json(ROOT / "constellation.lock.json")
+    expected_specification_coordinate = {
+        "release": None,
+        "package_version": released_contract_reference["distribution_version"],
+        "commit": released_contract_reference["source_commit"],
+        "digest": (
+            "git-tree-sha1:" + released_contract_reference["source_tree"]
+        ),
+        "source_identity_digest": released_contract_reference[
+            "source_identity_digest"
+        ],
+        "acceptance_lineage_commit": released_contract_reference[
+            "acceptance_lineage_commit"
+        ],
+        "coordinate_status": "accepted_package_source",
+        "complete_specification_release": "pending",
+    }
+    if constellation.get("specification") != expected_specification_coordinate:
+        drift["constellation.specification"] = {
+            "manifest": constellation.get("specification"),
+            "derived": expected_specification_coordinate,
+        }
+    expected_governance_binding = {
+        "authority": "driftframestudios/site-reading-governance",
+        **constellation["governance"],
+    }
+    observed_governance_binding = manifest["external_contract_bindings"].get(
+        "accepted_governance"
+    )
+    if observed_governance_binding != expected_governance_binding:
+        drift["external_contract_bindings.accepted_governance"] = {
+            "manifest": observed_governance_binding,
+            "derived": expected_governance_binding,
+        }
+    expected_contract_bindings = {
+        "governance_schema": constellation["governance"]["schema_version"],
+        "governance_release": constellation["governance"]["release"],
+        "program_contract_package": released_contract_reference[
+            "distribution_version"
+        ],
+    }
+    for field, expected_value in expected_contract_bindings.items():
+        observed_value = manifest["contract_bindings"].get(field)
+        if observed_value != expected_value:
+            drift[f"contract_bindings.{field}"] = {
+                "manifest": observed_value,
+                "derived": expected_value,
+            }
     if manifest["contract_bindings"].get(
         "golden_specimen_result_projection_schema"
     ) != "1.0.0":

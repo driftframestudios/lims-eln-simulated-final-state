@@ -1,7 +1,7 @@
 {
   "first_receipt_id": "FIRST-RCP-SIMULATION-001",
   "machine_node_id": "NODE-LIMS-ELN-SIMULATION",
-  "as_of": "2026-07-28T18:45:00Z",
+  "as_of": "2026-09-02T03:42:03Z",
   "orientation_purpose": "Give a human or AI collaborator the minimum complete selected-future state, evidence posture, authority boundary, invalidation conditions, and safe handoff needed to reproduce or compare this simulation.",
   "selected_future": {
     "future_reality_id": "FUTURE-REALITY-LIMS-2028-001",
@@ -105,13 +105,13 @@
       "RECEIPT-OBSERVED-SECURITY-OBSERVABILITY-001",
       "RECEIPT-OBSERVED-ACCOUNTABLE-ACCEPTANCE-001"
     ],
-    "next_safe_action": "Regenerate the canonical closure, confirm its digest, admit the exact bundle through the independent comparator, promote the candidate through the protected release path, and close RCP-SIMULATION-PROMOTION-003 against that immutable coordinate.",
-    "success_evidence": "Governance schema validation passes, comparator admission preserves all four family digests with immutable replay, promoted provenance replaces the explicit candidate placeholders, and the observed-successor receipts remain independently available."
+    "next_safe_action": "Regenerate the canonical closure, confirm its digest, promote the candidate through the protected release path, close RCP-SIMULATION-PROMOTION-003 against that immutable coordinate, and hand the release to the independent comparator.",
+    "success_evidence": "Governance schema validation passes, promoted provenance replaces the explicit candidate placeholders, the comparator receives every release and closure digest for immutable replay, and the observed-successor receipts remain independently available."
   },
   "metadata": {
-    "schema_version": "2.0.1",
+    "schema_version": "2.1.0",
     "created_at": "2026-07-28T18:45:00Z",
-    "updated_at": "2026-07-28T20:00:00Z",
+    "updated_at": "2026-09-02T03:42:03Z",
     "owner": {
       "actor_id": "OWNER-SIMULATION-RECEIPT",
       "display_name": "Simulation stewardship role",

@@ -6,10 +6,22 @@
     "name": "lims-eln-program-specification",
     "version": "0.3.1",
     "python_package": "lims_eln_contracts",
-    "state": "source_bound_awaiting_private_distribution"
+    "state": "accepted_full_commit_vcs_coordinate",
+    "source_commit": "4d06eeb7f96910311fbcb7f51547c978b6a07290",
+    "source_tree": "887e2c12a699105994097e4e9094270453de16ba",
+    "acceptance_lineage_commit": "c155551f5ac2c203fd9d08190d7020bba0cf71f8",
+    "source_identity": {
+      "scope": [
+        "pyproject.toml",
+        "src/lims_eln_contracts"
+      ],
+      "algorithm": "path-length-bytes-sha256-v1",
+      "digest": "sha256:e4d7ef6aa1036b69395e9de3ab0064297dc80e5f697ab60de699a355e45f7674"
+    },
+    "requirement": "lims-eln-program-specification @ git+https://github.com/driftframestudios/lims-eln-program-specification.git@4d06eeb7f96910311fbcb7f51547c978b6a07290"
   },
-  "runtime_posture": "standalone_bound_snapshot",
-  "next_distribution_state": "installed_version_pinned_package",
+  "runtime_posture": "standalone_snapshot_with_exact_vcs_conformance",
+  "next_distribution_state": "reviewed_full_commit_successor",
   "resources": {
     "golden_scenario": {
       "package_path": "resources/scenarios/golden-specimen.v1.json",

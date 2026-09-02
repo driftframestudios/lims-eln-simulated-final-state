@@ -90,7 +90,7 @@ EXPECTED_AUTOMATION_CONTROLS = {
     "dependabot_open_pull_requests_per_ecosystem": 2,
     "dependabot_grouped_update_types": ["minor", "patch"],
     "monthly_budget_minutes": {"minimum": 100, "maximum": 300},
-    "settings_state": "pending_source_acceptance_and_observed_check_name",
+    "settings_state": "source_accepted_contexts_observed_activation_pending",
 }
 
 _SECRET_EXPRESSION = re.compile(

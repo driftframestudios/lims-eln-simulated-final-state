@@ -14,7 +14,13 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from lims_eln_sim.contract_v1 import (
+    CONTRACT_ACCEPTANCE_LINEAGE_COMMIT,
     CONTRACT_DISTRIBUTION_VERSION,
+    CONTRACT_DISTRIBUTION_STATE,
+    CONTRACT_REQUIREMENT,
+    CONTRACT_SOURCE_COMMIT,
+    CONTRACT_SOURCE_IDENTITY_DIGEST,
+    CONTRACT_SOURCE_TREE,
     GOLDEN_SPECIMEN_RESULT_COMPATIBILITY,
     GOLDEN_SPECIMEN_RESULT_PROJECTION_ID,
     GOLDEN_SPECIMEN_RESULT_PROJECTION_VERSION,
@@ -221,21 +227,43 @@ class ContractV1Tests(unittest.TestCase):
         release = json.loads((ROOT / "release" / "repository-role.json").read_text())
         project = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]
         distribution = binding["distribution"]
-        pinned_distribution = (
-            f"{distribution['name']}=={CONTRACT_DISTRIBUTION_VERSION}"
-        )
 
         self.assertEqual(distribution["version"], CONTRACT_DISTRIBUTION_VERSION)
+        self.assertEqual(distribution["state"], CONTRACT_DISTRIBUTION_STATE)
+        self.assertEqual(distribution["source_commit"], CONTRACT_SOURCE_COMMIT)
+        self.assertEqual(distribution["source_tree"], CONTRACT_SOURCE_TREE)
+        self.assertEqual(
+            distribution["acceptance_lineage_commit"],
+            CONTRACT_ACCEPTANCE_LINEAGE_COMMIT,
+        )
+        self.assertEqual(
+            distribution["source_identity"]["digest"],
+            CONTRACT_SOURCE_IDENTITY_DIGEST,
+        )
+        self.assertEqual(distribution["requirement"], CONTRACT_REQUIREMENT)
         self.assertEqual(
             project["optional-dependencies"]["contract-conformance"],
-            [pinned_distribution],
+            [CONTRACT_REQUIREMENT],
         )
         self.assertEqual(
             release["external_contract_bindings"]["shared_contract_nucleus"][
                 "distribution"
             ],
-            pinned_distribution,
+            CONTRACT_REQUIREMENT,
         )
+        for field, expected in {
+            "source_commit": CONTRACT_SOURCE_COMMIT,
+            "source_tree": CONTRACT_SOURCE_TREE,
+            "source_identity_digest": CONTRACT_SOURCE_IDENTITY_DIGEST,
+            "acceptance_lineage_commit": CONTRACT_ACCEPTANCE_LINEAGE_COMMIT,
+            "distribution_state": CONTRACT_DISTRIBUTION_STATE,
+        }.items():
+            self.assertEqual(
+                release["external_contract_bindings"]["shared_contract_nucleus"][
+                    field
+                ],
+                expected,
+            )
 
         scenario_path = (
             ROOT

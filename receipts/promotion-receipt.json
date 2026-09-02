@@ -1,0 +1,27 @@
+{
+  "$schema": "../schemas/promotion-receipt.schema.json",
+  "schema_version": "1.0.0",
+  "promotion_receipt_id": "RCP-SIMULATION-PROMOTION-003",
+  "repository": "driftframestudios/lims-eln-simulated-final-state",
+  "target_release": "forecast-2028-FR-v1",
+  "promotion_state": "candidate_ready",
+  "release_event_evidence": {
+    "evidence_mode": "planned",
+    "assurance_stage": "specified"
+  },
+  "forecast_authority": {
+    "evidence_mode": "simulated",
+    "assurance_stage": "verified",
+    "simulation_authority": "definitive_within_selected_future_reality",
+    "environment_observed_closure": "separate_unasserted_state",
+    "production_authorization_effect": "none"
+  },
+  "release_subject": null,
+  "required_evidence": [
+    "Repository validation reproduces the retained selected-future bundle and its complete artifact inventory.",
+    "The reviewed release candidate and accepted main merge resolve to one Git tree.",
+    "The signed annotated release tag identifies the accepted main merge and its reproducible Git archive.",
+    "The promotion observation retains simulated forecast authority, a separate environment-observed path, and no production authorization."
+  ],
+  "accountable_role": "Simulation release stewardship"
+}
