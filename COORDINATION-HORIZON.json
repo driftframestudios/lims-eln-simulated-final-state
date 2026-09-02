@@ -2,9 +2,9 @@
   "horizon_id": "COORD-HORIZON-SIMULATION-2026-Q3",
   "title": "LIMS/ELN Simulation Coordination Horizon",
   "objective": "Keep selected-future closure, bounded-caller evidence, cross-repository comparison, and retained extension options legible without binding collaboration to one planning cadence.",
-  "as_of": "2026-09-02T04:33:11Z",
+  "as_of": "2026-09-02T16:22:37Z",
   "current_item_ids": [
-    "HORIZON-COMPARATIVE-ADMISSION"
+    "HORIZON-SIMULATION-EXTENSIONS"
   ],
   "work_items": [
     {
@@ -30,7 +30,7 @@
       "item_id": "HORIZON-COMPARATIVE-ADMISSION",
       "horizon_label": "Independent comparator admission",
       "sequence": 3,
-      "state": "active",
+      "state": "complete",
       "desired_state": "An independent repository receives the immutable selected-future release, admits its canonical closure, and preserves every source digest.",
       "entry_evidence": [
         "governance-conformant closure artifact",
@@ -38,8 +38,8 @@
         "reviewed candidate and accepted main merge share Git tree 595ae59f25f522732577c5f8e00709f023464a6d"
       ],
       "completion_evidence": [
-        "comparator validates all four domain-specific proof shapes",
-        "immutable replay converges",
+        "comparison-v0.3.1 admits all four domain-specific proof shapes against the canonical selected-future closure",
+        "signed tag object 4c29f6ca410eb4400c55ad77fc34ada2960d1972 resolves to commit b5c13689a32739d29437e209816bf0cd6a878976, tree 10a784b8a677ee6eb524d2860ff5ee7151d6050b, and reproducible archive sha256:92c2d57bd9e75c650365db4b481a22a6580b201926ba1c666fcf8cb8c9311a2e",
         "changed content requires a successor future-reality identity"
       ],
       "owner_role": "comparative evidence stewardship",
@@ -90,14 +90,14 @@
     }
   ],
   "reentry_capsule": {
-    "current_state": "Simulation release 0.3.1 records a verified signed release coordinate for the reproducible selected-future artifacts; Comparative Evidence is the current receiver.",
+    "current_state": "Simulation release 0.3.1 and comparison-v0.3.1 now form distinct verified signed coordinates for one canonical selected-future closure. Evidence-led extensions remain visible and wait for documented material benefit.",
     "recent_decisions": [
       "DECISION-SELECTED-FUTURE-CLOSURE",
       "DECISION-SEPARATE-OBSERVED-STATE",
       "DECISION-RELEASE-OBSERVED"
     ],
-    "next_safe_action": "Hand the exact signed tag, Git objects, reproducible archive, closure, retained bundle, and database-oracle coordinates to Comparative Evidence for independent admission.",
-    "verification": "Confirm the comparator resolves the signed source coordinate and reproduces the canonical artifacts before admitting the selected future."
+    "next_safe_action": "When a proposed vendor, instrument, or operational extension has documented material benefit, define its released contract, evidence mode, qualification cost, and comparator impact before implementation.",
+    "verification": "Confirm the accepted Simulation and Comparison coordinates preserve the canonical closure digest, then verify that a proposed extension names its material benefit and successor contract before its state advances."
   },
   "retained_effects": [
     "The selected future remains definitive only inside its declared simulation reality.",
@@ -113,7 +113,7 @@
   "metadata": {
     "schema_version": "2.1.0",
     "created_at": "2026-07-28T18:45:00Z",
-    "updated_at": "2026-09-02T04:33:11Z",
+    "updated_at": "2026-09-02T16:22:37Z",
     "owner": {
       "actor_id": "OWNER-SIMULATION-HORIZON",
       "display_name": "Simulation stewardship role",
