@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Adopt the accepted Governance 2.2.0 release across the living constellation,
+  orientation markers, and release-role binding while the signed Simulation
+  0.3.1 selected-future baseline and repository-owned contracts retain their
+  existing identities.
 - Advance the living constellation, Coordination Horizon, and First Receipt to
   accepted Enterprise `v0.3.2` and Comparative `comparison-v0.3.2` release,
   observation, report, and publication coordinates. The three measurement

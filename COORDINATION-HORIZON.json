@@ -2,7 +2,7 @@
   "horizon_id": "COORD-HORIZON-SIMULATION-2026-Q3",
   "title": "LIMS/ELN Simulation Coordination Horizon",
   "objective": "Keep selected-future closure, bounded-caller evidence, cross-repository comparison, and retained extension options legible without binding collaboration to one planning cadence.",
-  "as_of": "2026-09-04T06:25:04Z",
+  "as_of": "2026-09-04T09:56:56Z",
   "current_item_ids": [
     "HORIZON-ACCOUNTABLE-SCIENTIFIC-MAPPING"
   ],
@@ -16,7 +16,7 @@
       "entry_evidence": [
         "released synthetic fixture contract",
         "bounded-caller operation registry",
-        "governance schema release 2.1.0"
+        "governance schema release 2.2.0"
       ],
       "completion_evidence": [
         "four family checks return passing closure receipts",
@@ -134,9 +134,9 @@
     "Which observed encounter would most improve calibration while preserving the selected future baseline?"
   ],
   "metadata": {
-    "schema_version": "2.1.0",
+    "schema_version": "2.2.0",
     "created_at": "2026-07-28T18:45:00Z",
-    "updated_at": "2026-09-04T06:25:04Z",
+    "updated_at": "2026-09-04T09:56:56Z",
     "owner": {
       "actor_id": "OWNER-SIMULATION-HORIZON",
       "display_name": "Simulation stewardship role",
