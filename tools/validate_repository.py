@@ -34,6 +34,7 @@ from lims_eln_sim.simulation import (
 )
 from check_artifacts import PATTERNS
 from check_bounded_automation import validate_repository_automation
+from check_living_constellation import validate_living_constellation
 
 
 def _repository_json_documents() -> int:
@@ -193,6 +194,7 @@ def main() -> int:
         )
     first_receipt = load_json(ROOT / "first-receipt.json")
     machine_node = load_json(ROOT / "machine-node.json")
+    horizon = load_json(ROOT / "COORDINATION-HORIZON.json")
     assumptions_ledger = load_json(ROOT / "ledgers/assumptions.json")
     validate_release_alignment(
         forecast_metadata=FORECAST_METADATA,
@@ -203,6 +205,7 @@ def main() -> int:
         release_manifest=manifest,
         first_receipt=first_receipt,
         machine_node=machine_node,
+        coordination_horizon=horizon,
     )
     database_coordinates = validate_database_oracle(database_oracle)
     expected = {
@@ -325,6 +328,14 @@ def main() -> int:
             "manifest": constellation.get("specification"),
             "derived": expected_specification_coordinate,
         }
+    living_findings = validate_living_constellation(
+        constellation,
+        horizon,
+        first_receipt,
+        digest(result["governance_closure"]),
+    )
+    if living_findings:
+        drift["living_constellation"] = living_findings
     expected_governance_binding = {
         "authority": "driftframestudios/site-reading-governance",
         **constellation["governance"],
