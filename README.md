@@ -159,10 +159,30 @@ hosted checks, and local verification while preserving simulated forecast author
 `python tools/verify_release_coordinate.py` verifies the annotated tag, accepted
 history, source tree, archive bytes, receipt carrier, and repository-trusted signer.
 
-[`constellation.lock.json`](constellation.lock.json) records distinct observed
-Simulation and Comparative coordinates for the same canonical selected-future
-closure, together with preserved seed lineage. Evidence-led extensions remain
-available when a documented material benefit earns their qualification cost.
+[`constellation.lock.json`](constellation.lock.json) records the signed Simulation
+baseline alongside the accepted Enterprise `v0.3.2` and Comparative
+`comparison-v0.3.2` releases. It keeps each release separate from the later commit
+that records its observation. For Comparative Evidence, it also records the `docs`
+revision and manifest digest that publish the 0.3.2 report at
+`https://cometspectrum.io/`.
+The lock's `constellation_version` therefore advances to `0.3.2`; the Simulation
+repository remains `0.3.1`, and its signed forecast remains
+`forecast-2028-FR-v1`.
+`python tools/check_living_constellation.py` checks these accepted sibling
+coordinates and the current receiving work; the aggregate repository validator
+also runs this check.
+
+That report compares all 17 Golden Specimen leaves: 10 agree, 4 vary in explained
+ways, and 3 carry materially different measurement meanings. The Enterprise result
+expresses a DNA concentration while the selected future expresses a copy-number
+measurement. Accountable scientific mapping is the current receiver for the analyte,
+value, and unit relationship. A mapping decision can retain the two measurements as
+distinct, define a supported transformation, assign a source correction, or form a
+successor selected-future release. The signed `forecast-2028-FR-v1` release remains
+the recoverable baseline for that decision.
+
+Evidence-led extensions remain available when a documented material benefit earns
+their qualification cost.
 [`ledgers/assumptions.json`](ledgers/assumptions.json) resolves every assumption
 identifier cited by the selected-future closure and names its recalculation trigger.
 

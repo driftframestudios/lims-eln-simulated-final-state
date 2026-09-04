@@ -99,6 +99,7 @@ class ReleaseBoundaryTests(unittest.TestCase):
             "manifest": self._load("release/repository-role.json"),
             "first": self._load("first-receipt.json"),
             "machine": self._load("machine-node.json"),
+            "horizon": self._load("COORDINATION-HORIZON.json"),
         }
 
     def assert_aligned(self, documents: dict[str, object]) -> None:
@@ -111,6 +112,7 @@ class ReleaseBoundaryTests(unittest.TestCase):
             release_manifest=documents["manifest"],
             first_receipt=documents["first"],
             machine_node=documents["machine"],
+            coordination_horizon=documents["horizon"],
         )
 
     def test_repository_carriers_share_one_selected_future(self) -> None:
@@ -341,7 +343,7 @@ class ReleaseBoundaryTests(unittest.TestCase):
             (
                 "first",
                 ("handoff", "action_ids"),
-                ["RCP-SIMULATION-PROMOTION-003"],
+                ["HORIZON-SIMULATION-EXTENSIONS"],
                 "first receipt structured handoff actions",
             ),
         )

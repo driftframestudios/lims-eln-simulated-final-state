@@ -22,8 +22,9 @@ def validate_release_alignment(
     release_manifest: Mapping[str, Any],
     first_receipt: Mapping[str, Any],
     machine_node: Mapping[str, Any],
+    coordination_horizon: Mapping[str, Any],
 ) -> None:
-    """Bind release carriers to the executable selected-future authority."""
+    """Bind release carriers and the living handoff to their current owners."""
 
     future = _object(governance_closure.get("future_reality"), "governance future")
     future_reality_id = _text(
@@ -340,9 +341,30 @@ def validate_release_alignment(
         "first receipt and Machine Node contract sets",
     )
     handoff = _object(first_receipt.get("handoff"), "first receipt handoff")
+    current_action_ids = _unique_strings(
+        coordination_horizon.get("current_item_ids"),
+        "Coordination Horizon current item IDs",
+    )
+    horizon_items = {
+        _text(item.get("item_id"), "Coordination Horizon work-item ID"): item
+        for item in _object_sequence(
+            coordination_horizon.get("work_items"),
+            "Coordination Horizon work items",
+        )
+    }
+    if len(current_action_ids) != 1:
+        raise ReleaseBoundaryError(
+            "first receipt singular recipient resolves through one current "
+            "Coordination Horizon item"
+        )
+    current_item = horizon_items.get(current_action_ids[0])
+    if current_item is None:
+        raise ReleaseBoundaryError(
+            "Coordination Horizon current item resolves to a declared work item"
+        )
     _equal(
         handoff.get("recipient_role"),
-        "comparative evidence stewardship",
+        current_item.get("owner_role"),
         "first receipt next receiver",
     )
     handoff_action_ids = _unique_strings(
@@ -351,7 +373,7 @@ def validate_release_alignment(
     )
     _equal(
         handoff_action_ids,
-        first_open_receipts,
+        current_action_ids,
         "first receipt structured handoff actions",
     )
 

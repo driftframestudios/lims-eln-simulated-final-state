@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Advance the living constellation, Coordination Horizon, and First Receipt to
+  accepted Enterprise `v0.3.2` and Comparative `comparison-v0.3.2` release,
+  observation, report, and publication coordinates. The three measurement
+  divergences now have an accountable scientific mapping receiver, while the
+  signed Simulation 0.3.1 release remains the recoverable selected-future baseline.
+- Add a focused living-constellation check and mutation tests for sibling release,
+  observation, report, publication, closure, and receiving-work differences.
 - Reconcile the living constellation and re-entry surfaces with the accepted
   `comparison-v0.3.1` tag, commit, tree, archive, and canonical closure while
   preserving the signed Simulation release and retained artifacts byte for byte.
