@@ -852,7 +852,60 @@ class SimulationTests(unittest.TestCase):
         self.assertEqual(__version__, "0.3.1")
         self.assertEqual(manifest["repository_release"], __version__)
         self.assertEqual(manifest["repository_role"], "simulated_final_state")
-        self.assertEqual(manifest["contract_bindings"]["governance_schema"], "2.1.0")
+        self.assertEqual(manifest["contract_bindings"]["governance_schema"], "2.2.0")
+        self.assertEqual(machine_node["schema_release"], "2.2.0")
+        self.assertEqual(
+            {item["marking_schema_version"] for item in machine_node["campaigns"]},
+            {"2.2.0"},
+        )
+        self.assertEqual(
+            {
+                machine_node["metadata"]["schema_version"],
+                first_receipt["metadata"]["schema_version"],
+                horizon["metadata"]["schema_version"],
+            },
+            {"2.2.0"},
+        )
+        shared_top_level = {
+            "as_of",
+            "authority_posture",
+            "contract_state",
+            "coordination_horizon_id",
+            "current_horizon_summary",
+            "evidence_posture",
+            "first_receipt_id",
+            "handoff",
+            "invalidation_conditions",
+            "machine_node_id",
+            "metadata",
+            "open_receipts",
+            "orientation_purpose",
+            "source_permissions",
+        }
+        retained_extension_paths = {
+            *(f"$.{key}" for key in set(first_receipt) - shared_top_level),
+            *(
+                f"$.authority_posture.{key}"
+                for key in set(first_receipt["authority_posture"])
+                - {"mode", "statement"}
+            ),
+            *(
+                f"$.handoff.{key}"
+                for key in set(first_receipt["handoff"])
+                - {"next_safe_action", "recipient_role", "success_evidence"}
+            ),
+        }
+        self.assertEqual(
+            retained_extension_paths,
+            {
+                "$.selected_future",
+                "$.authority_posture.simulation_authority",
+                "$.authority_posture.accountable_observation_required",
+                "$.authority_posture.environment_observed_closure",
+                "$.authority_posture.production_authorization_effect",
+                "$.handoff.action_ids",
+            },
+        )
         self.assertEqual(
             manifest["reference_result_digest"],
             result["content_digest"],
@@ -1077,17 +1130,17 @@ class SimulationTests(unittest.TestCase):
         self.assertEqual(
             lock["governance"],
             {
-                "release": "governance-v2.1.0",
+                "release": "governance-v2.2.0",
                 "profile": "Control Plane Profile 0.3.0",
-                "schema_version": "2.1.0",
-                "tag_object_oid": "1c77396e44b71719ccab138fecd02e525089e39d",
-                "commit": "8469c2a6b2c7f4445523cee262b961ffe3d2523b",
-                "digest": "git-tree-sha1:aed5d57120e15ceabe77d7bba700a43097200b19",
+                "schema_version": "2.2.0",
+                "tag_object_oid": "6acdf4c7e7c200972ee3d7b257f5bc828bde753b",
+                "commit": "c8d7150b8c4e6277bc504a7c69289cb5b949b0ee",
+                "digest": "git-tree-sha1:451c2e67fa15958ea537dc367fe196467c1e60e5",
                 "archive_digest": (
-                    "sha256:469ae49fca7d5ad6e1766080b3c39d76c46a840366b217f3839b9d34f2e77d32"
+                    "sha256:2da503b695252fde152f2f7765776e4c784b9afeec463dae592a7a6012126a58"
                 ),
                 "observation_carrier_commit": (
-                    "43549173f850607ff73382fabb3d48906ff92f62"
+                    "53e3448d52b8ea6b50b27d54a73b916ee842d93b"
                 ),
                 "coordinate_status": "release_observed",
             },

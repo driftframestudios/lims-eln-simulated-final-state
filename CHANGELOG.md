@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Adopt the accepted Governance 2.2.0 release across the living constellation,
+  orientation markers, and release-role binding while the signed Simulation
+  0.3.1 selected-future baseline and repository-owned contracts retain their
+  existing identities.
 - Add a copy-local collaboration workbench for re-entry, source-authority
   mapping, constellation reconciliation, and in-stride ordinary-language review;
   align contributor routes with the executable branch and Python contracts.

@@ -169,9 +169,9 @@ source permissions, invalidation conditions, and the independent observed-compar
 path.
 
 The Machine Node and Coordination Horizon validate directly against the accepted
-Governance 2.1.0 release. The First Receipt adds repository-owned selected-future
-authority fields beyond the shared orientation schema; the local release-boundary
-checks validate those fields and keep their simulated meaning explicit.
+Governance 2.2.0 release. The First Receipt retains six repository-owned
+selected-future extensions beside the shared orientation schema; focused checks
+keep their simulated meaning and exact extension boundary explicit.
 
 [`receipts/promotion-receipt.json`](receipts/promotion-receipt.json) records the
 observed signed release event, accepted source objects, reproducible archive,
