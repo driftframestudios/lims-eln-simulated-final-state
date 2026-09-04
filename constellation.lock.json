@@ -1,7 +1,7 @@
 {
-  "constellation_version": "0.3.1",
-  "recorded_at": "2026-09-02",
-  "content_identity": "Accepted Program, Governance, Enterprise, Simulation, and Comparative coordinates remain distinct; domain artifacts retain their declared SHA-256 digests.",
+  "constellation_version": "0.3.2",
+  "recorded_at": "2026-09-04",
+  "content_identity": "Accepted Program, Governance, Enterprise, Simulation, and Comparative coordinates remain distinct. The published 0.3.2 comparison preserves the signed selected-future release while its release, observation, report, and publication identities remain independently recoverable.",
   "specification": {
     "release": null,
     "package_version": "0.3.1",
@@ -22,24 +22,53 @@
     "canonical_closure_digest": "sha256:33bcc14da24309b7716728b3f0204008e8f7ebf58de75f9e40a5986b421f06b5"
   },
   "implementation": {
-    "release": "v0.3.1",
-    "tag_object_oid": "8b1013ff6a116b64e5d31c2870b574f641ee88f6",
-    "commit": "44a4b8e67ff2e6af232b12daf3692bee8e8f3a3a",
-    "digest": "git-tree-sha1:cc1bb335c0cdd1a37d1b6554480b3afdb9c9f360",
-    "archive_digest": "sha256:00da1be41bdf23a21124d600f3788464bfd8f590c819f6a9c74b98671edb2174",
-    "observation_carrier_commit": "7e17bb9840f2936d7c83d63f36bfdb08b768ecb5",
+    "release": "v0.3.2",
+    "tag_object_oid": "c3db01079b88622f06e8714c8bcbdf0dc1803a10",
+    "commit": "fe0bd2a08ac1697ce18ca583d9631faae7db7132",
+    "digest": "git-tree-sha1:eb8eadb27a9e07c6069a1946f115a0083d94af5c",
+    "archive_digest": "sha256:0ea3db3099e3485f65d238fb2e194c6bfd9b9a90f6642431c4a96974ebcc3c16",
+    "observation_carrier_commit": "b3fcf07445bc0c049daa00b03d6fe583962085cf",
     "coordinate_status": "release_observed",
     "source_binding_status": "accepted_program_coordinate"
   },
   "comparison": {
-    "release": "comparison-v0.3.1",
-    "tag_object_oid": "4c29f6ca410eb4400c55ad77fc34ada2960d1972",
-    "commit": "b5c13689a32739d29437e209816bf0cd6a878976",
-    "digest": "git-tree-sha1:10a784b8a677ee6eb524d2860ff5ee7151d6050b",
-    "archive_digest": "sha256:92c2d57bd9e75c650365db4b481a22a6580b201926ba1c666fcf8cb8c9311a2e",
+    "release": "comparison-v0.3.2",
+    "tag_object_oid": "ccc4b206d9071933516863ee0eb3f5b091fc76b0",
+    "commit": "0289ff835c790693a769347e69da0abdcfaa47de",
+    "digest": "git-tree-sha1:60c85e4206e2d487dac83d521401816dec0f34ae",
+    "archive_digest": "sha256:5c1697f98655ce1979fcc6f4a85b719e0c44afde8a3004037d19dd1416d0720e",
+    "observation_carrier": {
+      "commit": "2cca88982444ebc8280f9eb2891d97bf25dbeb95",
+      "receipt_path": "receipts/promotion-observation-v0.3.2.json",
+      "receipt_file_sha256": "sha256:acccb507f0675cdc079aa56bc12299bd4ce533344cb150e42dba1c991c024fd4"
+    },
     "coordinate_status": "release_observed",
     "canonical_closure_digest": "sha256:33bcc14da24309b7716728b3f0204008e8f7ebf58de75f9e40a5986b421f06b5",
-    "receipt_schema": "2.0.1"
+    "receipt_schema": "2.0.1",
+    "golden_specimen_report": {
+      "report_digest": "sha256:a2f92ae4acb9fb7d835d0a9b126bb1932ae69b06b094303180dd9fea7217b77c",
+      "leaf_paths_compared": 17,
+      "classification_counts": {
+        "agreement": 10,
+        "explainable_variation": 4,
+        "material_divergence": 3
+      },
+      "material_divergence_paths": [
+        "$.measurement.analyte",
+        "$.measurement.value",
+        "$.measurement.unit"
+      ],
+      "material_divergence_receiver": "accountable_scientific_mapping"
+    },
+    "publication": {
+      "coordinate_status": "published",
+      "record_carrier_commit": "c854a6f58c587a0b099efa24d2b745b2bd7187df",
+      "source_revision": "2cca88982444ebc8280f9eb2891d97bf25dbeb95",
+      "docs_revision": "6ccc087875b439eb70304771f534434acae3f01c",
+      "projection_manifest_path": "projection-manifest.json",
+      "projection_manifest_sha256": "sha256:38d01a78be6804d04bc4f24c412777b8cb08fe2c65372e278480c106b4bcbeea",
+      "canonical_origin": "https://cometspectrum.io/"
+    }
   },
   "governance": {
     "release": "governance-v2.1.0",

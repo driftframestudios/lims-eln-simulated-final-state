@@ -932,7 +932,7 @@ class SimulationTests(unittest.TestCase):
         )
         self.assertEqual(
             horizon["current_item_ids"],
-            ["HORIZON-SIMULATION-EXTENSIONS"],
+            ["HORIZON-ACCOUNTABLE-SCIENTIFIC-MAPPING"],
         )
         promotion = next(
             item
@@ -946,6 +946,20 @@ class SimulationTests(unittest.TestCase):
             if item["item_id"] == "HORIZON-COMPARATIVE-ADMISSION"
         )
         self.assertEqual(comparative["state"], "complete")
+        scientific_mapping = next(
+            item
+            for item in horizon["work_items"]
+            if item["item_id"] == "HORIZON-ACCOUNTABLE-SCIENTIFIC-MAPPING"
+        )
+        self.assertEqual(scientific_mapping["state"], "ready")
+        self.assertEqual(
+            scientific_mapping["owner_role"],
+            "accountable scientific mapping",
+        )
+        self.assertEqual(
+            scientific_mapping["dependency_ids"],
+            ["HORIZON-COMPARATIVE-ADMISSION"],
+        )
         extensions = next(
             item
             for item in horizon["work_items"]
@@ -1012,7 +1026,8 @@ class SimulationTests(unittest.TestCase):
         )
 
         lock = json.loads((ROOT / "constellation.lock.json").read_text())
-        self.assertEqual(lock["constellation_version"], "0.3.1")
+        self.assertEqual(lock["constellation_version"], "0.3.2")
+        self.assertEqual(manifest["repository_release"], "0.3.1")
         self.assertEqual(
             lock["specification"],
             {
@@ -1052,42 +1067,12 @@ class SimulationTests(unittest.TestCase):
             digest(result["governance_closure"]),
         )
         self.assertEqual(
-            lock["comparison"],
-            {
-                "release": "comparison-v0.3.1",
-                "tag_object_oid": (
-                    "4c29f6ca410eb4400c55ad77fc34ada2960d1972"
-                ),
-                "commit": "b5c13689a32739d29437e209816bf0cd6a878976",
-                "digest": (
-                    "git-tree-sha1:10a784b8a677ee6eb524d2860ff5ee7151d6050b"
-                ),
-                "archive_digest": (
-                    "sha256:92c2d57bd9e75c650365db4b481a22a6580b201926ba1c666fcf8cb8c9311a2e"
-                ),
-                "coordinate_status": "release_observed",
-                "canonical_closure_digest": digest(
-                    result["governance_closure"]
-                ),
-                "receipt_schema": "2.0.1",
-            },
+            lock["comparison"]["canonical_closure_digest"],
+            digest(result["governance_closure"]),
         )
         self.assertEqual(
-            lock["implementation"],
-            {
-                "release": "v0.3.1",
-                "tag_object_oid": "8b1013ff6a116b64e5d31c2870b574f641ee88f6",
-                "commit": "44a4b8e67ff2e6af232b12daf3692bee8e8f3a3a",
-                "digest": "git-tree-sha1:cc1bb335c0cdd1a37d1b6554480b3afdb9c9f360",
-                "archive_digest": (
-                    "sha256:00da1be41bdf23a21124d600f3788464bfd8f590c819f6a9c74b98671edb2174"
-                ),
-                "observation_carrier_commit": (
-                    "7e17bb9840f2936d7c83d63f36bfdb08b768ecb5"
-                ),
-                "coordinate_status": "release_observed",
-                "source_binding_status": "accepted_program_coordinate",
-            },
+            lock["implementation"]["source_binding_status"],
+            "accepted_program_coordinate",
         )
         self.assertEqual(
             lock["governance"],

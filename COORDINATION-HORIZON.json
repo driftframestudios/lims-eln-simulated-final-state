@@ -2,9 +2,9 @@
   "horizon_id": "COORD-HORIZON-SIMULATION-2026-Q3",
   "title": "LIMS/ELN Simulation Coordination Horizon",
   "objective": "Keep selected-future closure, bounded-caller evidence, cross-repository comparison, and retained extension options legible without binding collaboration to one planning cadence.",
-  "as_of": "2026-09-02T16:22:37Z",
+  "as_of": "2026-09-04T06:25:04Z",
   "current_item_ids": [
-    "HORIZON-SIMULATION-EXTENSIONS"
+    "HORIZON-ACCOUNTABLE-SCIENTIFIC-MAPPING"
   ],
   "work_items": [
     {
@@ -28,18 +28,20 @@
     },
     {
       "item_id": "HORIZON-COMPARATIVE-ADMISSION",
-      "horizon_label": "Independent comparator admission",
+      "horizon_label": "Independent comparator admission and published return",
       "sequence": 3,
       "state": "complete",
       "desired_state": "An independent repository receives the immutable selected-future release, admits its canonical closure, and preserves every source digest.",
       "entry_evidence": [
         "governance-conformant closure artifact",
         "four canonical family digests",
-        "reviewed candidate and accepted main merge share Git tree 595ae59f25f522732577c5f8e00709f023464a6d"
+        "reviewed candidate and accepted main merge share Git tree 595ae59f25f522732577c5f8e00709f023464a6d",
+        "constellation.lock.json binds the accepted Enterprise v0.3.2 release and observation coordinates"
       ],
       "completion_evidence": [
-        "comparison-v0.3.1 admits all four domain-specific proof shapes against the canonical selected-future closure",
-        "signed tag object 4c29f6ca410eb4400c55ad77fc34ada2960d1972 resolves to commit b5c13689a32739d29437e209816bf0cd6a878976, tree 10a784b8a677ee6eb524d2860ff5ee7151d6050b, and reproducible archive sha256:92c2d57bd9e75c650365db4b481a22a6580b201926ba1c666fcf8cb8c9311a2e",
+        "comparison-v0.3.2 compares the accepted Enterprise v0.3.2 and Simulation observations",
+        "constellation.lock.json binds the exact Comparison release, observation, report, record, and Pages projection identities",
+        "the published Golden Specimen report retains its complete classification and material-path set with accountable scientific mapping as receiver",
         "changed content requires a successor future-reality identity"
       ],
       "owner_role": "comparative evidence stewardship",
@@ -69,9 +71,30 @@
       ]
     },
     {
+      "item_id": "HORIZON-ACCOUNTABLE-SCIENTIFIC-MAPPING",
+      "horizon_label": "Accountable scientific mapping for measurement meaning",
+      "sequence": 4,
+      "state": "ready",
+      "desired_state": "An accountable scientific mapping records how the concentration and copy-number measurements relate, which comparisons they support, and which source owns any semantic change.",
+      "entry_evidence": [
+        "constellation.lock.json records the complete comparison classification and material measurement paths",
+        "the accepted Comparison return assigns those paths to accountable scientific mapping",
+        "the accepted implementation carries SYNTHETIC-DNA at 12.5 ng/uL while the selected future carries synthetic-copy-number-marker at 2.0 copies"
+      ],
+      "completion_evidence": [
+        "the mapping records analyte identity, quantity kind, unit semantics, and any valid transformation between the two observations",
+        "the accountable scientific role assigns each required change to the implementation, Program contract, or a successor selected-future release",
+        "the signed forecast-2028-FR-v1 release remains the recoverable baseline for this comparison"
+      ],
+      "owner_role": "accountable scientific mapping",
+      "dependency_ids": [
+        "HORIZON-COMPARATIVE-ADMISSION"
+      ]
+    },
+    {
       "item_id": "HORIZON-SIMULATION-EXTENSIONS",
       "horizon_label": "Evidence-led future extensions",
-      "sequence": 4,
+      "sequence": 5,
       "state": "waiting",
       "desired_state": "Additional vendor, instrument, and operational twins enter only through released contracts and explicit assurance cost.",
       "entry_evidence": [
@@ -90,14 +113,14 @@
     }
   ],
   "reentry_capsule": {
-    "current_state": "Simulation release 0.3.1 and comparison-v0.3.1 now form distinct verified signed coordinates for one canonical selected-future closure. Evidence-led extensions remain visible and wait for documented material benefit.",
+    "current_state": "The signed Simulation 0.3.1 release remains the selected-future baseline. Enterprise v0.3.2 and comparison-v0.3.2 now form distinct accepted coordinates, and the published report routes its material measurement differences to accountable scientific mapping.",
     "recent_decisions": [
       "DECISION-SELECTED-FUTURE-CLOSURE",
       "DECISION-SEPARATE-OBSERVED-STATE",
       "DECISION-RELEASE-OBSERVED"
     ],
-    "next_safe_action": "When a proposed vendor, instrument, or operational extension has documented material benefit, define its released contract, evidence mode, qualification cost, and comparator impact before implementation.",
-    "verification": "Confirm the accepted Simulation and Comparison coordinates preserve the canonical closure digest, then verify that a proposed extension names its material benefit and successor contract before its state advances."
+    "next_safe_action": "Record an accountable scientific mapping for the analyte, value, and unit differences, then assign any resulting change to its owning source or to a successor selected-future release.",
+    "verification": "Confirm the exact signed Simulation, Enterprise, and Comparison coordinates in constellation.lock.json, the later Comparison observation and publication identities, and a mapping decision that states the supported measurement relationship."
   },
   "retained_effects": [
     "The selected future remains definitive only inside its declared simulation reality.",
@@ -113,7 +136,7 @@
   "metadata": {
     "schema_version": "2.1.0",
     "created_at": "2026-07-28T18:45:00Z",
-    "updated_at": "2026-09-02T16:22:37Z",
+    "updated_at": "2026-09-04T06:25:04Z",
     "owner": {
       "actor_id": "OWNER-SIMULATION-HORIZON",
       "display_name": "Simulation stewardship role",

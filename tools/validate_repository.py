@@ -102,6 +102,7 @@ from lims_eln_sim.simulation import (
 )
 from check_artifacts import PATTERNS
 from check_bounded_automation import validate_repository_automation
+from check_living_constellation import validate_living_constellation
 
 
 def parse_skill_source(path: Path) -> tuple[dict[str, str], str]:
@@ -216,17 +217,40 @@ def validate_living_constellation_coherence(root: Path = ROOT) -> list[str]:
         item["item_id"]: item for item in horizon.get("work_items", [])
     }
     comparison_item = work_items.get("HORIZON-COMPARATIVE-ADMISSION", {})
-    extension_item = work_items.get("HORIZON-SIMULATION-EXTENSIONS", {})
     if comparison_item.get("state") != "complete":
         findings.append("accepted Comparison admission must remain complete")
-    if extension_item.get("state") != "waiting":
-        findings.append("Simulation extensions must wait for their entry signal")
-    if horizon.get("current_item_ids") != ["HORIZON-SIMULATION-EXTENSIONS"]:
-        findings.append("current horizon must route to Simulation extensions")
-    summary = first_receipt.get("current_horizon_summary", "")
-    if "Simulation and Comparison coordinates" not in summary:
+
+    current_item_ids = horizon.get("current_item_ids")
+    if (
+        not isinstance(current_item_ids, list)
+        or not current_item_ids
+        or not all(isinstance(item, str) and item for item in current_item_ids)
+        or len(current_item_ids) != len(set(current_item_ids))
+    ):
+        findings.append("current horizon must name distinct actionable work items")
+        current_item_ids = []
+    current_items = [work_items.get(item_id) for item_id in current_item_ids]
+    if any(item is None for item in current_items):
+        findings.append("current horizon items must resolve to declared work items")
+    elif any(item.get("state") not in {"ready", "active"} for item in current_items):
+        findings.append("current horizon items must carry ready or active state")
+
+    if first_receipt.get("coordination_horizon_id") != horizon.get("horizon_id"):
+        findings.append("First Receipt must resolve the current Coordination Horizon")
+    handoff = first_receipt.get("handoff", {})
+    if handoff.get("action_ids") != current_item_ids:
+        findings.append("First Receipt actions must match the current horizon items")
+    current_owner_roles = {
+        item.get("owner_role") for item in current_items if item is not None
+    }
+    if (
+        len(current_owner_roles) != 1
+        or handoff.get("recipient_role") not in current_owner_roles
+    ):
+        findings.append("First Receipt recipient must own the current horizon items")
+    if not first_receipt.get("current_horizon_summary", "").strip():
         findings.append(
-            "First Receipt must describe the accepted Simulation and Comparison coordinates"
+            "First Receipt must provide a current horizon summary"
         )
     return findings
 
@@ -400,6 +424,7 @@ def main() -> int:
         )
     first_receipt = load_json(ROOT / "first-receipt.json")
     machine_node = load_json(ROOT / "machine-node.json")
+    horizon = load_json(ROOT / "COORDINATION-HORIZON.json")
     assumptions_ledger = load_json(ROOT / "ledgers/assumptions.json")
     validate_release_alignment(
         forecast_metadata=FORECAST_METADATA,
@@ -410,6 +435,7 @@ def main() -> int:
         release_manifest=manifest,
         first_receipt=first_receipt,
         machine_node=machine_node,
+        coordination_horizon=horizon,
     )
     database_coordinates = validate_database_oracle(database_oracle)
     expected = {
@@ -532,6 +558,14 @@ def main() -> int:
             "manifest": constellation.get("specification"),
             "derived": expected_specification_coordinate,
         }
+    living_findings = validate_living_constellation(
+        constellation,
+        horizon,
+        first_receipt,
+        digest(result["governance_closure"]),
+    )
+    if living_findings:
+        drift["living_constellation"] = living_findings
     expected_governance_binding = {
         "authority": "driftframestudios/site-reading-governance",
         **constellation["governance"],
