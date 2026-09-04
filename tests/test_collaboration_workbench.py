@@ -123,6 +123,36 @@ class CollaborationWorkbenchTests(unittest.TestCase):
                 findings,
             )
 
+    def test_current_handoff_resolves_through_horizon_ownership(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="simulation-coherence-") as temporary:
+            copy_root = Path(temporary)
+            self.copy_living_carriers(copy_root)
+            receipt_path = copy_root / "first-receipt.json"
+            receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+            receipt["handoff"]["action_ids"] = ["HORIZON-SIMULATION-EXTENSIONS"]
+            receipt_path.write_text(
+                json.dumps(receipt, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            findings = validation.validate_living_constellation_coherence(copy_root)
+            self.assertIn(
+                "First Receipt actions must match the current horizon items",
+                findings,
+            )
+
+            horizon_path = copy_root / "COORDINATION-HORIZON.json"
+            horizon = json.loads(horizon_path.read_text(encoding="utf-8"))
+            horizon["current_item_ids"] = ["HORIZON-UNKNOWN"]
+            horizon_path.write_text(
+                json.dumps(horizon, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            findings = validation.validate_living_constellation_coherence(copy_root)
+            self.assertIn(
+                "current horizon items must resolve to declared work items",
+                findings,
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
