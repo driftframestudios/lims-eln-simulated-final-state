@@ -5,6 +5,7 @@ from __future__ import annotations
 import importlib.util
 import json
 from pathlib import Path
+import re
 import shutil
 import sys
 import tempfile
@@ -58,6 +59,64 @@ class CollaborationWorkbenchTests(unittest.TestCase):
                 for relative in validation.PUBLIC_POSSIBLE_SKILL_METADATA
             )
         )
+
+    def test_readme_graph_surfaces_current_evidence_and_return_routes(self) -> None:
+        root_readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        first_receipt = root_readme.split("## Selected future reality", 1)[0]
+        compact_first_receipt = " ".join(first_receipt.split())
+        for signal in (
+            "release/repository-role.json",
+            "`0.3.1`",
+            "`forecast-2028-FR-v1`",
+            "10 agree",
+            "4 vary in explained ways",
+            "3 carry materially different measurement meanings",
+            "accountable scientific mapping",
+            "database/README.md",
+            ".agents/skills/README.md",
+        ):
+            with self.subTest(signal=signal):
+                self.assertIn(signal, compact_first_receipt)
+
+        database_readme = (ROOT / "database" / "README.md").read_text(
+            encoding="utf-8"
+        )
+        for heading in (
+            "## Reader job",
+            "## Authority",
+            "## Quickest proof",
+            "## Evidence ceiling",
+            "## Return path",
+        ):
+            with self.subTest(heading=heading):
+                self.assertIn(heading, database_readme)
+        for route in (
+            "../release/repository-role.json",
+            "../README.md#current-accepted-coordinate",
+            "../COORDINATION-HORIZON.json",
+            "../first-receipt.json",
+            "../AGENTS.md",
+        ):
+            with self.subTest(route=route):
+                self.assertIn(route, database_readme)
+
+    def test_orientation_markdown_routes_resolve(self) -> None:
+        link_pattern = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
+        orientation_paths = (
+            ROOT / "README.md",
+            ROOT / "AGENTS.md",
+            ROOT / "database" / "README.md",
+            ROOT / ".agents" / "skills" / "README.md",
+        )
+        for source in orientation_paths:
+            for target in link_pattern.findall(source.read_text(encoding="utf-8")):
+                if target.startswith(("http://", "https://", "mailto:", "#")):
+                    continue
+                relative = target.split("#", 1)[0]
+                if not relative:
+                    continue
+                with self.subTest(source=str(source.relative_to(ROOT)), target=target):
+                    self.assertTrue((source.parent / relative).is_file())
 
     def test_upstream_lineage_drift_is_visible(self) -> None:
         with tempfile.TemporaryDirectory(prefix="simulation-workbench-") as temporary:

@@ -20,6 +20,10 @@ artifacts, release evidence, or the living comparison route needs to change.
   That release remains immutable while living orientation records advance.
 - Preserve unrelated work already present in the worktree.
 
+Use the [repository-local skill catalog](.agents/skills/README.md) when choosing
+the smallest fitting workflow. The direct routes below keep each skill's trigger
+and role visible from this collaboration ground.
+
 Use
 [`repository-reentry`](.agents/skills/repository-reentry/SKILL.md)
 when resumed work needs the current branch, accepted forecast, living

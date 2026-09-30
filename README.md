@@ -10,10 +10,39 @@ synthetic fixtures. The actual implementation remains an independent system. Ide
 move from this simulation into delivery through reviewed decisions and released
 specifications.
 
-## Start here
+## Current accepted coordinate
+
+The [`repository role manifest`](release/repository-role.json) identifies this
+repository as the `simulated_final_state`, with repository release `0.3.1` and
+selected-future release `forecast-2028-FR-v1`. The
+[`constellation lock`](constellation.lock.json) keeps that signed Simulation
+baseline distinct from the accepted Enterprise and Comparative coordinates.
+
+The current comparison classifies all 17 Golden Specimen leaves: **10 agree, 4
+vary in explained ways, and 3 carry materially different measurement meanings**.
+The Enterprise result expresses DNA concentration while the selected future
+expresses copy number.
+
+**Current receiver:** accountable scientific mapping for the analyte, value, and
+unit relationship. The
+[`Coordination Horizon`](COORDINATION-HORIZON.json) owns the next action: record
+the supported measurement relationship, then assign any resulting change to its
+owning source or to a successor selected-future release. The signed release stays
+available as the recoverable baseline for that decision.
+
+## Choose a route
+
+| Reader job | Start here | What this route establishes |
+| --- | --- | --- |
+| Evaluate the repository's role and current result | [`release/repository-role.json`](release/repository-role.json) and [`constellation.lock.json`](constellation.lock.json) | Accepted Simulation identity, exact sibling coordinates, and the current 10/4/3 comparison |
+| Run the selected future | [Run it](#run-it) | Deterministic behavior from synthetic inputs and the retained database oracle |
+| Inspect the database comparison target | [`database/README.md`](database/README.md) | Oracle authority, focused proof, evidence ceiling, and return path |
+| Continue the current scientific mapping | [`COORDINATION-HORIZON.json`](COORDINATION-HORIZON.json) and [`first-receipt.json`](first-receipt.json) | Accountable mapping action, acceptance signal, and safe re-entry |
+| Re-enter repository work | [`AGENTS.md`](AGENTS.md) and the [skill catalog](.agents/skills/README.md) | Branch, source, validation, and bounded workflow routes |
 
 Read [`AGENTS.md`](AGENTS.md) for the current source, branch, evidence, writing,
-and validation route. Four repository-local skills support bounded work:
+and validation route. The [repository-local skill catalog](.agents/skills/README.md)
+helps choose among four bounded workflows:
 
 - [`repository-reentry`](.agents/skills/repository-reentry/SKILL.md) reconstructs
   current source, accepted release, living orientation, and comparison state;
@@ -26,8 +55,9 @@ and validation route. Four repository-local skills support bounded work:
   reviews shorthand in stride while preserving exact technical and governed
   terms.
 
-These skills are self-contained and public-possible. They remain outside any
-public projection until a separate public-ready review accepts them.
+These skills are self-contained and carry `source_band: public_possible` while
+natural use tests their local fit. A separate public-ready review is the event
+that can promote one into a public projection.
 
 ## Selected future reality
 
@@ -192,14 +222,12 @@ repository remains `0.3.1`, and its signed forecast remains
 coordinates and the current receiving work; the aggregate repository validator
 also runs this check.
 
-That report compares all 17 Golden Specimen leaves: 10 agree, 4 vary in explained
-ways, and 3 carry materially different measurement meanings. The Enterprise result
-expresses a DNA concentration while the selected future expresses a copy-number
-measurement. Accountable scientific mapping is the current receiver for the analyte,
-value, and unit relationship. A mapping decision can retain the two measurements as
-distinct, define a supported transformation, assign a source correction, or form a
-successor selected-future release. The signed `forecast-2028-FR-v1` release remains
-the recoverable baseline for that decision.
+The [current accepted coordinate](#current-accepted-coordinate) summarizes the
+report's 10/4/3 classification and accountable scientific mapping receiver. The
+lock owns the exact accepted identities; the Coordination Horizon and First
+Receipt own the living action and return signal. A mapping decision can retain
+the two measurements as distinct, define a supported transformation, assign a
+source correction, or form a successor selected-future release.
 
 Evidence-led extensions remain available when a documented material benefit earns
 their qualification cost.
