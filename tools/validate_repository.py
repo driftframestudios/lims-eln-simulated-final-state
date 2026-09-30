@@ -173,12 +173,28 @@ def validate_collaboration_workbench(root: Path = ROOT) -> list[str]:
                 f"{relative_path} must remain usable through repository-local "
                 "guidance; private workspace locator found"
             )
+    catalog_path = skills_root / "README.md"
+    if not catalog_path.is_file():
+        findings.append(".agents/skills/README.md is required for skill selection")
+    else:
+        catalog = catalog_path.read_text(encoding="utf-8")
+        for relative_path in expected_paths:
+            skill_name = Path(relative_path).parent.name
+            if f"({skill_name}/SKILL.md)" not in catalog:
+                findings.append(
+                    ".agents/skills/README.md must link the local skill route "
+                    f"{skill_name}/SKILL.md"
+                )
     for orientation_name in ("README.md", "AGENTS.md"):
         orientation_path = root / orientation_name
         if not orientation_path.is_file():
             findings.append(f"{orientation_name} is required for workbench routing")
             continue
         orientation = orientation_path.read_text(encoding="utf-8")
+        if ".agents/skills/README.md" not in orientation:
+            findings.append(
+                f"{orientation_name} must link .agents/skills/README.md"
+            )
         for relative_path in expected_paths:
             if relative_path not in orientation:
                 findings.append(
