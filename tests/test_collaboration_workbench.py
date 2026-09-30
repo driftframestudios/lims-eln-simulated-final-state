@@ -64,14 +64,27 @@ class CollaborationWorkbenchTests(unittest.TestCase):
         root_readme = (ROOT / "README.md").read_text(encoding="utf-8")
         first_receipt = root_readme.split("## Selected future reality", 1)[0]
         compact_first_receipt = " ".join(first_receipt.split())
+        role_manifest = json.loads(
+            (ROOT / "release" / "repository-role.json").read_text(encoding="utf-8")
+        )
+        constellation = json.loads(
+            (ROOT / "constellation.lock.json").read_text(encoding="utf-8")
+        )
+        report = constellation["comparison"]["golden_specimen_report"]
+        counts = report["classification_counts"]
+        receiver = report["material_divergence_receiver"].replace("_", " ")
         for signal in (
             "release/repository-role.json",
-            "`0.3.1`",
-            "`forecast-2028-FR-v1`",
-            "10 agree",
-            "4 vary in explained ways",
-            "3 carry materially different measurement meanings",
-            "accountable scientific mapping",
+            f"`{role_manifest['repository_release']}`",
+            f"`{role_manifest['external_release']}`",
+            f"all {report['leaf_paths_compared']} Golden Specimen leaves",
+            f"{counts['agreement']} agree",
+            f"{counts['explainable_variation']} vary in explained ways",
+            (
+                f"{counts['material_divergence']} carry materially different "
+                "measurement meanings"
+            ),
+            receiver,
             "database/README.md",
             ".agents/skills/README.md",
         ):
