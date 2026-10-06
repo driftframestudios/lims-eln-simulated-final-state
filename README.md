@@ -266,3 +266,9 @@ memory.
 
 Repository-wide provenance is recorded in [`AUTHORS`](AUTHORS). Package metadata
 provides the corresponding author and license coordinates for built distributions.
+
+## Confined container job
+
+The [finite container entry](infra/README.container-job.md) reuses the constellation's
+prepared-input and confined-runtime safeguards. Its source profile, focused
+checks, output ownership, and release-evidence boundary remain inspectable.
