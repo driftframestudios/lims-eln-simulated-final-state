@@ -10,6 +10,25 @@ synthetic fixtures. The actual implementation remains an independent system. Ide
 move from this simulation into delivery through reviewed decisions and released
 specifications.
 
+## Start with one scenario
+
+Run a selected future laboratory workflow and inspect the result it produces.
+The core simulator uses Python's standard library. The [run example](#run-it)
+writes scenario results and observation artifacts to a chosen output directory.
+For a first experiment, retain the Golden Specimen fixture and inspect the
+result before changing one declared input.
+
+- **Read first:** the [published comparison](https://cometspectrum.io/reports/golden-specimen/comparison.html) shows where the two modeled paths agree and differ.
+- **Run a local scenario:** use [Run it](#run-it), then inspect the files in the selected output directory.
+- **Understand the storage model:** the [database guide](database/README.md) connects the oracle, its assumptions, and the fitting checks.
+
+For insurance and administrative questions, begin with Program's
+[contract examples](https://github.com/driftframestudios/lims-eln-program-specification/blob/main/docs/README.md#try-the-administrative-contract-kit).
+The replayable administrative scenario packs are the next layer in
+[#38](https://github.com/driftframestudios/lims-eln-simulated-final-state/issues/38).
+Program's example establishes the representation; each Simulation pack will
+supply its own construction, expected behavior, and evidence limits.
+
 ## Current accepted coordinate
 
 The [`repository role manifest`](release/repository-role.json) identifies this
