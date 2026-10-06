@@ -3,12 +3,80 @@ from __future__ import annotations
 import json
 from hashlib import sha256
 from pathlib import Path
+import re
 import sys
 import tempfile
 
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+
+PUBLIC_POSSIBLE_SKILL_METADATA = {
+    ".agents/skills/constellation-coherence-reconciliation/SKILL.md": {
+        "name": "constellation-coherence-reconciliation",
+        "source_band": "public_possible",
+        "skill_version": "0.1.0",
+        "upstream_repository": (
+            "driftframestudios/lims-eln-program-specification"
+        ),
+        "upstream_path": (
+            ".agents/skills/constellation-coherence-reconciliation/SKILL.md"
+        ),
+        "upstream_revision": "05357fbed16a5b5aca80c239e4c7535f67d5654b",
+        "upstream_blob_sha1": "1812603158395e970b5f8d5d7b977513a95e8d82",
+        "upstream_sha256": (
+            "0c432287d4c5030ad34e7f05dd77aa9ee86c7d3b882ef3388ff2ca9471c2b912"
+        ),
+        "adaptation_relation": "repository_local_derivative",
+    },
+    ".agents/skills/contextual-jargon-scan/SKILL.md": {
+        "name": "contextual-jargon-scan",
+        "source_band": "public_possible",
+        "skill_version": "0.1.0",
+        "upstream_repository": "driftframestudios/human-ai-systems-exemplars",
+        "upstream_path": ".agents/skills/contextual-jargon-scan/SKILL.md",
+        "upstream_revision": "0c023343e46cd9b1333a63c2d509787352fbad14",
+        "upstream_blob_sha1": "3c3a94db99152385253e0281c8afa8fea8208ac5",
+        "upstream_sha256": (
+            "da383f99eaff364d7e17c3bff93d8da618ec95894a45ff78a9620d8d7fc81523"
+        ),
+        "adaptation_relation": "repository_local_derivative",
+    },
+    ".agents/skills/repository-reentry/SKILL.md": {
+        "name": "repository-reentry",
+        "source_band": "public_possible",
+        "skill_version": "0.1.0",
+        "upstream_repository": "driftframestudios/human-ai-systems-exemplars",
+        "upstream_path": ".agents/skills/repository-reentry/SKILL.md",
+        "upstream_revision": "0c023343e46cd9b1333a63c2d509787352fbad14",
+        "upstream_blob_sha1": "ac2c3732826c515b236598af10e0a204dbe14ace",
+        "upstream_sha256": (
+            "c60bb1bac3a993c78d94b1d05aaa7a97761b99275fc9acdc8285acba6f688f02"
+        ),
+        "adaptation_relation": "repository_local_derivative",
+    },
+    ".agents/skills/source-authority-mapping/SKILL.md": {
+        "name": "source-authority-mapping",
+        "source_band": "public_possible",
+        "skill_version": "0.1.0",
+        "upstream_repository": "driftframestudios/human-ai-systems-exemplars",
+        "upstream_path": ".agents/skills/source-authority-mapping/SKILL.md",
+        "upstream_revision": "0c023343e46cd9b1333a63c2d509787352fbad14",
+        "upstream_blob_sha1": "112830e9b70540b0bc9a8535ab77c7a04c1a5926",
+        "upstream_sha256": (
+            "1420eaee7f6d58805c29eaff23644d4982fdf1f12d2f6ce3cc39c65791939aff"
+        ),
+        "adaptation_relation": "repository_local_derivative",
+    },
+}
+
+_SKILL_REQUIRED_SECTIONS = (
+    "## Contract",
+    "## Operating sequence",
+    "## Completion",
+)
+_GIT_OID = re.compile(r"[0-9a-f]{40}")
+_SHA256 = re.compile(r"[0-9a-f]{64}")
 
 from lims_eln_sim.cli import load_json
 from lims_eln_sim.artifact_boundary import verify_reproducible_artifacts
@@ -35,6 +103,172 @@ from lims_eln_sim.simulation import (
 from check_artifacts import PATTERNS
 from check_bounded_automation import validate_repository_automation
 from check_living_constellation import validate_living_constellation
+
+
+def parse_skill_source(path: Path) -> tuple[dict[str, str], str]:
+    """Return the simple scalar front matter and complete skill source."""
+    content = path.read_text(encoding="utf-8")
+    lines = content.splitlines()
+    if not lines or lines[0] != "---":
+        raise ValueError(f"{path} requires YAML front matter")
+    try:
+        closing = lines.index("---", 1)
+    except ValueError as error:
+        raise ValueError(f"{path} has unclosed YAML front matter") from error
+    metadata: dict[str, str] = {}
+    for line in lines[1:closing]:
+        if not line.strip():
+            continue
+        if ":" not in line:
+            raise ValueError(f"{path} has unsupported front-matter line {line!r}")
+        key, value = line.split(":", 1)
+        metadata[key.strip()] = value.strip().strip('"')
+    return metadata, content
+
+
+def validate_collaboration_workbench(root: Path = ROOT) -> list[str]:
+    """Validate the exact copy-local skill workbench and orientation routes."""
+    findings: list[str] = []
+    skills_root = root / ".agents" / "skills"
+    actual_paths = {
+        str(path.relative_to(root))
+        for path in skills_root.glob("*/SKILL.md")
+    }
+    expected_paths = set(PUBLIC_POSSIBLE_SKILL_METADATA)
+    if actual_paths != expected_paths:
+        findings.append(
+            "public-possible skill inventory differs: expected "
+            f"{sorted(expected_paths)!r}; received {sorted(actual_paths)!r}"
+        )
+    for relative_path, expected in PUBLIC_POSSIBLE_SKILL_METADATA.items():
+        path = root / relative_path
+        if not path.is_file():
+            continue
+        try:
+            metadata, content = parse_skill_source(path)
+        except ValueError as error:
+            findings.append(str(error))
+            continue
+        observed = {key: metadata.get(key) for key in expected}
+        if observed != expected:
+            findings.append(
+                f"{relative_path} metadata differs: expected {expected!r}; "
+                f"received {observed!r}"
+            )
+        if path.parent.name != metadata.get("name"):
+            findings.append(
+                f"{relative_path} directory and skill name must match"
+            )
+        if not _GIT_OID.fullmatch(metadata.get("upstream_revision", "")):
+            findings.append(f"{relative_path} requires a full upstream revision")
+        if not _GIT_OID.fullmatch(metadata.get("upstream_blob_sha1", "")):
+            findings.append(f"{relative_path} requires an upstream blob identity")
+        if not _SHA256.fullmatch(metadata.get("upstream_sha256", "")):
+            findings.append(f"{relative_path} requires an upstream SHA-256 identity")
+        for heading in _SKILL_REQUIRED_SECTIONS:
+            if heading not in content:
+                findings.append(f"{relative_path} requires {heading}")
+        if "notion.so" in content or "app.notion.com" in content:
+            findings.append(
+                f"{relative_path} must remain usable through repository-local "
+                "guidance; private workspace locator found"
+            )
+    catalog_path = skills_root / "README.md"
+    if not catalog_path.is_file():
+        findings.append(".agents/skills/README.md is required for skill selection")
+    else:
+        catalog = catalog_path.read_text(encoding="utf-8")
+        for relative_path in expected_paths:
+            skill_name = Path(relative_path).parent.name
+            if f"({skill_name}/SKILL.md)" not in catalog:
+                findings.append(
+                    ".agents/skills/README.md must link the local skill route "
+                    f"{skill_name}/SKILL.md"
+                )
+    for orientation_name in ("README.md", "AGENTS.md"):
+        orientation_path = root / orientation_name
+        if not orientation_path.is_file():
+            findings.append(f"{orientation_name} is required for workbench routing")
+            continue
+        orientation = orientation_path.read_text(encoding="utf-8")
+        if ".agents/skills/README.md" not in orientation:
+            findings.append(
+                f"{orientation_name} must link .agents/skills/README.md"
+            )
+        for relative_path in expected_paths:
+            if relative_path not in orientation:
+                findings.append(
+                    f"{orientation_name} must link the exact skill path {relative_path}"
+                )
+    return findings
+
+
+def validate_living_constellation_coherence(root: Path = ROOT) -> list[str]:
+    """Check material relations among the lock and living re-entry carriers."""
+    findings: list[str] = []
+    constellation = json.loads(
+        (root / "constellation.lock.json").read_text(encoding="utf-8")
+    )
+    horizon = json.loads(
+        (root / "COORDINATION-HORIZON.json").read_text(encoding="utf-8")
+    )
+    first_receipt = json.loads(
+        (root / "first-receipt.json").read_text(encoding="utf-8")
+    )
+    simulation = constellation.get("simulation", {})
+    comparison = constellation.get("comparison", {})
+    if simulation.get("canonical_closure_digest") != comparison.get(
+        "canonical_closure_digest"
+    ):
+        findings.append(
+            "Simulation and Comparison canonical closure relations differ"
+        )
+    for role, coordinate in (("Simulation", simulation), ("Comparison", comparison)):
+        if coordinate.get("coordinate_status") != "release_observed":
+            findings.append(f"{role} coordinate must be release_observed")
+        for field in ("tag_object_oid", "commit", "digest", "archive_digest"):
+            if not coordinate.get(field):
+                findings.append(f"{role} coordinate is missing {field}")
+    work_items = {
+        item["item_id"]: item for item in horizon.get("work_items", [])
+    }
+    comparison_item = work_items.get("HORIZON-COMPARATIVE-ADMISSION", {})
+    if comparison_item.get("state") != "complete":
+        findings.append("accepted Comparison admission must remain complete")
+
+    current_item_ids = horizon.get("current_item_ids")
+    if (
+        not isinstance(current_item_ids, list)
+        or not current_item_ids
+        or not all(isinstance(item, str) and item for item in current_item_ids)
+        or len(current_item_ids) != len(set(current_item_ids))
+    ):
+        findings.append("current horizon must name distinct actionable work items")
+        current_item_ids = []
+    current_items = [work_items.get(item_id) for item_id in current_item_ids]
+    if any(item is None for item in current_items):
+        findings.append("current horizon items must resolve to declared work items")
+    elif any(item.get("state") not in {"ready", "active"} for item in current_items):
+        findings.append("current horizon items must carry ready or active state")
+
+    if first_receipt.get("coordination_horizon_id") != horizon.get("horizon_id"):
+        findings.append("First Receipt must resolve the current Coordination Horizon")
+    handoff = first_receipt.get("handoff", {})
+    if handoff.get("action_ids") != current_item_ids:
+        findings.append("First Receipt actions must match the current horizon items")
+    current_owner_roles = {
+        item.get("owner_role") for item in current_items if item is not None
+    }
+    if (
+        len(current_owner_roles) != 1
+        or handoff.get("recipient_role") not in current_owner_roles
+    ):
+        findings.append("First Receipt recipient must own the current horizon items")
+    if not first_receipt.get("current_horizon_summary", "").strip():
+        findings.append(
+            "First Receipt must provide a current horizon summary"
+        )
+    return findings
 
 
 def _repository_json_documents() -> int:
@@ -66,6 +300,18 @@ def _repository_secret_shape_findings() -> list[str]:
 
 
 def main() -> int:
+    workbench_findings = validate_collaboration_workbench()
+    if workbench_findings:
+        raise ValueError(
+            "collaboration workbench differs from its local contract: "
+            + "; ".join(workbench_findings)
+        )
+    coherence_findings = validate_living_constellation_coherence()
+    if coherence_findings:
+        raise ValueError(
+            "living constellation differs from its accepted coordination state: "
+            + "; ".join(coherence_findings)
+        )
     manifest = load_json(ROOT / "release/repository-role.json")
     promotion_binding = manifest["promotion_receipt_contract"]
     promotion_schema_path = ROOT / promotion_binding["schema_path"]
@@ -406,6 +652,7 @@ def main() -> int:
         json.dumps(
             {
                 "status": "passed",
+                "collaboration_skills": len(PUBLIC_POSSIBLE_SKILL_METADATA),
                 "json_documents": json_count,
                 "source_result_digest": result["content_digest"],
                 "governance_closure_digest": expected[

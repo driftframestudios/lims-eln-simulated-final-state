@@ -6,6 +6,9 @@
   orientation markers, and release-role binding while the signed Simulation
   0.3.1 selected-future baseline and repository-owned contracts retain their
   existing identities.
+- Add a copy-local collaboration workbench for re-entry, source-authority
+  mapping, constellation reconciliation, and in-stride ordinary-language review;
+  align contributor routes with the executable branch and Python contracts.
 - Advance the living constellation, Coordination Horizon, and First Receipt to
   accepted Enterprise `v0.3.2` and Comparative `comparison-v0.3.2` release,
   observation, report, and publication coordinates. The three measurement

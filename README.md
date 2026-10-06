@@ -1,13 +1,63 @@
 # LIMS/ELN Simulated Final State
 
-This repository is an independently runnable counterfactual for a mature laboratory
-integration platform. It lets a hybrid team inspect a complete forecast before the
-delivery system reaches the same decisions.
+This repository is an independently runnable model of one possible mature laboratory
+integration platform. The model is a counterfactual: a deliberately selected future
+that lets a hybrid team inspect a complete forecast before the delivery system
+reaches the same decisions.
 
 The runtime resolves entirely from this repository, Python's standard library, and
 synthetic fixtures. The actual implementation remains an independent system. Ideas
 move from this simulation into delivery through reviewed decisions and released
 specifications.
+
+## Current accepted coordinate
+
+The [`repository role manifest`](release/repository-role.json) identifies this
+repository as the `simulated_final_state`, with repository release `0.3.1` and
+selected-future release `forecast-2028-FR-v1`. The
+[`constellation lock`](constellation.lock.json) keeps that signed Simulation
+baseline distinct from the accepted Enterprise and Comparative coordinates.
+
+The current comparison classifies all 17 Golden Specimen leaves: **10 agree, 4
+vary in explained ways, and 3 carry materially different measurement meanings**.
+The Enterprise result expresses DNA concentration while the selected future
+expresses copy number.
+
+**Current receiver:** accountable scientific mapping for the analyte, value, and
+unit relationship. The
+[`Coordination Horizon`](COORDINATION-HORIZON.json) owns the next action: record
+the supported measurement relationship, then assign any resulting change to its
+owning source or to a successor selected-future release. The signed release stays
+available as the recoverable baseline for that decision.
+
+## Choose a route
+
+| Reader job | Start here | What this route establishes |
+| --- | --- | --- |
+| Evaluate the repository's role and current result | [`release/repository-role.json`](release/repository-role.json) and [`constellation.lock.json`](constellation.lock.json) | Accepted Simulation identity, exact sibling coordinates, and the current 10/4/3 comparison |
+| Run the selected future | [Run it](#run-it) | Deterministic behavior from synthetic inputs and the retained database oracle |
+| Inspect the database comparison target | [`database/README.md`](database/README.md) | Oracle authority, focused proof, evidence ceiling, and return path |
+| Continue the current scientific mapping | [`COORDINATION-HORIZON.json`](COORDINATION-HORIZON.json) and [`first-receipt.json`](first-receipt.json) | Accountable mapping action, acceptance signal, and safe re-entry |
+| Re-enter repository work | [`AGENTS.md`](AGENTS.md) and the [skill catalog](.agents/skills/README.md) | Branch, source, validation, and bounded workflow routes |
+
+Read [`AGENTS.md`](AGENTS.md) for the current source, branch, evidence, writing,
+and validation route. The [repository-local skill catalog](.agents/skills/README.md)
+helps choose among four bounded workflows:
+
+- [`repository-reentry`](.agents/skills/repository-reentry/SKILL.md) reconstructs
+  current source, accepted release, living orientation, and comparison state;
+- [`source-authority-mapping`](.agents/skills/source-authority-mapping/SKILL.md)
+  traces assumptions, executable behavior, artifacts, release evidence, and
+  receiving use while each retains its authority;
+- [`constellation-coherence-reconciliation`](.agents/skills/constellation-coherence-reconciliation/SKILL.md)
+  reconciles accepted sibling coordinates with living Simulation carriers; and
+- [`contextual-jargon-scan`](.agents/skills/contextual-jargon-scan/SKILL.md)
+  reviews shorthand in stride while preserving exact technical and governed
+  terms.
+
+These skills are self-contained and carry `source_band: public_possible` while
+natural use tests their local fit. A separate public-ready review is the event
+that can promote one into a public projection.
 
 ## Selected future reality
 
@@ -88,7 +138,7 @@ the snapshots and emitted values with the authoritative Pydantic models whenever
 installed package or a sibling source checkout is available:
 
 ```bash
-python tools/check_contract_conformance.py \
+python3 tools/check_contract_conformance.py \
   --contract-source ../lims-eln-program-specification/src
 ```
 
@@ -100,8 +150,8 @@ can replace the pin without changing the shared projection identity.
 ## Run it
 
 ```bash
-python -m unittest discover -s tests -v
-PYTHONPATH=src python -m lims_eln_sim.cli \
+python3 -m unittest discover -s tests -v
+PYTHONPATH=src python3 -m lims_eln_sim.cli \
   --fixture fixtures/golden-specimen.json \
   --intended-use-profile specification/intended-use-and-applicability-profile.json \
   --migration-corpus fixtures/representative-migration-corpus.json \
@@ -156,7 +206,7 @@ keep their simulated meaning and exact extension boundary explicit.
 [`receipts/promotion-receipt.json`](receipts/promotion-receipt.json) records the
 observed signed release event, accepted source objects, reproducible archive,
 hosted checks, and local verification while preserving simulated forecast authority.
-`python tools/verify_release_coordinate.py` verifies the annotated tag, accepted
+`python3 tools/verify_release_coordinate.py` verifies the annotated tag, accepted
 history, source tree, archive bytes, receipt carrier, and repository-trusted signer.
 
 [`constellation.lock.json`](constellation.lock.json) records the signed Simulation
@@ -172,14 +222,12 @@ repository remains `0.3.1`, and its signed forecast remains
 coordinates and the current receiving work; the aggregate repository validator
 also runs this check.
 
-That report compares all 17 Golden Specimen leaves: 10 agree, 4 vary in explained
-ways, and 3 carry materially different measurement meanings. The Enterprise result
-expresses a DNA concentration while the selected future expresses a copy-number
-measurement. Accountable scientific mapping is the current receiver for the analyte,
-value, and unit relationship. A mapping decision can retain the two measurements as
-distinct, define a supported transformation, assign a source correction, or form a
-successor selected-future release. The signed `forecast-2028-FR-v1` release remains
-the recoverable baseline for that decision.
+The [current accepted coordinate](#current-accepted-coordinate) summarizes the
+report's 10/4/3 classification and accountable scientific mapping receiver. The
+lock owns the exact accepted identities; the Coordination Horizon and First
+Receipt own the living action and return signal. A mapping decision can retain
+the two measurements as distinct, define a supported transformation, assign a
+source correction, or form a successor selected-future release.
 
 Evidence-led extensions remain available when a documented material benefit earns
 their qualification cost.
@@ -192,7 +240,8 @@ This repository uses a GitFlow-like pattern:
 
 - `main` contains released forecast baselines and carries protected promotion.
 - `develop` is the lean integration branch for the next forecast.
-- `feature/*` carries bounded scenario or model work.
+- `feature/*` carries bounded scenario or model work; `fix/*` and `chore/*`
+  carry focused corrections and upkeep into `develop`.
 - `release/*` is a short-lived branch that freezes comparison inputs and
   accepts stabilization changes for one promotion.
 - `hotfix/*` repairs a released simulation defect and returns the correction to
@@ -217,3 +266,9 @@ memory.
 
 Repository-wide provenance is recorded in [`AUTHORS`](AUTHORS). Package metadata
 provides the corresponding author and license coordinates for built distributions.
+
+## Confined container job
+
+The [finite container entry](infra/README.container-job.md) reuses the constellation's
+prepared-input and confined-runtime safeguards. Its source profile, focused
+checks, output ownership, and release-evidence boundary remain inspectable.
