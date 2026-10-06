@@ -23,7 +23,7 @@ result before changing one declared input.
 - **Understand the storage model:** the [database guide](database/README.md) connects the oracle, its assumptions, and the fitting checks.
 
 For insurance and administrative questions, begin with Program's
-[contract examples](https://github.com/driftframestudios/lims-eln-program-specification/blob/develop/docs/README.md#try-the-administrative-contract-kit).
+[contract examples](https://github.com/driftframestudios/lims-eln-program-specification/blob/main/docs/README.md#try-the-administrative-contract-kit).
 The replayable administrative scenario packs are the next layer in
 [#38](https://github.com/driftframestudios/lims-eln-simulated-final-state/issues/38).
 Program's example establishes the representation; each Simulation pack will
