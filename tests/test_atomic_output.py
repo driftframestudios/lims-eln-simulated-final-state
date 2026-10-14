@@ -12,9 +12,10 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from lims_eln_sim import atomic_output as output
-
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+from lims_eln_sim import atomic_output as output
 HAS_ADMINISTRATIVE_STUDY = (
     find_spec("lims_eln_contracts") is not None
     and find_spec("lims_eln_contracts.administrative_study") is not None
@@ -24,6 +25,11 @@ HAS_ADMINISTRATIVE_STUDY = (
 class AtomicOutputTests(unittest.TestCase):
     def setUp(self):
         self.root = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        self.subprocess_environment = os.environ | {
+            "PYTHONPATH": os.pathsep.join(filter(None, (
+                str(ROOT / "src"), os.environ.get("PYTHONPATH", ""),
+            ))),
+        }
         self.target = self.root / "pack.json"
         self.payload = b'{"fixture":"retained byte meaning"}\n'
         self.prior = self.root / ".pack-pending-unrelated"
@@ -196,7 +202,7 @@ output.publish_file(target, b"complete fixture\\n")
         for phase in ("acquire", "write", "publish"):
             with self.subTest(phase=phase):
                 process = subprocess.run([sys.executable, "-B", "-c", code, str(self.target), phase],
-                                         capture_output=True, text=True, timeout=10)
+                                         capture_output=True, text=True, timeout=10, env=self.subprocess_environment)
                 self.assertEqual(process.returncode, 128 + signal.SIGTERM, process.stderr)
                 if phase == "publish":
                     self.assertEqual(self.target.read_bytes(), b"complete fixture\n")
@@ -211,12 +217,12 @@ output.publish_file(target, b"complete fixture\\n")
         from lims_eln_contracts.canonical import canonical_json_bytes
         from lims_eln_sim.administrative_pack import admit_pack, build_pack
         command = [sys.executable, "-B", "-m", "lims_eln_sim.administrative_pack", "--output", str(self.target), "--repeats", "1"]
-        first = subprocess.run(command, capture_output=True, text=True, timeout=20)
+        first = subprocess.run(command, capture_output=True, text=True, timeout=20, env=self.subprocess_environment)
         self.assertEqual(first.returncode, 0, first.stderr)
         expected = canonical_json_bytes(build_pack(repeats=1)) + b"\n"
         self.assertEqual(self.target.read_bytes(), expected)
         self.assertEqual(admit_pack(expected), build_pack(repeats=1))
-        repeated = subprocess.run(command, capture_output=True, text=True, timeout=20)
+        repeated = subprocess.run(command, capture_output=True, text=True, timeout=20, env=self.subprocess_environment)
         self.assertEqual(repeated.returncode, 2)
         self.assertIn("output_collision", repeated.stderr)
         self.assertNotIn(str(self.root), repeated.stderr)
@@ -238,7 +244,7 @@ sys.argv = ["pack", "--output", sys.argv[1], "--repeats", "1"]
 main()
 '''
         process = subprocess.run([sys.executable, "-B", "-c", code, str(self.target)],
-                                 capture_output=True, text=True, timeout=20)
+                                 capture_output=True, text=True, timeout=20, env=self.subprocess_environment)
         self.assertEqual(process.returncode, 128 + signal.SIGTERM)
         self.assertIn("output_uncertain", process.stderr)
         self.assertNotIn(str(self.root), process.stderr)
