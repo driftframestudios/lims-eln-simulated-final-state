@@ -12,6 +12,22 @@ specifications.
 
 ## Start with one scenario
 
+**Quick start, from this checkout with Python 3.12 or newer:**
+
+```bash
+PYTHONPATH=src python3 -m lims_eln_sim.cli \
+  --fixture fixtures/golden-specimen.json \
+  --intended-use-profile specification/intended-use-and-applicability-profile.json \
+  --migration-corpus fixtures/representative-migration-corpus.json \
+  --database-oracle database/final-state-database-oracle-v1.json \
+  --output build/first-scenario
+```
+
+Read `build/first-scenario/result.json` for the result and
+`observation-envelope.json` for its source-bound comparison input. The command
+uses the standard library and repository-owned synthetic fixtures. Choose a
+fresh output directory for a separate experiment.
+
 Run a selected future laboratory workflow and inspect the result it produces.
 The core simulator uses Python's standard library. The [run example](#run-it)
 writes scenario results and observation artifacts to a chosen output directory.
@@ -24,10 +40,14 @@ result before changing one declared input.
 
 For insurance and administrative questions, begin with Program's
 [contract examples](https://github.com/driftframestudios/lims-eln-program-specification/blob/main/docs/README.md#try-the-administrative-contract-kit).
-The replayable administrative scenario packs are the next layer in
-[#38](https://github.com/driftframestudios/lims-eln-simulated-final-state/issues/38).
-Program's example establishes the representation; each Simulation pack will
-supply its own construction, expected behavior, and evidence limits.
+The [administrative scenario guide](docs/administrative-scenarios.md) provides
+the integration branch's versioned pack, independent expected outcomes, and
+an isolated quick start. Program owns its study representation; Simulation
+owns the authored inputs and expected behavior. The signed forecast remains
+the accepted release baseline while this source extension receives review.
+
+Choose an environment through [Program's researcher-entry guide](https://github.com/driftframestudios/lims-eln-program-specification/issues/54).
+Continue scenario and recovery procedures through [#39](https://github.com/driftframestudios/lims-eln-simulated-final-state/issues/39).
 
 ## Current accepted coordinate
 
@@ -43,7 +63,7 @@ The Enterprise result expresses DNA concentration while the selected future
 expresses copy number.
 
 **Current receiver:** accountable scientific mapping for the analyte, value, and
-unit relationship. The
+unit relationship in [Comparative #44](https://github.com/driftframestudios/lims-eln-comparative-evidence/issues/44). The
 [`Coordination Horizon`](COORDINATION-HORIZON.json) owns the next action: record
 the supported measurement relationship, then assign any resulting change to its
 owning source or to a successor selected-future release. The signed release stays
