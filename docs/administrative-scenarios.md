@@ -99,3 +99,39 @@ input contract: an exact raw label, calendar day, enrollment, review, and
 reportability. `pack_source_binding` routes a changed source or oracle back to
 its reviewed resource. Regenerate the pack from that resource and retain the
 original observation document for comparison.
+
+## Complete file publication and retry
+
+The CLI admits the full pack before writing. It writes a private temporary file
+inside the destination directory, completes and synchronizes those bytes, then
+creates the final name with an exclusive hard link and synchronizes the directory.
+Existing files, directories, and symlinks retain their content. Choose a concrete
+caller-owned parent directory whose write permissions belong to that caller.
+Its ancestor path and same-account writers remain within the caller's trust boundary.
+
+`output_collision` asks for a fresh output name. `output_io` permits a retry after
+destination access or capacity is restored. `output_uncertain` means a complete
+final file became visible before acknowledgment: inspect it through `admit_pack`,
+compare its bytes with the intended pack, and retain it while deciding the next
+destination. That observation establishes complete content; filesystem durability
+still follows the storage owner's guarantees.
+
+The supported route uses POSIX directory descriptors, hard links, and `fsync`.
+`output_platform` asks the caller to select that filesystem capability. Handled
+interruption releases the invocation's temporary file. Abrupt process termination
+or power loss may retain a `.pack-pending-*` file; the next run uses its own fresh
+temporary name. After confirming the producing process has stopped, the owner may
+remove that exact orphan. Keep other invocations' temporary files in place.
+
+Run the focused output and pack checks with the administrative profile:
+
+```bash
+PYTHONPATH=src .venv-admin/bin/python -m unittest discover -s tests -p 'test_atomic_output.py' -v
+PYTHONPATH=src .venv-admin/bin/python -m unittest discover -s tests -p 'test_administrative_pack.py' -v
+```
+
+The implementation follows Python's [descriptor-relative file operations](https://docs.python.org/3.12/library/os.html#os.link)
+and [signal masking](https://docs.python.org/3.12/library/signal.html#signal.pthread_sigmask).
+These checks establish complete visibility, exclusive publication, and owned
+recovery on the exercised filesystem; broader storage guarantees retain their
+configured evidence route.

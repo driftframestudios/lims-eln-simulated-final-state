@@ -14,6 +14,7 @@ from functools import lru_cache
 from importlib.resources import files
 import json
 from pathlib import Path
+import signal
 from typing import Annotated, Literal, Self
 
 from pydantic import Field, ValidationError, model_validator
@@ -23,6 +24,7 @@ from lims_eln_contracts.primitives import ContractModel, Identifier, Sha256Diges
 from lims_eln_contracts.resources import load_administrative_study_example
 
 from .safety import SECRET_PATTERNS
+from .atomic_output import OutputPublicationError, OutputPublicationInterrupted, publish_file
 
 PROGRAM_SOURCE = "83a97deb76b9a5636cc7da484d350d5556c51661"
 PACK_SCHEMA = "urn:driftframe:simulation:administrative-pack:1.0.0"
@@ -219,13 +221,22 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--repeats", type=int, default=2)
     args = parser.parse_args()
+    def interrupted(number, _frame):
+        raise SystemExit(128 + number)
+    previous = signal.signal(signal.SIGTERM, interrupted)
     try:
         payload = canonical_json_bytes(build_pack(repeats=args.repeats)) + b"\n"
+        admit_pack(payload)
         args.output.parent.mkdir(parents=True, exist_ok=True)
-        with args.output.open("xb") as stream:
-            stream.write(payload)
-    except (PackBoundaryError, FileExistsError) as error:
+        publish_file(args.output, payload)
+    except OutputPublicationInterrupted as error:
+        parser.exit(error.code, error.recovery + "\n")
+    except (PackBoundaryError, OutputPublicationError) as error:
         parser.exit(2, str(error) + "\n")
+    except OSError:
+        parser.exit(2, "output_destination: prepare a writable caller-owned output directory.\n")
+    finally:
+        signal.signal(signal.SIGTERM, previous)
 
 
 if __name__ == "__main__":
