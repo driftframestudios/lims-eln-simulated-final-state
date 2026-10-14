@@ -72,20 +72,20 @@ class Specimen:
                     "transition to 'in_custody' requires a concrete location"
                 )
             custody_location = location
+        next_revision = self.revision + 1
+        event = AuditEvent(
+            event_id=f"evt-{self.specimen_id}-{next_revision:03d}",
+            action=target,
+            actor=actor,
+            occurred_at=parse_instant(occurred_at, label="audit occurred_at"),
+            revision=next_revision,
+            detail_digest=digest(detail),
+        )
         self.status = target
-        self.revision += 1
+        self.revision = next_revision
         if custody_location is not None:
             self.custody_location = custody_location
-        self.audit.append(
-            AuditEvent(
-                event_id=f"evt-{self.specimen_id}-{self.revision:03d}",
-                action=target,
-                actor=actor,
-                occurred_at=parse_instant(occurred_at, label="audit occurred_at"),
-                revision=self.revision,
-                detail_digest=digest(detail),
-            )
-        )
+        self.audit.append(event)
 
     def view(self) -> dict[str, Any]:
         return {

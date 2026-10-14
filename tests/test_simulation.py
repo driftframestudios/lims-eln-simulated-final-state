@@ -596,6 +596,36 @@ class SimulationTests(unittest.TestCase):
         self.assertIsNone(specimen.custody_location)
         self.assertEqual(len(specimen.audit), 1)
 
+    def test_transition_preparation_preserves_prior_view_and_corrected_retry(self) -> None:
+        cases = (
+            ("malformed_time", "not-an-instant", {}, ValueError),
+            ("naive_text", "2028-06-30T14:00:01", {}, ValueError),
+            ("naive_datetime", datetime(2028, 6, 30, 14, 0, 1), {}, ValueError),
+            ("unsupported_detail", "2028-06-30T14:00:01Z", {"value": object()}, TypeError),
+            ("nonfinite_detail", "2028-06-30T14:00:01Z", {"value": float("nan")}, ValueError),
+        )
+        for label, occurred_at, extra_detail, error in cases:
+            with self.subTest(case=label):
+                specimen = Specimen("SPM-SYN-PREPARE", "TENANT-SYN-001", "source-sim")
+                specimen.result = {"measurements": [{"value": "1.250000"}]}
+                specimen.artifact_digest = digest({"artifact": "SYNTHETIC-PREPARE"})
+                specimen.transition("accessioned", "simulated-operator", {}, "2028-06-30T14:00:00Z")
+                before = specimen.view()
+                with self.assertRaises(error):
+                    specimen.transition(
+                        "in_custody", "simulated-operator",
+                        {"location": "LOCATION-SYN-001", **extra_detail}, occurred_at,
+                    )
+                self.assertEqual(before, specimen.view())
+                specimen.transition(
+                    "in_custody", "simulated-operator",
+                    {"location": "LOCATION-SYN-001"}, "2028-06-30T14:00:01Z",
+                )
+                self.assertEqual(("in_custody", 2, "LOCATION-SYN-001", 2), (
+                    specimen.status, specimen.revision, specimen.custody_location, len(specimen.audit),
+                ))
+                self.assertEqual(before["audit"], specimen.view()["audit"][:1])
+
     def test_shared_projection_rejects_executed_custody_drift(self) -> None:
         original_transition = Specimen.transition
 
