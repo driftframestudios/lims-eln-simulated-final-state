@@ -24,6 +24,19 @@ source identities, construction settings, and the planned cohort matrix. A fresh
 destination preserves earlier results. Use `--repeats 1` for the smallest pack;
 the supported range is one through four repeats.
 
+Run the complete test suite in this environment with:
+
+```bash
+.venv-admin/bin/python -m unittest discover -s tests -v
+```
+
+The administrative profile exercises the pack checks and reports the retained
+Program 0.3.1 conformance check as skipped. Use a separate environment with
+`.[contract-conformance]` for that exact retained proof; its test run reports
+the administrative pack checks as skipped. The standard-library core runs the
+shared suite with both optional test groups reported as skipped. Import or validation
+errors inside an available profile remain visible in the test result.
+
 ## What the pack makes inspectable
 
 - Reportability changes with identical supplied scientific information.

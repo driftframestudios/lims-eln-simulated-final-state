@@ -4,14 +4,17 @@ import json
 from pathlib import Path
 import unittest
 
-HAS_CONTRACTS = find_spec("lims_eln_contracts") is not None
-if HAS_CONTRACTS:
+HAS_ADMINISTRATIVE_STUDY = (
+    find_spec("lims_eln_contracts") is not None
+    and find_spec("lims_eln_contracts.administrative_study") is not None
+)
+if HAS_ADMINISTRATIVE_STUDY:
     from lims_eln_contracts.canonical import canonical_json_bytes
     from lims_eln_contracts.administrative_study import admit_administrative_study
     from lims_eln_sim.administrative_pack import MAX_BYTES, PackBoundaryError, admit_pack, build_pack
 
 
-@unittest.skipUnless(HAS_CONTRACTS, "administrative-study extra supplies the reviewed Program contract")
+@unittest.skipUnless(HAS_ADMINISTRATIVE_STUDY, "administrative-study extra supplies the reviewed Program contract")
 class AdministrativePackTests(unittest.TestCase):
     def test_default_matrix_and_program_admission(self):
         pack = build_pack()
