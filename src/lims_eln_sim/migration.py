@@ -6,7 +6,7 @@ import math
 import re
 from typing import Any
 
-from .domain import digest
+from .domain import ALLOWED_TRANSITIONS, digest
 
 
 CANONICAL_FIELDS = (
@@ -206,7 +206,7 @@ def validate_representative_corpus(corpus: dict[str, Any]) -> list[dict[str, Any
         raise ValueError("representative migration corpus requires record and artifact arrays")
     if profile["records"] != len(records) or len(records) < 4:
         raise ValueError("representative migration corpus requires its declared record count")
-    identities = []
+    identities = set()
     artifact_digests = set()
     artifact_sizes = []
     for artifact in artifacts:
@@ -239,22 +239,20 @@ def validate_representative_corpus(corpus: dict[str, Any]) -> list[dict[str, Any
                 "representative migration record requires the canonical field set"
             )
         identity = (record["tenant_id"], record["specimen_id"])
-        if identity in identities:
-            raise ValueError(
-                "representative migration corpus requires unique specimen identities"
-            )
-        identities.append(identity)
         if (
-            not str(record["tenant_id"]).startswith("TENANT-SYN-")
-            or not str(record["specimen_id"]).startswith("SPM-SYN-")
+            not isinstance(record["tenant_id"], str)
+            or not record["tenant_id"].startswith("TENANT-SYN-")
+            or not isinstance(record["specimen_id"], str)
+            or not record["specimen_id"].startswith("SPM-SYN-")
         ):
             raise ValueError(
                 "representative migration corpus requires generated identities"
             )
-        if type(record["revision"]) is not int or record["revision"] < 1:
+        if identity in identities:
             raise ValueError(
-                "representative migration revision requires a positive integer"
+                "representative migration corpus requires unique specimen identities"
             )
+        identities.add(identity)
         if not isinstance(record["artifact_digest"], str) or SHA256_PATTERN.fullmatch(
             record["artifact_digest"]
         ) is None:
@@ -265,34 +263,9 @@ def validate_representative_corpus(corpus: dict[str, Any]) -> list[dict[str, Any
             raise ValueError(
                 "representative record artifact requires a declared corpus artifact"
             )
-        if not isinstance(record["audit"], list) or not record["audit"]:
-            raise ValueError(
-                "representative migration record requires reconstructable audit lineage"
-            )
-        expected_sequences = list(range(1, len(record["audit"]) + 1))
-        observed_sequences = []
-        for event in record["audit"]:
-            if not isinstance(event, dict) or set(event) != {"sequence", "event"}:
-                raise ValueError(
-                    "representative audit event requires sequence and event fields"
-                )
-            if type(event["sequence"]) is not int or event["sequence"] < 1:
-                raise ValueError(
-                    "representative audit sequence requires a positive integer"
-                )
-            if not isinstance(event["event"], str) or not event["event"].strip():
-                raise ValueError(
-                    "representative audit event requires a released event identity"
-                )
-            observed_sequences.append(event["sequence"])
-        if observed_sequences != expected_sequences:
-            raise ValueError(
-                "representative audit lineage requires contiguous ordered sequences"
-            )
-        if record["revision"] != len(record["audit"]):
-            raise ValueError(
-                "representative revision requires the complete audit lineage depth"
-            )
+        lifecycle_error = _record_lifecycle_error(record)
+        if lifecycle_error is not None:
+            raise ValueError(lifecycle_error)
         lineage_depth.append(len(record["audit"]))
     if sorted(artifact_sizes) != sorted(profile["artifact_sizes_bytes"]):
         raise ValueError(
@@ -315,26 +288,38 @@ def validate_representative_corpus(corpus: dict[str, Any]) -> list[dict[str, Any
     return deepcopy(records)
 
 
-def _record_rollback_ready(record: dict[str, Any]) -> bool:
+def _record_lifecycle_error(record: dict[str, Any]) -> str | None:
+    """Reconcile one projected history in O(events) time and constant space."""
     revision = record.get("revision")
     audit = record.get("audit")
-    if (
-        type(revision) is not int
-        or revision < 1
-        or not isinstance(record.get("artifact_digest"), str)
-        or SHA256_PATTERN.fullmatch(record["artifact_digest"]) is None
-        or not isinstance(audit, list)
-        or len(audit) != revision
-    ):
-        return False
-    return all(
-        isinstance(event, dict)
-        and set(event) == {"sequence", "event"}
-        and type(event["sequence"]) is int
-        and event["sequence"] == sequence
-        and isinstance(event["event"], str)
-        and bool(event["event"].strip())
-        for sequence, event in enumerate(audit, start=1)
+    if type(revision) is not int or revision < 1:
+        return "representative migration revision requires a positive integer"
+    if not isinstance(audit, list) or not audit:
+        return "representative migration record requires reconstructable audit lineage"
+    state = "received"
+    for sequence, event in enumerate(audit, start=1):
+        if not isinstance(event, dict) or set(event) != {"sequence", "event"}:
+            return "representative audit event requires sequence and event fields"
+        if type(event["sequence"]) is not int or event["sequence"] < 1:
+            return "representative audit sequence requires a positive integer"
+        if event["sequence"] != sequence:
+            return "representative audit lineage requires contiguous ordered sequences"
+        target = event["event"]
+        if not isinstance(target, str) or target not in ALLOWED_TRANSITIONS[state]:
+            return "representative audit lineage requires released lifecycle transitions"
+        state = target
+    if revision != len(audit):
+        return "representative revision requires the complete audit lineage depth"
+    if record.get("status") != state:
+        return "representative status requires the terminal audit lifecycle state"
+    return None
+
+
+def _record_rollback_ready(record: dict[str, Any]) -> bool:
+    return (
+        isinstance(record.get("artifact_digest"), str)
+        and SHA256_PATTERN.fullmatch(record["artifact_digest"]) is not None
+        and _record_lifecycle_error(record) is None
     )
 
 
