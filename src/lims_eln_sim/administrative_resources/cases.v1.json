@@ -1,0 +1,503 @@
+{
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "construction": "Repository-authored synthetic inputs; expected results were written independently of the evaluator demonstration.",
+  "scientific_evidence": "Authored assay: marker present; measured value 4 units. Both arms receive these same facts.",
+  "required_facts": [
+    "SYN-MARKER-PRESENT",
+    "SYN-VALUE-4"
+  ],
+  "cohorts": [
+    {
+      "id": "ADULT-EN",
+      "age_band": "adult",
+      "language": "English"
+    },
+    {
+      "id": "OLDER-ES",
+      "age_band": "older",
+      "language": "Spanish"
+    }
+  ],
+  "vocabulary": {
+    "id": "SYN-INSURANCE-CATALOG",
+    "version": "1.0.0",
+    "terms": [
+      "SYN-EMPLOYER",
+      "SYN-INDIVIDUAL",
+      "SYN-PUBLIC"
+    ]
+  },
+  "policy": {
+    "id": "SYN-ADMINISTRATIVE-RULES",
+    "version": "1.0.0",
+    "jurisdiction": "SYN-JURISDICTION",
+    "effective_start": "2026-01-01",
+    "effective_end_exclusive": "2027-01-01",
+    "precedence": [
+      "retraction",
+      "accepted review",
+      "effectivity",
+      "enrollment",
+      "conflict",
+      "reportability",
+      "review"
+    ],
+    "states": [
+      "review",
+      "submit",
+      "conflict",
+      "pending",
+      "expired",
+      "overridden",
+      "retracted"
+    ]
+  },
+  "scoring": {
+    "id": "SYN-ADMINISTRATIVE-SCORING",
+    "version": "1.0.0",
+    "primary": "exact label-set agreement",
+    "pair_score": "subject-weighted mean workflow difference",
+    "zero_denominator": "null",
+    "empty_set_jaccard": 1,
+    "probability_calibration": "requires a separately supplied probability endpoint",
+    "uncertainty": "descriptive authored fixture; inferential intervals require a sampling design"
+  },
+  "cases": [
+    {
+      "id": "REPEAT",
+      "family": "control",
+      "a": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "review",
+        "workflow_minutes": 10
+      },
+      "b": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "review",
+        "workflow_minutes": 10
+      },
+      "expected_administrative_change": false,
+      "rationale": "An unchanged-input control preserves the complete administrative response."
+    },
+    {
+      "id": "REPORTABILITY",
+      "family": "administrative_context",
+      "a": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "review",
+        "workflow_minutes": 10
+      },
+      "b": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "submit",
+        "workflow_minutes": 5,
+        "reportability": "reportable"
+      },
+      "expected_administrative_change": true,
+      "rationale": "Equal supplied scientific evidence isolates reportability and its authored workflow route."
+    },
+    {
+      "id": "MULTIPLE",
+      "family": "administrative_context",
+      "a": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "review",
+        "workflow_minutes": 10
+      },
+      "b": {
+        "raw_label": "public and employer",
+        "labels": [
+          "SYN-EMPLOYER",
+          "SYN-PUBLIC"
+        ],
+        "classification": "multiple",
+        "policy_state": "review",
+        "workflow_minutes": 10
+      },
+      "expected_administrative_change": true,
+      "rationale": "Overlapping categories remain a set."
+    },
+    {
+      "id": "ALIAS",
+      "family": "administrative_context",
+      "a": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "review",
+        "workflow_minutes": 10
+      },
+      "b": {
+        "raw_label": "private",
+        "labels": [
+          "SYN-EMPLOYER",
+          "SYN-INDIVIDUAL"
+        ],
+        "classification": "ambiguous",
+        "policy_state": "review",
+        "workflow_minutes": 10
+      },
+      "expected_administrative_change": true,
+      "rationale": "An alias collision retains both candidates for review."
+    },
+    {
+      "id": "UNKNOWN",
+      "family": "administrative_context",
+      "a": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "review",
+        "workflow_minutes": 10
+      },
+      "b": {
+        "raw_label": "undetermined",
+        "labels": [],
+        "classification": "unknown",
+        "policy_state": "review",
+        "workflow_minutes": 10
+      },
+      "expected_administrative_change": true,
+      "rationale": "Unknown text remains distinct from an explicitly empty label."
+    },
+    {
+      "id": "ABSENT",
+      "family": "administrative_context",
+      "a": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "review",
+        "workflow_minutes": 10
+      },
+      "b": {
+        "raw_label": "",
+        "labels": [],
+        "classification": "absent",
+        "policy_state": "review",
+        "workflow_minutes": 10
+      },
+      "expected_administrative_change": true,
+      "rationale": "Explicit absence carries an empty raw value."
+    },
+    {
+      "id": "ABSTAIN",
+      "family": "administrative_context",
+      "a": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "review",
+        "workflow_minutes": 10
+      },
+      "b": {
+        "raw_label": "review requested",
+        "labels": [],
+        "classification": "abstain",
+        "policy_state": "review",
+        "workflow_minutes": 10,
+        "status": "abstained"
+      },
+      "expected_administrative_change": true,
+      "rationale": "An abstained arm remains in the planned denominator."
+    },
+    {
+      "id": "DATE",
+      "family": "administrative_context",
+      "a": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "review",
+        "workflow_minutes": 10
+      },
+      "b": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "expired",
+        "workflow_minutes": 10,
+        "service_day": "2027-01-01"
+      },
+      "expected_administrative_change": true,
+      "rationale": "The authored policy ends before the successor effective-day boundary."
+    },
+    {
+      "id": "CONFLICT",
+      "family": "administrative_context",
+      "a": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "review",
+        "workflow_minutes": 10
+      },
+      "b": {
+        "raw_label": "conflicting rules",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "conflict",
+        "workflow_minutes": 10
+      },
+      "expected_administrative_change": true,
+      "rationale": "Equal-priority conflicting outcomes return to policy review."
+    },
+    {
+      "id": "OVERRIDE",
+      "family": "administrative_context",
+      "a": {
+        "raw_label": "private",
+        "labels": [
+          "SYN-EMPLOYER",
+          "SYN-INDIVIDUAL"
+        ],
+        "classification": "ambiguous",
+        "policy_state": "review",
+        "workflow_minutes": 10
+      },
+      "b": {
+        "raw_label": "private",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "overridden",
+        "workflow_minutes": 5,
+        "review": "accepted-employer"
+      },
+      "expected_administrative_change": true,
+      "rationale": "An explicitly accepted review changes the candidate set and assignment."
+    },
+    {
+      "id": "PENDING",
+      "family": "administrative_context",
+      "a": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "review",
+        "workflow_minutes": 10
+      },
+      "b": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "pending",
+        "workflow_minutes": 10,
+        "enrollment": "pending"
+      },
+      "expected_administrative_change": true,
+      "rationale": "Pending enrollment stays separate from classification."
+    },
+    {
+      "id": "AMENDED",
+      "family": "administrative_context",
+      "a": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "review",
+        "workflow_minutes": 10
+      },
+      "b": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "overridden",
+        "workflow_minutes": 5,
+        "review": "accepted-employer"
+      },
+      "expected_administrative_change": true,
+      "rationale": "Amended administrative evidence preserves the original arm."
+    },
+    {
+      "id": "RETRACTED",
+      "family": "administrative_context",
+      "a": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "review",
+        "workflow_minutes": 10
+      },
+      "b": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "retracted",
+        "workflow_minutes": 10,
+        "review": "retracted"
+      },
+      "expected_administrative_change": true,
+      "rationale": "Retracted evidence yields its own policy disposition."
+    },
+    {
+      "id": "LANGUAGE",
+      "family": "demographic_presentation",
+      "a": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "review",
+        "workflow_minutes": 10,
+        "language": "English"
+      },
+      "b": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "review",
+        "workflow_minutes": 10,
+        "language": "Spanish"
+      },
+      "expected_administrative_change": false,
+      "rationale": "Authored language presentation preserves task-relevant facts and expected routing."
+    },
+    {
+      "id": "FAILED",
+      "family": "control",
+      "a": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "review",
+        "workflow_minutes": 10
+      },
+      "b": {
+        "raw_label": "adapter failure",
+        "labels": [],
+        "classification": "unknown",
+        "policy_state": "review",
+        "workflow_minutes": 10,
+        "status": "failed"
+      },
+      "expected_administrative_change": true,
+      "rationale": "A failed attempt remains visible beside the completed arm."
+    },
+    {
+      "id": "INCOMPLETE",
+      "family": "control",
+      "a": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "review",
+        "workflow_minutes": 10
+      },
+      "b": {
+        "raw_label": "awaiting observation",
+        "labels": [],
+        "classification": "unknown",
+        "policy_state": "review",
+        "workflow_minutes": 10,
+        "status": "pending"
+      },
+      "expected_administrative_change": true,
+      "rationale": "An unobserved planned arm remains pending."
+    },
+    {
+      "id": "EXCLUDED",
+      "family": "control",
+      "a": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "review",
+        "workflow_minutes": 10
+      },
+      "b": {
+        "raw_label": "unsupported combination",
+        "labels": [],
+        "classification": "unknown",
+        "policy_state": "review",
+        "workflow_minutes": 10,
+        "status": "excluded"
+      },
+      "expected_administrative_change": true,
+      "rationale": "A declared unsupported combination remains represented with its exclusion reason."
+    },
+    {
+      "id": "INJECTED",
+      "family": "control",
+      "a": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "review",
+        "workflow_minutes": 10
+      },
+      "b": {
+        "raw_label": "  Commercial  ",
+        "labels": [
+          "SYN-EMPLOYER"
+        ],
+        "classification": "matched",
+        "policy_state": "review",
+        "workflow_minutes": 10
+      },
+      "expected_administrative_change": false,
+      "rationale": "The evaluator demonstration injects a source-evidence difference to exercise detection against this unchanged oracle."
+    }
+  ]
+}

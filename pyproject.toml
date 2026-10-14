@@ -13,6 +13,9 @@ requires-python = ">=3.11"
 dependencies = []
 
 [project.optional-dependencies]
+administrative-study = [
+  "lims-eln-program-specification @ git+https://github.com/driftframestudios/lims-eln-program-specification.git@83a97deb76b9a5636cc7da484d350d5556c51661",
+]
 contract-conformance = [
   "lims-eln-program-specification @ git+https://github.com/driftframestudios/lims-eln-program-specification.git@4d06eeb7f96910311fbcb7f51547c978b6a07290",
 ]
@@ -27,4 +30,4 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [tool.setuptools.package-data]
-lims_eln_sim = ["contract_resources/*.json"]
+lims_eln_sim = ["contract_resources/*.json", "administrative_resources/*.json"]
