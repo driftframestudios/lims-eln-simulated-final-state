@@ -533,6 +533,51 @@ class SimulationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "complete audit lineage"):
             validate_representative_corpus(revision_drift)
 
+    def test_migration_admission_and_readiness_require_coherent_lifecycle(self) -> None:
+        changes = (
+            ("unknown_event", "released lifecycle", lambda record: record["audit"][-1].update(event="unreviewed_external_event")),
+            ("skipped_transition", "released lifecycle", lambda record: record["audit"][1].update(event="instrument_complete")),
+            ("reversed_transition", "released lifecycle", lambda record: record["audit"][2].update(event="accessioned")),
+            ("terminal_status", "terminal audit", lambda record: record.update(status="received")),
+        )
+        for label, message, change in changes:
+            with self.subTest(case=label):
+                corpus = deepcopy(self.migration_corpus)
+                change(corpus["records"][0])
+                with self.assertRaisesRegex(ValueError, message):
+                    validate_representative_corpus(corpus)
+                unused_target, report = MigrationHarness().migrate(corpus["records"])
+                self.assertTrue(report.semantic_parity)
+                self.assertFalse(report.rollback_ready)
+                with self.assertRaisesRegex(ValueError, message):
+                    run(
+                        self.fixture, intended_use_profile=self.intended_use_profile,
+                        migration_corpus=corpus, database_oracle=self.database_oracle,
+                        redaction_key=self.redaction_key,
+                    )
+
+    def test_migration_accepts_correction_and_rerelease_history(self) -> None:
+        for terminal, events in (
+            ("corrected", ("corrected",)),
+            ("released", ("corrected", "released")),
+        ):
+            with self.subTest(terminal=terminal):
+                corpus = deepcopy(self.migration_corpus)
+                record = corpus["records"][0]
+                record["audit"].extend(
+                    {"sequence": sequence, "event": event}
+                    for sequence, event in enumerate(events, start=6)
+                )
+                record.update(status=terminal, revision=len(record["audit"]))
+                corpus["profile"]["lineage_depth"] = [len(item["audit"]) for item in corpus["records"]]
+                before = deepcopy(corpus)
+                records = validate_representative_corpus(corpus)
+                target, report = MigrationHarness().migrate(records)
+                self.assertTrue(report.semantic_parity)
+                self.assertTrue(report.rollback_ready)
+                self.assertEqual(before, corpus)
+                self.assertEqual(before["records"], target)
+
     def test_migration_readiness_distinguishes_boolean_from_integer_revision(
         self,
     ) -> None:
