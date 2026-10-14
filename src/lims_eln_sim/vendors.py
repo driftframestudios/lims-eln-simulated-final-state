@@ -40,8 +40,11 @@ class VendorEmulator:
     ) -> dict[str, Any]:
         content_digest = digest(payload)
         prior = self.writes.get(request_id)
-        if prior and prior.content_digest != content_digest:
-            raise IdempotencyConflict(f"{self.name} request identity binds to established content")
+        if prior and (
+            prior.content_digest != content_digest
+            or prior.record["external_id"] != external_id
+        ):
+            raise IdempotencyConflict(f"{self.name} request identity binds to its established target and content")
         if prior:
             return deepcopy(prior.record)
 

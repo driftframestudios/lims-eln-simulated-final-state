@@ -56,7 +56,7 @@ from lims_eln_sim.safety import (
 )
 from lims_eln_sim.simulation import closure_bundle, run, write_bundle
 from lims_eln_sim.receipt_checks import verify_family
-from lims_eln_sim.vendors import IdempotencyConflict, SapioEmulator
+from lims_eln_sim.vendors import AmbiguousWrite, IdempotencyConflict, SapioEmulator
 
 
 class SimulationTests(unittest.TestCase):
@@ -459,6 +459,30 @@ class SimulationTests(unittest.TestCase):
         self.assertEqual(first, replay)
         with self.assertRaises(IdempotencyConflict):
             vendor.write("request-1", "SPM-SYN-1", {"revision": 2})
+
+    def test_vendor_replay_preserves_target_and_accepted_state(self) -> None:
+        for outcome in ("acknowledged", "commit_with_uncertain_response"):
+            with self.subTest(outcome=outcome):
+                vendor = SapioEmulator()
+                payload = {"revision": 1, "measurement": {"value": "1.250000"}}
+                if outcome == "commit_with_uncertain_response":
+                    with self.assertRaises(AmbiguousWrite):
+                        vendor.write("request-1", "SPM-SYN-A", payload, outcome=outcome)
+                    first = vendor.reconcile("request-1")
+                else:
+                    first = vendor.write("request-1", "SPM-SYN-A", payload)
+                before = deepcopy((vendor.records, vendor.writes, vendor.event_queue))
+                for target, replay_payload in (
+                    ("SPM-SYN-B", payload),
+                    ("SPM-SYN-A", {**payload, "revision": 2}),
+                ):
+                    with self.assertRaises(IdempotencyConflict):
+                        vendor.write("request-1", target, replay_payload)
+                    self.assertEqual(before, (vendor.records, vendor.writes, vendor.event_queue))
+                self.assertEqual(first, vendor.write("request-1", "SPM-SYN-A", payload))
+                self.assertEqual(first, vendor.reconcile("request-1"))
+                self.assertEqual(digest(payload), first["content_digest"])
+                self.assertEqual(before, (vendor.records, vendor.writes, vendor.event_queue))
 
     def test_tenant_boundary_provides_governed_path(self) -> None:
         principal = Principal("scientist-1", "tenant-a", ("reviewer",))
