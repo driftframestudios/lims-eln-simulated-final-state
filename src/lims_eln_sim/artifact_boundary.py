@@ -116,19 +116,50 @@ def _read_regular_file(path: Path, relative: str) -> bytes:
             "artifact verification requires platform support for fail-closed "
             "final-path no-follow opening"
         )
-    flags = os.O_RDONLY | no_follow
+    nonblocking = getattr(os, "O_NONBLOCK", None)
+    if not isinstance(nonblocking, int) or nonblocking == 0:
+        raise ArtifactBoundaryError(
+            "artifact verification requires nonblocking file acquisition support"
+        )
+    flags = os.O_RDONLY | no_follow | nonblocking
     try:
         descriptor = os.open(path, flags)
     except OSError as error:
         raise ArtifactBoundaryError(
             f"artifact {relative} requires a readable regular file"
         ) from error
-    with os.fdopen(descriptor, "rb") as stream:
-        if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+    # Keep raw-descriptor ownership through borrowed-stream setup and cleanup.
+    stream = None
+    failure = None
+    try:
+        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
             raise ArtifactBoundaryError(
                 f"artifact {relative} requires a regular output file"
             )
+        stream = os.fdopen(descriptor, "rb", closefd=False)
         return stream.read()
+    except BaseException as error:
+        failure = error
+        raise
+    finally:
+        cleanups = []
+        if stream is not None:
+            try:
+                stream.close()
+            except BaseException as cleanup:
+                cleanups.append(cleanup)
+        try:
+            os.close(descriptor)
+        except BaseException as cleanup:
+            cleanups.append(cleanup)
+        if cleanups:
+            cleanup = cleanups[0] if len(cleanups) == 1 else BaseExceptionGroup(
+                "Artifact stream and descriptor cleanup observations", cleanups,
+            )
+            if failure is None:
+                raise cleanup
+            failure.cleanup_error = cleanup
+            failure.add_note("Artifact cleanup needs local review; the primary failure remains available.")
 
 
 def _validate_document_links(documents: dict[str, object]) -> None:
