@@ -160,6 +160,18 @@ repository-local verifier's claim. A caller sharing parent paths with an untrust
 actor needs a directory-descriptor traversal or an equivalently isolated execution
 boundary.
 
+The artifact reader owns its raw stream, buffered reader, and numeric descriptor.
+Cleanup invalidates the raw stream before releasing the descriptor, so a retained
+reader can consume only its previously buffered bytes rather than read a later
+descriptor owner's file. If raw invalidation leaves the stream live, the public
+error retains `retained_stream` and `retained_descriptor` for local recovery.
+Preserve both handles, close the raw stream, confirm its `closed` state, then
+release the descriptor once. A numeric close that reports failure has an uncertain
+outcome; inspect that observation locally before choosing recovery rather than
+retrying its number after reuse. Existing read/control errors and cleanup
+observations remain available. The reader retains O(B) payload storage and one
+standard-library buffer; this ownership correction supplies no throughput claim.
+
 ## Shared contract boundary
 
 The simulator reads the contract-v1 golden specimen journey from its bound package

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from hashlib import sha256
+import io
 import os
 from pathlib import Path
 import stat
@@ -128,7 +129,8 @@ def _read_regular_file(path: Path, relative: str) -> bytes:
         raise ArtifactBoundaryError(
             f"artifact {relative} requires a readable regular file"
         ) from error
-    # Keep raw-descriptor ownership through borrowed-stream setup and cleanup.
+    # Invalidate the raw reader before its descriptor can reach another owner.
+    raw = None
     stream = None
     failure = None
     try:
@@ -136,7 +138,8 @@ def _read_regular_file(path: Path, relative: str) -> bytes:
             raise ArtifactBoundaryError(
                 f"artifact {relative} requires a regular output file"
             )
-        stream = os.fdopen(descriptor, "rb", closefd=False)
+        raw = io.FileIO(descriptor, "rb", closefd=False)
+        stream = io.BufferedReader(raw)
         return stream.read()
     except BaseException as error:
         failure = error
@@ -148,14 +151,25 @@ def _read_regular_file(path: Path, relative: str) -> bytes:
                 stream.close()
             except BaseException as cleanup:
                 cleanups.append(cleanup)
-        try:
-            os.close(descriptor)
-        except BaseException as cleanup:
-            cleanups.append(cleanup)
+        if raw is not None and not raw.closed:
+            try:
+                raw.close()
+            except BaseException as cleanup:
+                cleanups.append(cleanup)
+        retained = raw is not None and not raw.closed
+        if not retained:
+            try:
+                os.close(descriptor)
+            except BaseException as cleanup:
+                cleanups.append(cleanup)
         if cleanups:
             cleanup = cleanups[0] if len(cleanups) == 1 else BaseExceptionGroup(
                 "Artifact stream and descriptor cleanup observations", cleanups,
             )
+            if retained:
+                recovery = failure if failure is not None else cleanup
+                recovery.retained_stream = raw
+                recovery.retained_descriptor = descriptor
             if failure is None:
                 raise cleanup
             failure.cleanup_error = cleanup
