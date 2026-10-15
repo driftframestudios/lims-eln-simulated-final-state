@@ -72,12 +72,14 @@ class CallIntent:
     payload: dict[str, Any]
     requested_at: str
     _payload_json: str = field(init=False, repr=False)
+    _payload_size_bytes: int = field(init=False, repr=False)
     _payload_digest: str = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "record_ids", tuple(self.record_ids))
         payload_json = canonical_json(self.payload)
         object.__setattr__(self, "_payload_json", payload_json)
+        object.__setattr__(self, "_payload_size_bytes", len(payload_json.encode("utf-8")))
         object.__setattr__(
             self,
             "_payload_digest",
@@ -90,6 +92,11 @@ class CallIntent:
                 }
             ),
         )
+
+    @property
+    def payload_size_bytes(self) -> int:
+        """Canonical size of the captured payload used for approval and execution."""
+        return self._payload_size_bytes
 
     @property
     def payload_digest(self) -> str:
@@ -195,8 +202,7 @@ class OperationRegistry:
             raise CallerBoundary(
                 f"record scope supports at most {contract.maximum_records}; partition the request"
             )
-        payload_bytes = len(canonical_json(intent.payload).encode("utf-8"))
-        if payload_bytes > contract.maximum_payload_bytes:
+        if intent.payload_size_bytes > contract.maximum_payload_bytes:
             raise CallerBoundary(
                 f"payload supports at most {contract.maximum_payload_bytes} bytes; "
                 "submit a governed artifact reference"

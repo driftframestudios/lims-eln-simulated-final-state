@@ -338,6 +338,82 @@ class SimulationTests(unittest.TestCase):
                 lambda unused: {"unexpected": True},
             )
 
+    def test_bounded_caller_budget_uses_captured_canonical_bytes(self) -> None:
+        now = datetime(2028, 6, 30, 14, 0, tzinfo=timezone.utc)
+        caller = Caller("reader", "tenant-simulated", ("reader",))
+        # Canonical JSON escapes both this accent and the surrogate pair.
+        canonical_bytes = b'{"value":"\\u00e9\\ud83d\\ude00"}'
+        for budget in (len(canonical_bytes), len(canonical_bytes) - 1):
+            with self.subTest(budget=budget):
+                contract = OperationContract(
+                    "read", EffectClass.READ, ("reader",), 1, budget, False,
+                )
+                original = {"value": "é😀"}
+                intent = CallIntent("request", "read", caller.tenant_id, (), original, now.isoformat())
+                original.clear()
+                handler = mock.Mock(return_value={"accepted": True})
+                registry = OperationRegistry((contract,), clock=lambda: now)
+                self.assertEqual(intent.payload_size_bytes, len(canonical_bytes))
+                if budget == len(canonical_bytes):
+                    registry.invoke(caller, intent, handler)
+                    self.assertEqual(handler.call_args.args[0].payload, {"value": "é😀"})
+                else:
+                    with self.assertRaisesRegex(CallerBoundary, "payload supports at most"):
+                        registry.invoke(caller, intent, handler)
+                    handler.assert_not_called()
+
+    def test_bounded_caller_snapshot_survives_caller_and_handler_mutation(self) -> None:
+        now = datetime(2028, 6, 30, 14, 0, tzinfo=timezone.utc)
+        caller = Caller("operator", "tenant-simulated", ("operator",))
+        captured = {"values": ["ok"]}
+        expected_digest = digest({
+            "operation_id": "write", "tenant_id": caller.tenant_id,
+            "record_ids": (), "payload": captured,
+        })
+        for mutation in ("growth", "non_json", "nested"):
+            with self.subTest(mutation=mutation):
+                contract = OperationContract(
+                    "write", EffectClass.BROAD_WRITE, ("operator",), 1, 17, True,
+                )
+                registry = OperationRegistry((contract,), clock=lambda: now)
+                original = deepcopy(captured)
+                intent = CallIntent("request", "write", caller.tenant_id, (), original, now.isoformat())
+                approval = Approval(
+                    "approval", intent.request_id, caller.caller_id, "write",
+                    contract.version, contract.contract_digest, caller.tenant_id,
+                    (), expected_digest, "approver", "simulated_accountable_approver",
+                    "2028-06-30T13:59:00Z", "2028-06-30T14:05:00Z",
+                )
+                if mutation == "growth":
+                    original["extra"] = "x" * 100
+                elif mutation == "non_json":
+                    original["extra"] = object()
+                else:
+                    original["values"].append("caller change")
+                before_values = list(original["values"])
+                before_extra = original.get("extra")
+                executions = []
+
+                def execute(received):
+                    self.assertEqual(received.payload, captured)
+                    self.assertEqual(received.payload_digest, expected_digest)
+                    self.assertEqual(received.payload_size_bytes, 17)
+                    received.payload["values"].append("handler change")
+                    executions.append(received)
+                    return {"values": received.payload["values"]}
+
+                receipt = registry.invoke(caller, intent, execute, approval=approval)
+                self.assertEqual(receipt["payload_digest"], expected_digest)
+                self.assertEqual(intent.decoded_payload(), captured)
+                self.assertEqual(intent.payload_digest, expected_digest)
+                self.assertEqual(original["values"], before_values)
+                self.assertIs(original.get("extra"), before_extra)
+                executions[0].payload["values"].append("later handler change")
+                receipt["outcome"]["values"].append("receipt consumer change")
+                replay = registry.invoke(caller, intent, execute, approval=approval)
+                self.assertEqual(len(executions), 1)
+                self.assertEqual(replay["outcome"], {"values": ["ok", "handler change"]})
+
     def test_bounded_caller_uses_service_time_for_freshness_and_approval(
         self,
     ) -> None:
