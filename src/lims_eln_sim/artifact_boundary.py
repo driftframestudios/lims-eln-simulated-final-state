@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from hashlib import sha256
 import io
+import json
 import os
 from pathlib import Path
 import stat
@@ -30,6 +31,11 @@ SIMULATION_ARTIFACTS = frozenset(
     }
 )
 
+# Native receiving policy: one bounded forecast family, including JSON whitespace.
+MAX_ARTIFACT_BYTES = 4 * 1024 * 1024
+MAX_TOTAL_ARTIFACT_BYTES = 32 * 1024 * 1024
+MAX_ARTIFACT_JSON_DEPTH = 32
+
 
 class ArtifactBoundaryError(ValueError):
     """Generated artifacts return to a reproducible JSON output path."""
@@ -42,43 +48,86 @@ def artifact_inventory(root: Path) -> dict[str, str]:
         raise ArtifactBoundaryError(
             "artifact root requires one concrete output directory"
         )
+    paths = _artifact_paths(root)
     inventory: dict[str, str] = {}
     documents: dict[str, object] = {}
-    for path in sorted(root.rglob("*")):
-        relative = path.relative_to(root).as_posix()
-        if path.is_symlink():
-            raise ArtifactBoundaryError(
-                f"artifact {relative} requires a regular output file"
-            )
-        if path.is_dir():
-            continue
-        content = _read_regular_file(path, relative)
-        if path.suffix != ".json":
-            raise ArtifactBoundaryError(
-                f"artifact {relative} requires the released JSON output format"
-            )
+    remaining = MAX_TOTAL_ARTIFACT_BYTES
+    for path in paths:
+        relative = path.name
+        content = _read_regular_file(
+            path, relative, maximum_bytes=min(MAX_ARTIFACT_BYTES, remaining)
+        )
+        remaining -= len(content)
         try:
-            documents[relative] = strict_json_loads(content)
+            documents[relative] = strict_json_loads(_depth_admitted_text(content))
         except ValueError as error:
             raise ArtifactBoundaryError(
                 f"artifact {relative} requires strict JSON: {error}"
             ) from error
         inventory[relative] = "sha256:" + sha256(content).hexdigest()
-    observed = set(inventory)
-    missing = sorted(SIMULATION_ARTIFACTS - observed)
-    unexpected = sorted(observed - SIMULATION_ARTIFACTS)
-    if missing or unexpected:
-        details = []
-        if missing:
-            details.append("missing: " + ", ".join(missing))
-        if unexpected:
-            details.append("unexpected: " + ", ".join(unexpected))
-        raise ArtifactBoundaryError(
-            "simulation output requires the released artifact family; "
-            + "; ".join(details)
-        )
     _validate_document_links(documents)
     return inventory
+
+
+def _artifact_paths(root: Path) -> tuple[Path, ...]:
+    """Admit the closed root family before opening any artifact or subtree."""
+    observed: set[str] = set()
+    try:
+        with os.scandir(root) as entries:
+            for entry in entries:
+                if entry.name not in SIMULATION_ARTIFACTS:
+                    raise ArtifactBoundaryError(
+                        "simulation output requires the released artifact family; "
+                        f"unexpected: {entry.name}"
+                    )
+                if entry.is_symlink() or entry.is_dir(follow_symlinks=False):
+                    raise ArtifactBoundaryError(
+                        f"artifact {entry.name} requires a regular output file"
+                    )
+                observed.add(entry.name)
+    except OSError as error:
+        raise ArtifactBoundaryError(
+            "artifact root requires readable released-family membership"
+        ) from error
+    missing = sorted(SIMULATION_ARTIFACTS - observed)
+    if missing:
+        raise ArtifactBoundaryError(
+            "simulation output requires the released artifact family; "
+            "missing: " + ", ".join(missing)
+        )
+    return tuple(root / name for name in sorted(observed))
+
+
+def _depth_admitted_text(content: bytes) -> str:
+    """Bound nested containers before JSON decoding and semantic recursion.
+
+    The standard decoder's byte-encoding selection preserves UTF-8/16/32 and
+    BOM behavior. Its parser retains syntax, duplicate-key and number authority.
+    A root object/array has depth one; strings and scalar values add no depth.
+    """
+    text = content.decode(json.detect_encoding(content), "surrogatepass")
+    depth = 0
+    quoted = False
+    escaped = False
+    for character in text:
+        if quoted:
+            if escaped:
+                escaped = False
+            elif character == "\\":
+                escaped = True
+            elif character == '"':
+                quoted = False
+        elif character == '"':
+            quoted = True
+        elif character in "[{":
+            depth += 1
+            if depth > MAX_ARTIFACT_JSON_DEPTH:
+                raise ArtifactBoundaryError(
+                    f"JSON supports at most {MAX_ARTIFACT_JSON_DEPTH} nested containers"
+                )
+        elif character in "]}" and depth:
+            depth -= 1
+    return text
 
 
 def verify_reproducible_artifacts(first: Path, replay: Path) -> dict[str, str]:
@@ -110,7 +159,9 @@ def verify_reproducible_artifacts(first: Path, replay: Path) -> dict[str, str]:
     return first_inventory
 
 
-def _read_regular_file(path: Path, relative: str) -> bytes:
+def _read_regular_file(
+    path: Path, relative: str, *, maximum_bytes: int = MAX_ARTIFACT_BYTES
+) -> bytes:
     no_follow = getattr(os, "O_NOFOLLOW", None)
     if not isinstance(no_follow, int) or no_follow == 0:
         raise ArtifactBoundaryError(
@@ -134,13 +185,25 @@ def _read_regular_file(path: Path, relative: str) -> bytes:
     stream = None
     failure = None
     try:
-        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+        info = os.fstat(descriptor)
+        if not stat.S_ISREG(info.st_mode):
             raise ArtifactBoundaryError(
                 f"artifact {relative} requires a regular output file"
             )
+        if info.st_size > maximum_bytes:
+            raise ArtifactBoundaryError(
+                f"artifact {relative} supports at most {maximum_bytes} bytes "
+                "within the remaining family budget"
+            )
         raw = io.FileIO(descriptor, "rb", closefd=False)
         stream = io.BufferedReader(raw)
-        return stream.read()
+        content = stream.read(maximum_bytes + 1)
+        if len(content) > maximum_bytes:
+            raise ArtifactBoundaryError(
+                f"artifact {relative} supports at most {maximum_bytes} bytes "
+                "within the remaining family budget"
+            )
+        return content
     except BaseException as error:
         failure = error
         raise

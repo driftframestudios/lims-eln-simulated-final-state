@@ -151,7 +151,10 @@ therefore binds the retained oracle and assumptions to one repeatable artifact s
 configured environment evidence remains a separate comparison input.
 
 Repository validation supplies fresh, caller-controlled temporary directories for
-the complete artifact comparison. Within those directories, each final artifact is
+the complete artifact comparison. Native inspection first admits exactly the thirteen
+root-level names in `SIMULATION_ARTIFACTS`; extra files and directories, including
+empty directories, receive an artifact-family rejection before content reads.
+Within those directories, each final artifact is
 opened with the platform's `O_NOFOLLOW` support and verified as a regular file.
 Artifact verification completes on platforms that supply this final-path protection;
 other platforms receive a boundary error before artifact bytes enter comparison.
@@ -159,6 +162,40 @@ Concurrent replacement of parent-directory components remains outside this
 repository-local verifier's claim. A caller sharing parent paths with an untrusted
 actor needs a directory-descriptor traversal or an equivalently isolated execution
 boundary.
+
+The native receiver owns these inclusive representation limits in
+`artifact_boundary.py`: **4 MiB per file, 32 MiB for the complete family, and 32
+nested JSON containers**. Encoded bytes include whitespace and encoding markers.
+A root object or array counts as depth one; strings and scalar values add no
+container depth. The reader requests at most the smaller of the per-file limit
+and the remaining family allowance, plus one byte to detect overflow. This is a
+`BufferedReader` request bound; its standard fixed buffer may prefetch raw bytes.
+A file-size observation can reject early, and the bounded read remains authoritative
+if that observation understates the file. Each offending file stops before JSON
+decoding or hashing; earlier admitted family members may already have been processed.
+
+The depth scan runs on text decoded with the standard JSON byte-encoding selection,
+preserving UTF-8, UTF-16, UTF-32 and their existing BOM behavior. Quoted brackets and
+escaped quotes retain their string meaning. The existing strict JSON parser owns
+syntax, duplicate-key and nonfinite-number admission; the subsequent comparison
+owns document links and digests. Capacity errors retain `ArtifactBoundaryError`
+and the reader's existing cleanup/recovery policy.
+
+These limits select a supported in-memory forecast envelope. The current generated
+family is 104,131 bytes, its largest file is 47,105 bytes, and its deepest container
+is well within the 32-container limit. The file allowance provides explicit growth
+room for that fixture; the aggregate allowance matches the finite publisher's
+existing 32 MiB output budget. Native admission also protects direct inventory calls
+and bounds JSON nesting before recursive consumers. A supported producer exceeding
+this envelope is the event for Simulation's owner to review capacities together with
+producer-to-receiver tests and the finite profile. These encoded limits establish
+bounded input work; decoded allocation and process memory remain separate quantities.
+
+Membership admission retains at most thirteen names and performs no subtree walk.
+Bounded text scanning, decoding and hashing traverse admitted bytes; semantic links
+and canonical digests retain their existing value traversals. Live state includes
+the decoded family and one bounded file/text representation. Runtime allocation and
+throughput observations can refine this account when a receiving workload needs them.
 
 The artifact reader owns its raw stream, buffered reader, and numeric descriptor.
 Cleanup invalidates the raw stream before releasing the descriptor, so a retained

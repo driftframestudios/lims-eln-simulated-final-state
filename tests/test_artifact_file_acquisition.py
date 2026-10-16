@@ -19,7 +19,9 @@ class ArtifactFileAcquisitionTests(unittest.TestCase):
         self.root = Path(self.enterContext(tempfile.TemporaryDirectory()))
         self.path = self.root / "result.json"
         self.content = b'{"synthetic":true}\n'
-        self.path.write_bytes(self.content)
+        # Public fault probes enter file acquisition after complete membership.
+        for name in boundary.SIMULATION_ARTIFACTS:
+            (self.root / name).write_bytes(self.content)
 
     def test_regular_bytes_and_single_descriptor_release(self):
         close = os.close
