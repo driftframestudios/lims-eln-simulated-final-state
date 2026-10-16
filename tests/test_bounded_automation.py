@@ -62,6 +62,36 @@ class BoundedAutomationTests(unittest.TestCase):
         self.assertTrue(checker.validate_repository_automation(ROOT, broadened))
         self.assertTrue(checker.validate_repository_automation(ROOT, None))
 
+    def test_current_event_coordinate_wiring_is_required(self) -> None:
+        step = self.workflow.split(
+            "      - name: Check pull-request branch coordinates\n", 1
+        )[1].split("      - name:", 1)[0]
+        complete_step = "      - name: Check pull-request branch coordinates\n" + step
+        mutations = [
+            (complete_step, ""),
+            ("${{ github.event.pull_request.user.login }}", "${{ github.actor }}"),
+            (
+                '--base "$PR_BASE" --head "$PR_HEAD" --author "$PR_AUTHOR"',
+                "--base develop --head fix/constant-fixture --author contributor",
+            ),
+        ]
+        for name, source, constant in (
+            ("BASE", "base.ref", "develop"),
+            ("HEAD", "head.ref", "fix/constant-fixture"),
+            ("AUTHOR", "user.login", "contributor"),
+        ):
+            declaration = f"          PR_{name}: ${{{{ github.event.pull_request.{source} }}}}"
+            argument = f'--{name.lower()} "$PR_{name}"'
+            mutations.extend((
+                (declaration + "\n", ""),
+                (declaration, f"          PR_{name}: {constant}"),
+                (argument, ""),
+                (argument, f"--{name.lower()} $PR_{name}"),
+            ))
+        for before, after in mutations:
+            with self.subTest(before=before, after=after):
+                self.assertTrue(self.workflow_mutation(before, after))
+
     def test_permission_and_fail_closed_mutations_are_visible(self) -> None:
         mutations = (
             ("  contents: read", "  contents: read\n  issues: write"),
