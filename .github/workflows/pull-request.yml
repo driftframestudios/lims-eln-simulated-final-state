@@ -30,6 +30,15 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Check pull-request branch coordinates
+        env:
+          PR_BASE: ${{ github.event.pull_request.base.ref }}
+          PR_HEAD: ${{ github.event.pull_request.head.ref }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          python tools/check_branch_flow.py \
+            --base "$PR_BASE" --head "$PR_HEAD" --author "$PR_AUTHOR"
+
       - name: Exercise selected-future behavior and boundaries
         run: python -m unittest discover -s tests -v
 
