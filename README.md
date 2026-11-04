@@ -28,6 +28,9 @@ Read `build/first-scenario/result.json` for the result and
 uses the standard library and repository-owned synthetic fixtures. Choose a
 fresh output directory for a separate experiment.
 
+To try one transition, [replay a custody correction](#replay-a-custody-correction).
+The example shows which state survives a rejected request and what changes on retry.
+
 Run a selected future laboratory workflow and inspect the result it produces.
 The core simulator uses Python's standard library. The [run example](#run-it)
 writes scenario results and observation artifacts to a chosen output directory.
@@ -234,6 +237,28 @@ In an authenticated Python 3.12+ environment, the optional `contract-conformance
 extra installs that exact source commit. The snapshot remains the standalone forecast
 path on the repository's current Python 3.11+ runtime; a later reviewed full commit
 can replace the pin without changing the shared projection identity.
+
+## Replay a custody correction
+
+The [`Specimen.transition` example](src/lims_eln_sim/domain.py) follows one
+synthetic specimen from accession to custody. Run it from the repository root
+with the standard library. The model supports Python 3.11 and newer.
+
+```sh
+PYTHONPATH=src python3 -m doctest -v src/lims_eln_sim/domain.py
+```
+
+For the researcher path on CPython 3.12, use `uv` to run the example together
+with the custody admission and preparation regressions. This command installs
+pytest in an isolated environment. A pass establishes that the model retains
+the prior state on rejection and records one custody event on a corrected retry.
+
+```sh
+PYTHONPATH=src uv run --isolated --no-project --python 3.12 --with pytest==9.2.0 \
+  -- python -m pytest -q --doctest-modules src/lims_eln_sim/domain.py \
+  tests/optional/test_custody_transition.py \
+  tests/test_simulation.py::SimulationTests::test_transition_preparation_preserves_prior_view_and_corrected_retry
+```
 
 ## Run it
 

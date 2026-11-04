@@ -680,11 +680,12 @@ class SimulationTests(unittest.TestCase):
                 specimen.artifact_digest = digest({"artifact": "SYNTHETIC-PREPARE"})
                 specimen.transition("accessioned", "simulated-operator", {}, "2028-06-30T14:00:00Z")
                 before = specimen.view()
-                with self.assertRaises(error):
+                with self.assertRaises(error) as caught:
                     specimen.transition(
                         "in_custody", "simulated-operator",
                         {"location": "LOCATION-SYN-001", **extra_detail}, occurred_at,
                     )
+                self.assertIs(type(caught.exception), error)
                 self.assertEqual(before, specimen.view())
                 specimen.transition(
                     "in_custody", "simulated-operator",
