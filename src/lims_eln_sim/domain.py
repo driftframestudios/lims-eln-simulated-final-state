@@ -62,6 +62,29 @@ class Specimen:
         detail: dict[str, Any],
         occurred_at: str | datetime,
     ) -> None:
+        """Apply one modeled lifecycle change and append its audit event.
+
+        Custody requires a location. An operator can correct the detail and
+        retry from the last accepted revision.
+
+        >>> from lims_eln_sim.domain import Specimen
+        >>> specimen = Specimen("SPM-SYN-001", "TENANT-SYN-001", "source-sim")
+        >>> actor = "simulated-operator"
+        >>> specimen.transition("accessioned", actor, {}, "2028-06-30T14:00:00Z")
+        >>> before = specimen.view()
+        >>> custody_time = "2028-06-30T14:00:01Z"
+        >>> specimen.transition("in_custody", actor, {}, custody_time)
+        Traceback (most recent call last):
+            ...
+        lims_eln_sim.domain.DomainRuleError: transition to 'in_custody' requires a concrete location
+        >>> specimen.view() == before
+        True
+        >>> specimen.transition("in_custody", actor, {"location": "SYN-RACK"}, custody_time)
+        >>> specimen.status, specimen.custody_location, specimen.revision
+        ('in_custody', 'SYN-RACK', 2)
+        >>> [(event.action, event.revision) for event in specimen.audit]
+        [('accessioned', 1), ('in_custody', 2)]
+        """
         if target not in ALLOWED_TRANSITIONS.get(self.status, set()):
             raise DomainRuleError(f"transition {self.status!r} -> {target!r} requires a released rule")
         custody_location: str | None = None
